@@ -10,8 +10,8 @@ const TogetherAIProvider = memo(() => {
   return (
     <ProviderConfig
       checkModel={'togethercomputer/alpaca-7b'}
+      modelList={{ showModelFetcher: true }}
       provider={'togetherai'}
-      showCustomModelName
       title={
         <Together.Combine
           color={theme.isDarkMode ? theme.colorText : Together.colorPrimary}
