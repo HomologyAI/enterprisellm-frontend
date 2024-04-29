@@ -84,7 +84,8 @@ const AppTheme = memo<AppThemeProps>(
     // console.debug('server:appearance', defaultAppearance);
     // console.debug('server:primaryColor', defaultPrimaryColor);
     // console.debug('server:neutralColor', defaultNeutralColor);
-    const themeMode = useUserStore((s) => settingsSelectors.currentSettings(s).themeMode);
+    // const themeMode = useUserStore((s) => settingsSelectors.currentSettings(s).themeMode);
+    const themeMode = "light";
 
     const [primaryColor, neutralColor] = useUserStore((s) => [
       settingsSelectors.currentSettings(s).primaryColor,

@@ -17,6 +17,8 @@ const SessionSearchBar = memo<{ mobile?: boolean }>(({ mobile: controlledMobile 
     s.updateSearchKeywords,
   ]);
 
+  const [createSession] = useSessionStore(s => [s.createSession]);
+
   const { isValidating } = useSearchSessions(keywords);
 
   const isMobile = useIsMobile();

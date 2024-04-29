@@ -48,11 +48,12 @@ const GlobalLayout = async ({ children }: GlobalLayoutProps) => {
   // get default feature flags to use with ssr
   const serverFeatureFlags = getServerFeatureFlagsValue();
   const serverConfig = getServerGlobalConfig();
+
   return (
     <StyleRegistry>
       <Locale antdLocale={antdLocale} defaultLang={defaultLang?.value}>
         <AppTheme
-          defaultAppearance={appearance?.value}
+          defaultAppearance="light"
           defaultNeutralColor={neutralColor?.value as any}
           defaultPrimaryColor={primaryColor?.value as any}
         >

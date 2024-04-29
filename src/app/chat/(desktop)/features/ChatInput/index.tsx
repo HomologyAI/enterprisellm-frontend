@@ -37,6 +37,7 @@ const ChatInput = memo(() => {
       placement="bottom"
       size={{ height: inputHeight, width: '100%' }}
       style={{ zIndex: 10 }}
+      expandable={false}
     >
       <Flexbox
         gap={8}
@@ -44,7 +45,7 @@ const ChatInput = memo(() => {
         padding={'12px 0 16px'}
         style={{ minHeight: CHAT_TEXTAREA_HEIGHT, position: 'relative' }}
       >
-        <Head expand={expand} setExpand={setExpand} />
+        {/*<Head expand={expand} setExpand={setExpand} />*/}
         <TextArea setExpand={setExpand} />
         <Footer setExpand={setExpand} />
       </Flexbox>

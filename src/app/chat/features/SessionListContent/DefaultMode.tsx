@@ -1,6 +1,6 @@
 import { CollapseProps } from 'antd';
 import isEqual from 'fast-deep-equal';
-import { memo, useMemo, useState } from 'react';
+import {memo, useEffect, useMemo, useRef, useState} from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useGlobalStore } from '@/store/global';
@@ -11,7 +11,6 @@ import { SessionDefaultGroup } from '@/types/session';
 
 import Actions from '../SessionListContent/CollapseGroup/Actions';
 import CollapseGroup from './CollapseGroup';
-import Inbox from './Inbox';
 import SessionList from './List';
 import ConfigGroupModal from './Modals/ConfigGroupModal';
 import RenameGroupModal from './Modals/RenameGroupModal';
@@ -23,8 +22,36 @@ const SessionDefaultMode = memo(() => {
   const [renameGroupModalOpen, setRenameGroupModalOpen] = useState(false);
   const [configGroupModalOpen, setConfigGroupModalOpen] = useState(false);
 
-  const [useFetchSessions] = useSessionStore((s) => [s.useFetchSessions]);
+  const [
+    init,
+    useFetchSessions,
+    sessions,
+    createSession,
+    activeSession,
+  ] = useSessionStore((s) => [
+    s.isSessionsFirstFetchFinished,
+    s.useFetchSessions,
+    s.sessions,
+    s.createSession,
+    s.activeSession,
+  ]);
+
   useFetchSessions();
+
+  const didInit = useRef(false);
+
+  useEffect(() => {
+    if (init && !didInit.current) {
+      didInit.current = true;
+
+      if (sessions.length) {
+        // 切换到第一个session
+        activeSession(sessions[0].id);
+      } else {
+        createSession()
+      }
+    }
+  }, [init, sessions]);
 
   const defaultSessions = useSessionStore(sessionSelectors.defaultSessions, isEqual);
   const customSessionGroups = useSessionStore(sessionSelectors.customSessionGroups, isEqual);
@@ -73,7 +100,7 @@ const SessionDefaultMode = memo(() => {
 
   return (
     <>
-      <Inbox />
+      {/*<Inbox />*/}
       <CollapseGroup
         activeKey={sessionGroupKeys}
         items={items}

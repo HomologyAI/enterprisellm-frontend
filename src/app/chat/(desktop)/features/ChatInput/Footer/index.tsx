@@ -94,33 +94,13 @@ const Footer = memo<FooterProps>(({ setExpand }) => {
     <Flexbox
       align={'end'}
       className={styles.overrideAntdIcon}
-      distribution={'space-between'}
+      distribution={'flex-end'}
       flex={'none'}
       gap={8}
       horizontal
-      padding={'0 24px'}
+      padding={'0 0px'}
     >
-      <Flexbox align={'center'} gap={8} horizontal>
-        {canUpload && (
-          <>
-            <DragUpload />
-            <LocalFiles />
-          </>
-        )}
-      </Flexbox>
-      <Flexbox align={'center'} gap={8} horizontal>
-        <Flexbox
-          gap={4}
-          horizontal
-          style={{ color: theme.colorTextDescription, fontSize: 12, marginRight: 12 }}
-        >
-          {sendShortcut}
-          <span>{t('input.send')}</span>
-          <span>/</span>
-          {wrapperShortcut}
-          <span>{t('input.warp')}</span>
-        </Flexbox>
-        <SaveTopic />
+      <Flexbox align={'center'} gap={0} horizontal>
         <Flexbox style={{ minWidth: 92 }}>
           {loading ? (
             <Button
@@ -141,7 +121,6 @@ const Footer = memo<FooterProps>(({ setExpand }) => {
               >
                 {t('input.send')}
               </Button>
-              <SendMore />
             </Space.Compact>
           )}
         </Flexbox>

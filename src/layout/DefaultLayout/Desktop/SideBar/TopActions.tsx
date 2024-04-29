@@ -33,16 +33,17 @@ const TopActions = memo<TopActionProps>(({ tab }) => {
           size="large"
           title={t('tab.chat')}
         />
+        {/*<span>AI聊天助手</span>*/}
       </Link>
-      <Link aria-label={t('tab.market')} href={'/market'}>
-        <ActionIcon
-          active={tab === SidebarTabKey.Market}
-          icon={Compass}
-          placement={'right'}
-          size="large"
-          title={t('tab.market')}
-        />
-      </Link>
+      {/*<Link aria-label={t('tab.market')} href={'/market'}>*/}
+      {/*  <ActionIcon*/}
+      {/*    active={tab === SidebarTabKey.Market}*/}
+      {/*    icon={Compass}*/}
+      {/*    placement={'right'}*/}
+      {/*    size="large"*/}
+      {/*    title={t('tab.market')}*/}
+      {/*  />*/}
+      {/*</Link>*/}
     </>
   );
 });

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import {useEffect, useRef} from 'react';
 
 import { useAgentStore } from '@/store/agent';
 import { agentSelectors } from '@/store/agent/selectors';
@@ -9,7 +9,7 @@ import { useToolStore } from '@/store/tool';
 export const useInitConversation = () => {
   const [sessionId] = useSessionStore((s) => [s.activeId]);
   const [useFetchAgentConfig] = useAgentStore((s) => [s.useFetchAgentConfig]);
-  const plugins = useAgentStore((s) => agentSelectors.currentAgentPlugins(s));
+  // const plugins = useAgentStore((s) => agentSelectors.currentAgentPlugins(s));
   const [activeTopicId, switchTopic, useFetchMessages, useFetchTopics] = useChatStore((s) => [
     s.activeTopicId,
     s.switchTopic,
