@@ -97,8 +97,9 @@ export interface ChatStreamDifyPayLoad extends Partial<ChatMessageConfig> {
 }
 
 export interface ChatCompetitionOptions {
-  callback: ChatStreamCallbacks;
+  callback?: ChatStreamCallbacks;
   headers?: Record<string, any>;
+  signal?: AbortSignal;
 }
 
 export interface ChatCompletionFunctions {
@@ -134,10 +135,3 @@ export interface ChatCompletionTool {
 }
 
 export type ChatStreamCallbacks = OpenAIStreamCallbacks;
-
-export interface OllamaChatMessage extends OpenAIChatMessage {
-  /**
-   * @description images for ollama vision models (https://ollama.com/blog/vision-models)
-   */
-  images?: string[];
-}

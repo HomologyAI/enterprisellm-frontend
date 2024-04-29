@@ -1,5 +1,5 @@
 import {ActionIcon, SearchBar} from '@lobehub/ui';
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -10,10 +10,14 @@ import {DESKTOP_HEADER_ICON_SIZE} from "@/const/layoutTokens";
 
 const SessionSearchBar = memo<{ mobile?: boolean }>(({ mobile: controlledMobile }) => {
   const { t } = useTranslation('chat');
-  const [keywords, setKeywords] = useState<string | undefined>(undefined);
-  const [useSearchSessions, createSession] = useSessionStore((s) => [s.useSearchSessions, s.createSession]);
 
-  useSearchSessions(keywords);
+  const [keywords, useSearchSessions, updateSearchKeywords] = useSessionStore((s) => [
+    s.sessionSearchKeywords,
+    s.useSearchSessions,
+    s.updateSearchKeywords,
+  ]);
+
+  const { isValidating } = useSearchSessions(keywords);
 
   const isMobile = useIsMobile();
   const mobile = controlledMobile ?? isMobile;
@@ -23,10 +27,9 @@ const SessionSearchBar = memo<{ mobile?: boolean }>(({ mobile: controlledMobile 
       <SearchBar
         allowClear
         enableShortKey={!mobile}
+        loading={isValidating}
         onChange={(e) => {
-          const newKeywords = e.target.value;
-          setKeywords(newKeywords);
-          useSessionStore.setState({ isSearching: !!newKeywords });
+          updateSearchKeywords(e.target.value);
         }}
         placeholder={t('searchAgentPlaceholder')}
         shortKey={'k'}

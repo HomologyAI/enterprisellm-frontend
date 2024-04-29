@@ -47,6 +47,9 @@ export const AgentRuntimeErrorType = {
   InvalidTogetherAIAPIKey: 'InvalidTogetherAIAPIKey',
   TogetherAIBizError: 'TogetherAIBizError',
 
+  InvalidMinimaxAPIKey: 'InvalidMinimaxAPIKey',
+  MinimaxBizError: 'MinimaxBizError',
+
   InvalidQwenAPIKey: 'InvalidQwenAPIKey',
   QwenBizError: 'QwenBizError',
 } as const;
