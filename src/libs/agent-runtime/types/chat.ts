@@ -1,4 +1,5 @@
 import { OpenAIStreamCallbacks } from 'ai';
+import {ChatMessageConfig, User} from "dify-client";
 
 export type LLMRoleType = 'user' | 'system' | 'assistant' | 'function';
 
@@ -87,6 +88,12 @@ export interface ChatStreamPayload {
    * @default 1
    */
   top_p?: number;
+
+  difyPayload: ChatStreamDifyPayLoad;
+}
+
+export interface ChatStreamDifyPayLoad extends Partial<ChatMessageConfig> {
+
 }
 
 export interface ChatCompetitionOptions {

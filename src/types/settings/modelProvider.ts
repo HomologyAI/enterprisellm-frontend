@@ -30,6 +30,11 @@ export interface ZhiPuConfig {
   endpoint?: string;
 }
 
+export interface QwenConfig {
+  apiKey?: string;
+  enabled: boolean;
+}
+
 export interface MoonshotConfig {
   apiKey?: string;
   enabled: boolean;
@@ -109,6 +114,7 @@ export interface GlobalLLMConfig {
   togetherai: TogetherAIConfig;
   zeroone: ZeroOneConfig;
   zhipu: ZhiPuConfig;
+  qwen: QwenConfig;
 }
 
 export type GlobalLLMProviderKey = keyof GlobalLLMConfig;

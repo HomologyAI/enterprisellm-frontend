@@ -61,6 +61,9 @@ declare global {
       // Ollama Provider;
       OLLAMA_PROXY_URL?: string;
       OLLAMA_CUSTOM_MODELS?: string;
+
+      QWEN_API_KEY?: string;
+      QWEN_PROXY_URL?: string;
     }
   }
 }
@@ -90,6 +93,8 @@ export const getProviderConfig = () => {
   const ZEROONE_API_KEY = process.env.ZEROONE_API_KEY || '';
 
   const TOGETHERAI_API_KEY = process.env.TOGETHERAI_API_KEY || '';
+
+  const QWEN_API_KEY = process.env.QWEN_API_KEY || '';
 
   // region format: iad1,sfo1
   let regions: string[] = [];
@@ -152,5 +157,8 @@ export const getProviderConfig = () => {
     ENABLE_OLLAMA: !!process.env.OLLAMA_PROXY_URL,
     OLLAMA_PROXY_URL: process.env.OLLAMA_PROXY_URL || '',
     OLLAMA_CUSTOM_MODELS: process.env.OLLAMA_CUSTOM_MODELS,
+
+    QWEN_API_KEY,
+    QWEN_PROXY_URL: process.env.QWEN_PROXY_URL,
   };
 };

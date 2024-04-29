@@ -1,29 +1,25 @@
-import { PluginRequestPayload, createHeadersWithPluginSettings } from '@lobehub/chat-plugin-sdk';
-import { produce } from 'immer';
-import { merge } from 'lodash-es';
+import {createHeadersWithPluginSettings, PluginRequestPayload} from '@lobehub/chat-plugin-sdk';
+import {produce} from 'immer';
+import {merge} from 'lodash-es';
 
-import { DEFAULT_AGENT_CONFIG } from '@/const/settings';
-import { TracePayload, TraceTagMap } from '@/const/trace';
-import { ModelProvider } from '@/libs/agent-runtime';
-import { filesSelectors, useFileStore } from '@/store/file';
-import { useGlobalStore } from '@/store/global';
-import {
-  commonSelectors,
-  modelProviderSelectors,
-  preferenceSelectors,
-} from '@/store/global/selectors';
-import { useSessionStore } from '@/store/session';
-import { agentSelectors } from '@/store/session/selectors';
-import { useToolStore } from '@/store/tool';
-import { pluginSelectors, toolSelectors } from '@/store/tool/selectors';
-import { ChatMessage } from '@/types/message';
-import type { ChatStreamPayload, OpenAIChatMessage } from '@/types/openai/chat';
-import { UserMessageContentPart } from '@/types/openai/chat';
-import { FetchSSEOptions, OnFinishHandler, fetchSSE, getMessageError } from '@/utils/fetch';
-import { createTraceHeader, getTraceId } from '@/utils/trace';
+import {DEFAULT_AGENT_CONFIG} from '@/const/settings';
+import {TracePayload, TraceTagMap} from '@/const/trace';
+import {ChatStreamDifyPayLoad, ModelProvider} from '@/libs/agent-runtime';
+import {filesSelectors, useFileStore} from '@/store/file';
+import {useGlobalStore} from '@/store/global';
+import {commonSelectors, modelProviderSelectors, preferenceSelectors,} from '@/store/global/selectors';
+import {useSessionStore} from '@/store/session';
+import {agentSelectors} from '@/store/session/selectors';
+import {useToolStore} from '@/store/tool';
+import {pluginSelectors, toolSelectors} from '@/store/tool/selectors';
+import {ChatMessage} from '@/types/message';
+import type {ChatStreamPayload, OpenAIChatMessage} from '@/types/openai/chat';
+import {UserMessageContentPart} from '@/types/openai/chat';
+import {fetchSSE, FetchSSEOptions, getMessageError, OnFinishHandler} from '@/utils/fetch';
+import {createTraceHeader, getTraceId} from '@/utils/trace';
 
-import { createHeaderWithAuth } from './_auth';
-import { API_ENDPOINTS } from './_url';
+import {createHeaderWithAuth} from './_auth';
+import {API_ENDPOINTS} from './_url';
 
 interface FetchOptions {
   signal?: AbortSignal | undefined;
@@ -103,6 +99,22 @@ class ChatService {
     return this.getChatCompletion({ ...params, messages: oaiMessages, tools }, options);
   };
 
+  createDifyAssistantMessage = async (
+    params: GetChatCompletionPayload,
+    options?: FetchOptions,
+  ) => {
+    const payload = merge(
+      {
+        model: DEFAULT_AGENT_CONFIG.model,
+        stream: true,
+        ...DEFAULT_AGENT_CONFIG.params,
+      },
+      params,
+    );
+
+    return this.getDifyChatCompletion(payload, options);
+  }
+
   createAssistantMessageStream = async ({
     params,
     abortController,
@@ -113,11 +125,19 @@ class ChatService {
     trace,
   }: CreateAssistantMessageStream) => {
     await fetchSSE(
-      () =>
-        this.createAssistantMessage(params, {
+      () => {
+        if (params.provider === ModelProvider.Qwen) {
+          return this.createDifyAssistantMessage(params, {
+            signal: abortController?.signal,
+            trace: this.mapTrace(trace, TraceTagMap.Chat),
+          });
+        }
+
+        return this.createAssistantMessage(params, {
           signal: abortController?.signal,
           trace: this.mapTrace(trace, TraceTagMap.Chat),
-        }),
+        });
+      },
       {
         onAbort,
         onErrorHandle,
@@ -126,6 +146,45 @@ class ChatService {
       },
     );
   };
+
+  getDifyChatCompletion = async (params: Partial<ChatStreamDifyPayLoad>, options?: FetchOptions) => {
+    const { signal } = options ?? {};
+    const { messages, provider, ...res } = params;
+    const message = messages?.length ?  messages[messages?.length - 1] : null;
+    console.log('getDifyChatCompletion', message);
+
+    const payload = merge(
+      {
+        model: DEFAULT_AGENT_CONFIG.model,
+        stream: true,
+        ...DEFAULT_AGENT_CONFIG.params,
+      },
+      res,
+    );
+
+    const traceHeader = createTraceHeader({ ...options?.trace });
+
+    const headers = await createHeaderWithAuth({
+      headers: { 'Content-Type': 'application/json', ...traceHeader },
+      provider,
+    });
+
+    const difyPayload: ChatStreamDifyPayLoad= {
+      query: message?.content || '',
+      stream: true,
+      conversation_id: message?.sessionId,
+    };
+
+    return fetch(API_ENDPOINTS.chat(provider), {
+      body: JSON.stringify({
+        ...payload,
+        difyPayload,
+      }),
+      headers,
+      method: 'POST',
+      signal,
+    });
+  }
 
   getChatCompletion = async (params: Partial<ChatStreamPayload>, options?: FetchOptions) => {
     const { signal } = options ?? {};
@@ -198,6 +257,10 @@ class ChatService {
     abortController,
     trace,
   }: FetchAITaskResultParams) => {
+    if (params.provider === ModelProvider.Qwen) {
+      return null;
+    }
+
     const errorHandle = (error: Error, errorContent?: any) => {
       onLoadingChange?.(false);
       if (abortController?.signal.aborted) {

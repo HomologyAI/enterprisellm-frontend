@@ -102,4 +102,9 @@ ENV ZEROONE_API_KEY ""
 # TogetherAI
 ENV TOGETHERAI_API_KEY ""
 
+
+# Qwen
+ENV QWEN_API_KEY "app-NjJFfa2GhClj27OkLFA79c6Y"
+ENV QWEN_PROXY_URL "http://221.208.57.26:25001/v1"
+
 CMD ["node", "server.js"]

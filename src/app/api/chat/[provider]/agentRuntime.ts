@@ -25,6 +25,7 @@ import {
   LobeZeroOneAI,
   LobeZhipuAI,
   ModelProvider,
+  QwenAI,
 } from '@/libs/agent-runtime';
 import { TraceClient } from '@/libs/traces';
 
@@ -127,6 +128,11 @@ class AgentRuntime {
         break;
       }
 
+      case ModelProvider.Qwen: {
+        runtimeModel = this.initQwen();
+        break;
+      }
+
       case ModelProvider.Azure: {
         runtimeModel = this.initAzureOpenAI(payload);
         break;
@@ -217,6 +223,11 @@ class AgentRuntime {
       baseURL,
       useAzure,
     });
+  }
+
+  private static initQwen() {
+    const { QWEN_PROXY_URL, QWEN_API_KEY } = getServerConfig();
+    return new QwenAI({ apiKey: QWEN_API_KEY, baseURL: QWEN_PROXY_URL });
   }
 
   private static initAzureOpenAI(payload: JWTPayload) {

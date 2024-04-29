@@ -38,4 +38,5 @@ export enum ModelProvider {
   Tongyi = 'tongyi',
   ZeroOne = 'zeroone',
   ZhiPu = 'zhipu',
+  Qwen = 'qwen'
 }

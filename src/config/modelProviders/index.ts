@@ -13,21 +13,11 @@ import PerplexityProvider from './perplexity';
 import TogetherAIProvider from './togetherai';
 import ZeroOneProvider from './zeroone';
 import ZhiPuProvider from './zhipu';
+import QwenProvider from './qwen';
 
 export const LOBE_DEFAULT_MODEL_LIST: ChatModelCard[] = [
   OpenAIProvider.chatModels,
-  ZhiPuProvider.chatModels,
-  BedrockProvider.chatModels,
-  GoogleProvider.chatModels,
-  GroqProvider.chatModels,
-  MistralProvider.chatModels,
-  MoonshotProvider.chatModels,
-  OllamaProvider.chatModels,
-  OpenRouterProvider.chatModels,
-  TogetherAIProvider.chatModels,
-  PerplexityProvider.chatModels,
-  AnthropicProvider.chatModels,
-  ZeroOneProvider.chatModels,
+  QwenProvider.chatModels,
 ].flat();
 
 export { default as AnthropicProvider } from './anthropic';
@@ -43,3 +33,4 @@ export { default as PerplexityProvider } from './perplexity';
 export { default as TogetherAIProvider } from './togetherai';
 export { default as ZeroOneProvider } from './zeroone';
 export { default as ZhiPuProvider } from './zhipu';
+export { default as QwenProvider } from './qwen';

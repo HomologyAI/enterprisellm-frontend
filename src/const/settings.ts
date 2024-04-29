@@ -31,9 +31,9 @@ export const COOKIE_CACHE_DAYS = 30;
 export const DEFAULT_AGENT_CONFIG: LobeAgentConfig = {
   autoCreateTopicThreshold: 2,
   displayMode: 'chat',
-  enableAutoCreateTopic: true,
+  enableAutoCreateTopic: false,
   historyCount: 1,
-  model: 'gpt-3.5-turbo',
+  model: 'qwen-72b-chat',
   params: {
     frequency_penalty: 0,
     presence_penalty: 0,
@@ -41,7 +41,7 @@ export const DEFAULT_AGENT_CONFIG: LobeAgentConfig = {
     top_p: 1,
   },
   plugins: [],
-  provider: ModelProvider.OpenAI,
+  provider: ModelProvider.Qwen,
   systemRole: '',
   tts: DEFAUTT_AGENT_TTS_CONFIG,
 };
@@ -85,7 +85,7 @@ export const DEFAULT_LLM_CONFIG: GlobalLLMConfig = {
   },
   openAI: {
     OPENAI_API_KEY: '',
-    enabled: true,
+    enabled: false,
     models: [],
   },
   openrouter: {
@@ -108,6 +108,10 @@ export const DEFAULT_LLM_CONFIG: GlobalLLMConfig = {
     apiKey: '',
     enabled: false,
   },
+  qwen: {
+    apiKey: '',
+    enabled: true,
+  }
 };
 
 export const DEFAULT_AGENT: GlobalDefaultAgent = {
