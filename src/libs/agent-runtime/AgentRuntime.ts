@@ -19,7 +19,7 @@ import { LobeTogetherAI } from './togetherai';
 import { ChatCompetitionOptions, ChatStreamPayload, ModelProvider } from './types';
 import { LobeZeroOneAI } from './zeroone';
 import { LobeZhipuAI } from './zhipu';
-import QwenAI from "@/libs/agent-runtime/qwen";
+import { QwenAI } from "./qwen";
 
 export interface AgentChatOptions {
   enableTrace?: boolean;

@@ -24,6 +24,9 @@ import { nanoid } from '@/utils/uuid';
 
 import { chatSelectors } from '../../selectors';
 import { MessageDispatch, messagesReducer } from './reducer';
+import {sessionService} from "@/services/session";
+import {sessionDifySelectors, sessionSelectors} from "@/store/session/slices/session/selectors";
+import {useSessionStore} from "@/store/session";
 
 const n = setNamespace('message');
 
@@ -84,11 +87,13 @@ export interface ChatMessageAction {
    * @param messages - 聊天消息数组
    * @param options - 获取 SSE 选项
    */
-  fetchAIChatMessage: (
-    messages: ChatMessage[],
+  fetchAIChatMessage: (params: {
+    messages: ChatMessage[]
     assistantMessageId: string,
     traceId?: string,
-  ) => Promise<{
+    sessionId: string,
+    conversationsId: string,
+  }) => Promise<{
     content: string;
     functionCallAtEnd: boolean;
     functionCallContent: string;
@@ -121,6 +126,8 @@ export interface ChatMessageAction {
 }
 
 const getAgentConfig = () => agentSelectors.currentAgentConfig(useAgentStore.getState());
+const getCurrentConversationId = () => sessionDifySelectors.currentSessionConversationId(useSessionStore.getState());
+const refreshSessions = () => useSessionStore.getState().refreshSessions();
 
 const preventLeavingFn = (e: BeforeUnloadEvent) => {
   // set returnValue to trigger alert modal
@@ -281,7 +288,7 @@ export const chatMessage: StateCreator<
 
   // the internal process method of the AI message
   coreProcessMessage: async (messages, userMessageId, trace) => {
-    const { fetchAIChatMessage, triggerFunctionCall, refreshMessages, activeTopicId } = get();
+    const { fetchAIChatMessage, triggerFunctionCall, refreshMessages, activeTopicId, activeId, } = get();
 
     const { model, provider } = getAgentConfig();
 
@@ -298,10 +305,17 @@ export const chatMessage: StateCreator<
     };
 
     const mid = await get().internalCreateMessage(assistantMessage);
+    const cId = getCurrentConversationId();
 
     // 2. fetch the AI response
     const { isFunctionCall, content, functionCallAtEnd, functionCallContent, traceId } =
-      await fetchAIChatMessage(messages, mid, trace);
+      await fetchAIChatMessage({
+        messages,
+        assistantMessageId: mid,
+        traceId: trace,
+        sessionId: activeId,
+        conversationsId: cId
+      });
 
     // 3. if it's the function call message, trigger the function method
     if (isFunctionCall) {
@@ -341,7 +355,7 @@ export const chatMessage: StateCreator<
 
     set({ messages }, false, n(`dispatchMessage/${payload.type}`, payload));
   },
-  fetchAIChatMessage: async (messages, assistantId, traceId) => {
+  fetchAIChatMessage: async ({messages, assistantMessageId, traceId, sessionId, conversationsId,}) => {
     const {
       toggleChatLoading,
       refreshMessages,
@@ -352,8 +366,8 @@ export const chatMessage: StateCreator<
 
     const abortController = toggleChatLoading(
       true,
-      assistantId,
-      n('generateMessage(start)', { assistantId, messages }) as string,
+      assistantMessageId,
+      n('generateMessage(start)', { assistantId: assistantMessageId, messages }) as string,
     );
 
     const config = getAgentConfig();
@@ -409,7 +423,7 @@ export const chatMessage: StateCreator<
     let msgTraceId: string | undefined;
 
     const { startAnimation, stopAnimation, outputQueue, isAnimationActive } =
-      createSmoothMessage(assistantId);
+      createSmoothMessage(assistantMessageId);
 
     await chatService.createAssistantMessageStream({
       abortController,
@@ -419,6 +433,7 @@ export const chatMessage: StateCreator<
         provider: config.provider,
         ...config.params,
         plugins: config.plugins,
+        conversationsId,
       },
       trace: {
         traceId,
@@ -427,18 +442,18 @@ export const chatMessage: StateCreator<
         traceName: TraceNameMap.Conversation,
       },
       onErrorHandle: async (error) => {
-        await messageService.updateMessageError(assistantId, error);
+        await messageService.updateMessageError(assistantMessageId, error);
         await refreshMessages();
       },
       onAbort: async () => {
         stopAnimation();
       },
-      onFinish: async (content, { traceId, observationId }) => {
+      onFinish: async (content, { traceId, observationId, conversation_id, message_id, }) => {
         stopAnimation();
         // if there is traceId, update it
         if (traceId) {
           msgTraceId = traceId;
-          await messageService.updateMessage(assistantId, {
+          await messageService.updateMessage(assistantMessageId, {
             traceId,
             observationId: observationId ?? undefined,
           });
@@ -452,7 +467,15 @@ export const chatMessage: StateCreator<
         }
 
         // update the content after fetch result
-        await internalUpdateMessageContent(assistantId, content);
+        console.log('content', content);
+
+        await internalUpdateMessageContent(assistantMessageId, content);
+        // 更新conversation_id，第一次没有conversationsId的时候更新
+
+        if (!conversationsId && conversation_id) {
+          await sessionService.updateSession(sessionId, { conversation_id });
+          await refreshSessions();
+        }
       },
       onMessageHandle: async (text) => {
         output += text;

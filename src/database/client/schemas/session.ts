@@ -53,6 +53,7 @@ export const DB_SessionSchema = z.object({
   meta: LobeMetaDataSchema,
   pinned: z.number().int().min(0).max(1).optional(),
   type: z.enum(['agent', 'group']).default('agent'),
+  conversation_id: z.string().optional(),
 });
 
 export type DB_Session = z.infer<typeof DB_SessionSchema>;

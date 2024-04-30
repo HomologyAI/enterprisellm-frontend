@@ -33,6 +33,8 @@ export interface LobeAgentSession extends BaseDataModel {
   model: string;
   pinned?: boolean;
   type: LobeSessionType.Agent;
+
+  conversation_id?: string;
 }
 
 export interface LobeAgentSettings {

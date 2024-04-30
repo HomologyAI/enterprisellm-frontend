@@ -7,7 +7,7 @@ import { INBOX_GUIDE_SYSTEMROLE } from '@/const/guide';
 import { INBOX_SESSION_ID } from '@/const/session';
 import { DEFAULT_AGENT_CONFIG } from '@/const/settings';
 import { TracePayload, TraceTagMap } from '@/const/trace';
-import { AgentRuntime, ChatCompletionErrorPayload, ModelProvider } from '@/libs/agent-runtime';
+import {AgentRuntime, ChatCompletionErrorPayload, ChatStreamDifyPayLoad, ModelProvider} from '@/libs/agent-runtime';
 import { filesSelectors, useFileStore } from '@/store/file';
 import { useSessionStore } from '@/store/session';
 import { sessionMetaSelectors } from '@/store/session/selectors';
@@ -24,7 +24,7 @@ import { ChatErrorType } from '@/types/fetch';
 import { ChatMessage } from '@/types/message';
 import type { ChatStreamPayload, OpenAIChatMessage } from '@/types/openai/chat';
 import { UserMessageContentPart } from '@/types/openai/chat';
-import { FetchSSEOptions, OnFinishHandler, fetchSSE, getMessageError } from '@/utils/fetch';
+import {FetchSSEOptions, OnFinishHandler, fetchSSE, getMessageError, fetchSSEDify} from '@/utils/fetch';
 import { createTraceHeader, getTraceId } from '@/utils/trace';
 
 import { createHeaderWithAuth, getProviderAuthPayload } from './_auth';
@@ -37,6 +37,7 @@ interface FetchOptions {
 
 interface GetChatCompletionPayload extends Partial<Omit<ChatStreamPayload, 'messages'>> {
   messages: ChatMessage[];
+  conversationsId?: string;
 }
 
 interface FetchAITaskResultParams {
@@ -237,20 +238,26 @@ class ChatService {
     onFinish,
     trace,
   }: CreateAssistantMessageStream) => {
-    await fetchSSE(
-      () => {
-        if (params.provider === ModelProvider.Qwen) {
-          return this.createDifyAssistantMessage(params, {
-            signal: abortController?.signal,
-            trace: this.mapTrace(trace, TraceTagMap.Chat),
-          });
-        }
-
-        this.createAssistantMessage(params, {
+    if (params.provider === ModelProvider.Qwen) {
+      return fetchSSEDify(
+        () => this.createDifyAssistantMessage(params, {
           signal: abortController?.signal,
           trace: this.mapTrace(trace, TraceTagMap.Chat),
-        });
-      },
+        }),
+        {
+          onAbort,
+          onErrorHandle,
+          onFinish,
+          onMessageHandle,
+        },
+      );
+    }
+
+    return fetchSSE(
+      () => this.createAssistantMessage(params, {
+        signal: abortController?.signal,
+        trace: this.mapTrace(trace, TraceTagMap.Chat),
+      }),
       {
         onAbort,
         onErrorHandle,
@@ -262,7 +269,7 @@ class ChatService {
 
   getDifyChatCompletion = async (params: Partial<ChatStreamDifyPayLoad>, options?: FetchOptions) => {
     const { signal } = options ?? {};
-    const { messages, provider, ...res } = params;
+    const { messages, provider, conversationsId, ...res } = params;
     const message = messages?.length ?  messages[messages?.length - 1] : null;
     console.log('getDifyChatCompletion', message);
 
@@ -282,10 +289,11 @@ class ChatService {
       provider,
     });
 
-    const difyPayload: ChatStreamDifyPayLoad= {
+    const difyPayload: ChatStreamDifyPayLoad = {
       query: message?.content || '',
       stream: true,
-      conversation_id: message?.sessionId,
+      conversation_id: conversationsId || '',
+      user: message?.meta?.userId || '',
     };
 
     return fetch(API_ENDPOINTS.chat(provider), {

@@ -76,3 +76,14 @@ export const dbSchemaV7 = {
   plugins:
     '&identifier, id, type, manifest.type, manifest.meta.title, manifest.meta.description, manifest.meta.author, createdAt, updatedAt',
 };
+
+// ************************************** //
+// ******* Version 7 - 2024-03-14 ******* //
+// ************************************** //
+// - Added conversation_id to `session` table
+
+export const dbSchemaV8 = {
+  ...dbSchemaV7,
+  sessions:
+    '&id, type, group, pinned, meta.title, meta.description, meta.tags, createdAt, updatedAt, conversation_id',
+};

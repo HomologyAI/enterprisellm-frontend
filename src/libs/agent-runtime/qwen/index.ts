@@ -4,14 +4,11 @@ import { LobeRuntimeAI } from '../BaseAI';
 import { AgentRuntimeErrorType } from '../error';
 import {
   ChatCompetitionOptions,
-  ChatStreamDifyPayLoad, ChatStreamPayload,
+  ChatStreamPayload,
   ModelProvider,
 } from '../types';
 import { AgentRuntimeError } from '../utils/createError';
-import { handleOpenAIError } from '../utils/handleOpenAIError';
-import {ChatClient, ChatMessageConfig} from 'dify-client'
-import {OpenAIStream, StreamingTextResponse} from "ai";
-import {debugStream} from "@/libs/agent-runtime/utils/debugStream";
+import {ChatClient} from 'dify-client'
 
 const DEFAULT_BASE_URL = 'http://221.208.57.26:25001/v1';
 
@@ -29,34 +26,33 @@ export class QwenAI implements LobeRuntimeAI {
 
   async chat(payload: ChatStreamPayload, options?: ChatCompetitionOptions) {
     const { difyPayload } = payload;
-
     const {
-      inputs = null,
+      inputs = {},
       stream = true,
       conversation_id = '',
-      user = null,
+      user = "",
       query = '',
       files = null,
     } = difyPayload;
 
+    // inputs,
+    //  query,
+    //  user,
+    //  stream = false,
+    //  conversation_id = null,
+    //  files = null
+
     try {
-      const response = await this.client.createChatMessage({
+      const response = await this.client.createChatMessage(
         inputs,
         query,
         user,
         stream,
         conversation_id,
         files,
-      });
-      const [prod, debug] = response.tee();
+      );
 
-      if (process.env.DEBUG_MOONSHOT_CHAT_COMPLETION === '1') {
-        debugStream(debug.toReadableStream()).catch(console.error);
-      }
-
-      return new StreamingTextResponse(OpenAIStream(prod, options?.callback), {
-        headers: options?.headers,
-      });
+      return new Response(response.data);
     } catch (error) {
       let desensitizedEndpoint = this.baseURL;
       if ('status' in (error as any)) {
@@ -76,9 +72,14 @@ export class QwenAI implements LobeRuntimeAI {
         }
       }
 
-      const { errorResult, RuntimeError } = handleOpenAIError(error);
+      const errorResult = {
+        cause: error.data,
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+      };
 
-      const errorType = RuntimeError || AgentRuntimeErrorType.MoonshotBizError;
+      const errorType = AgentRuntimeErrorType.QwenBizError;
 
       throw AgentRuntimeError.chat({
         endpoint: desensitizedEndpoint,

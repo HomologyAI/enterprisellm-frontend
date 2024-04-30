@@ -21,6 +21,7 @@ const getMeta = (message: ChatMessage) => {
     case 'user': {
       return {
         avatar: commonSelectors.userAvatar(useUserStore.getState()) || DEFAULT_USER_AVATAR,
+        userId: commonSelectors.userId(useUserStore.getState()) || '',
       };
     }
 

@@ -34,6 +34,8 @@ export type OnFinishHandler = (
     observationId?: string | null;
     traceId?: string | null;
     type?: SSEFinishType;
+    conversation_id?: string;
+    message_id?: string;
   },
 ) => Promise<void>;
 
@@ -96,4 +98,126 @@ export const fetchSSE = async (fetchFn: () => Promise<Response>, options: FetchS
   await options?.onFinish?.(output, { observationId, traceId, type: finishedType });
 
   return returnRes;
+};
+
+function unicodeToChar(text: string) {
+  return text.replace(/\\u[0-9a-f]{4}/g, (_match, p1) => {
+    return String.fromCharCode(parseInt(p1, 16))
+  })
+}
+export const fetchSSEDify = async (fetchFn: () => Promise<Response>, options: FetchSSEOptions = {}) => {
+  const response = await fetchFn();
+
+  // 如果不 ok 说明有请求错误
+  if (!response.ok) {
+    const chatMessageError = await getMessageError(response);
+
+    options.onErrorHandle?.(chatMessageError);
+    return;
+  }
+
+  const reader = response.body?.getReader()
+  const decoder = new TextDecoder('utf-8')
+  let buffer = ''
+  let bufferObj: Record<string, any>
+  let isFirstMessage = true
+  let res = '';
+  let finishedType: SSEFinishType = 'done';
+  const traceId = response.headers.get(LOBE_CHAT_TRACE_ID);
+  const observationId = response.headers.get(LOBE_CHAT_OBSERVATION_ID);
+  let conversation_id = '';
+  let message_id = '';
+
+  function read() {
+    let hasError = false
+    reader?.read().then((result: any) => {
+      if (result.done) {
+
+        options?.onFinish?.(res, {
+          observationId,
+          traceId,
+          type: finishedType,
+          conversation_id,
+          message_id,
+        });
+        return
+      }
+      buffer += decoder.decode(result.value, { stream: true })
+      const lines = buffer.split('\n')
+      try {
+        lines.forEach((message) => {
+          if (message.startsWith('data: ')) { // check if it starts with data:
+            try {
+              bufferObj = JSON.parse(message.substring(6)) as Record<string, any>// remove data: and parse as json
+            }
+            catch (e) {
+              // mute handle message cut off
+
+              finishedType = 'abort';
+              options?.onAbort?.(res);
+              return
+            }
+            if (bufferObj.status === 400 || !bufferObj.event) {
+              hasError = true
+              finishedType = 'abort';
+              options?.onAbort?.(res);
+              return
+            }
+            if (bufferObj.event === 'message' || bufferObj.event === 'agent_message') {
+              // can not use format here. Because message is splited.
+              const lineMsg = unicodeToChar(bufferObj.answer);
+              options?.onMessageHandle?.(lineMsg);
+              res += lineMsg;
+              if (isFirstMessage) {
+                conversation_id = bufferObj?.conversation_id;
+                message_id = bufferObj?.messageId;
+              }
+              isFirstMessage = false;
+            }
+            else if (bufferObj.event === 'agent_thought') {
+            //   onThought?.(bufferObj as ThoughtItem)
+            }
+            else if (bufferObj.event === 'message_file') {
+            //   onFile?.(bufferObj as VisionFile)
+            }
+            else if (bufferObj.event === 'message_end') {
+            //   onMessageEnd?.(bufferObj as MessageEnd)
+            }
+            else if (bufferObj.event === 'message_replace') {
+            //   onMessageReplace?.(bufferObj as MessageReplace)
+            }
+            else if (bufferObj.event === 'workflow_started') {
+            //   onWorkflowStarted?.(bufferObj as WorkflowStartedResponse)
+            }
+            else if (bufferObj.event === 'workflow_finished') {
+            //   onWorkflowFinished?.(bufferObj as WorkflowFinishedResponse)
+            }
+            else if (bufferObj.event === 'node_started') {
+            //   onNodeStarted?.(bufferObj as NodeStartedResponse)
+            }
+            else if (bufferObj.event === 'node_finished') {
+            //   onNodeFinished?.(bufferObj as NodeFinishedResponse)
+            }
+          }
+        })
+        buffer = lines[lines.length - 1]
+      }
+      catch (e) {
+        hasError = true
+        return
+      }
+      if (!hasError)
+        read()
+      else {
+        options?.onFinish?.(res, {
+          observationId,
+          traceId,
+          type: finishedType,
+          message_id,
+          conversation_id,
+        });
+      }
+    })
+  }
+  read()
 };
