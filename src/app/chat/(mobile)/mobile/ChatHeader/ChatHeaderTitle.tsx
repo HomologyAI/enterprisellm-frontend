@@ -45,7 +45,7 @@ const ChatHeaderTitle = memo(() => {
       title={
         <div onClick={() => toggleConfig()}>
           {displayTitle}
-          {topicLength > 1 ? `(${topicLength + 1})` : ''}
+          {/*{topicLength > 1 ? `(${topicLength + 1})` : ''}*/}
         </div>
       }
     />

@@ -2,6 +2,7 @@ import { Avatar, List, ListItemProps } from '@lobehub/ui';
 import { useHover } from 'ahooks';
 import { createStyles, useResponsive } from 'antd-style';
 import { memo, useMemo, useRef } from 'react';
+import BotAvatar from "@/features/Avatar/BotAvatar";
 
 const { Item } = List;
 
@@ -11,16 +12,20 @@ const useStyles = createStyles(({ css, token, responsive }) => {
       position: relative;
 
       margin-block: 2px;
-      padding-right: 16px;
-      padding-left: 8px;
+      padding-right: 24px;
+      padding-left: 24px;
+      background-color: rgba(250, 250, 250, 1);
 
-      border-radius: ${token.borderRadius}px;
+      border-radius: 0;
       ${responsive.mobile} {
         margin-block: 0;
         padding-left: 12px;
         border-radius: 0;
       }
     `,
+    active: css`
+      background-color: rgba(230, 244, 255, 1);
+    `
   };
 });
 
@@ -29,17 +34,11 @@ const ListItem = memo<ListItemProps & { avatar: string; avatarBackground?: strin
     const ref = useRef(null);
     const isHovering = useHover(ref);
     const { mobile } = useResponsive();
-    const { styles } = useStyles();
+    const { styles, cx } = useStyles({ active });
 
     const avatarRender = useMemo(
       () => (
-        <Avatar
-          animation={isHovering}
-          avatar={avatar}
-          background={avatarBackground}
-          shape="circle"
-          size={46}
-        />
+        <BotAvatar />
       ),
       [isHovering, avatar, avatarBackground],
     );
@@ -49,7 +48,7 @@ const ListItem = memo<ListItemProps & { avatar: string; avatarBackground?: strin
         actions={actions}
         active={mobile ? false : active}
         avatar={avatarRender}
-        className={styles.container}
+        className={cx(styles.container, active && styles.active)}
         ref={ref}
         showAction={actions && (isHovering || showAction)}
         {...(props as any)}

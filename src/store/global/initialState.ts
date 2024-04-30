@@ -53,7 +53,7 @@ export const initialState: GlobalState = {
     expandSessionGroupKeys: [SessionDefaultGroup.Pinned, SessionDefaultGroup.Default],
     inputHeight: 200,
     mobileShowTopic: false,
-    sessionsWidth: 320,
+    sessionsWidth: 384,
     showChatSideBar: true,
     showSessionPanel: true,
     showSystemRole: false,

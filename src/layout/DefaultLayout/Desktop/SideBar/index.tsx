@@ -1,4 +1,4 @@
-import {DraggablePanel, SideNav} from '@lobehub/ui';
+import {DraggablePanel} from '@lobehub/ui';
 import { memo } from 'react';
 
 import { SidebarTabKey } from '@/store/global/initialState';
@@ -8,12 +8,14 @@ import BottomActions from './BottomActions';
 import TopActions from './TopActions';
 import {CHAT_TEXTAREA_HEIGHT, CHAT_TEXTAREA_MAX_HEIGHT, HEADER_HEIGHT} from "@/const/layoutTokens";
 import {Flexbox} from "react-layout-kit";
+import SideNav from "./SideNav";
 
 interface Props {
   sidebarKey?: SidebarTabKey;
 }
 
 export default memo<Props>(({ sidebarKey }) => {
+
   return (
     <SideNav
       avatar={<Avatar />}
@@ -21,6 +23,7 @@ export default memo<Props>(({ sidebarKey }) => {
       topActions={<TopActions tab={sidebarKey} />}
     />
   );
+
 
   return (
     <DraggablePanel

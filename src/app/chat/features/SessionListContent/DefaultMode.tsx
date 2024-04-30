@@ -100,27 +100,7 @@ const SessionDefaultMode = memo(() => {
 
   return (
     <>
-      {/*<Inbox />*/}
-      <CollapseGroup
-        activeKey={sessionGroupKeys}
-        items={items}
-        onChange={(keys) => {
-          const expandSessionGroupKeys = typeof keys === 'string' ? [keys] : keys;
-
-          updatePreference({ expandSessionGroupKeys });
-        }}
-      />
-      {activeGroupId && (
-        <RenameGroupModal
-          id={activeGroupId}
-          onCancel={() => setRenameGroupModalOpen(false)}
-          open={renameGroupModalOpen}
-        />
-      )}
-      <ConfigGroupModal
-        onCancel={() => setConfigGroupModalOpen(false)}
-        open={configGroupModalOpen}
-      />
+      <SessionList dataSource={defaultSessions || []} />
     </>
   );
 });

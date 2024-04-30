@@ -43,7 +43,7 @@ const ChatInput = memo(() => {
         gap={8}
         height={'100%'}
         padding={'12px 0 16px'}
-        style={{ minHeight: CHAT_TEXTAREA_HEIGHT, position: 'relative' }}
+        style={{ minHeight: CHAT_TEXTAREA_HEIGHT, position: 'relative', background: '#FFF' }}
       >
         {/*<Head expand={expand} setExpand={setExpand} />*/}
         <TextArea setExpand={setExpand} />

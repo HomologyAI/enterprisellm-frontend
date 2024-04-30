@@ -1,4 +1,4 @@
-import { AlertProps, ChatItem } from '@lobehub/ui';
+import { AlertProps } from '@lobehub/ui';
 import { createStyles } from 'antd-style';
 import isEqual from 'fast-deep-equal';
 import { ReactNode, memo, useCallback, useMemo, useState } from 'react';
@@ -19,6 +19,12 @@ import { renderMessagesExtra } from '../../Extras';
 import { renderMessages, useAvatarsClick } from '../../Messages';
 import ActionsBar from './ActionsBar';
 import HistoryDivider from './HistoryDivider';
+import UserAvatar from "@/features/Avatar/UserAvatar";
+import {MetaData} from "@/types/meta";
+import {z} from "zod";
+import { UserOutlined } from '@ant-design/icons';
+import ChatItem from './Components/ChatItem';
+import BotAvatar from "@/features/Avatar/BotAvatar";
 
 const useStyles = createStyles(({ css, prefixCls }) => ({
   loading: css`
@@ -110,18 +116,27 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
     );
   });
 
+  const renderAvatar = useMemo(() => {
+    if (item.role === 'user') {
+      return (
+        <UserAvatar />
+      )
+    }
+
+    return <BotAvatar size={48}/>
+  }, []);
+
   return (
     item && (
       <>
         <HistoryDivider enable={enableHistoryDivider} />
         <ChatItem
-          actions={<ActionsBar index={index} setEditing={setEditing} />}
-          avatar={item.meta}
+          renderAvatar={renderAvatar}
           className={cx(styles.message, isMessageLoading && styles.loading)}
           editing={editing}
           error={error}
           errorMessage={<ErrorMessageExtra data={item} />}
-          fontSize={fontSize}
+          fontSize={14}
           loading={loading}
           message={item.content}
           messageExtra={<MessageExtra data={item} />}

@@ -1,4 +1,4 @@
-import { ActionIcon } from '@lobehub/ui';
+import {ActionIcon, Icon} from '@lobehub/ui';
 import { Compass, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { memo } from 'react';
@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalStore } from '@/store/global';
 import { SidebarTabKey } from '@/store/global/initialState';
 import { useSessionStore } from '@/store/session';
+import {Flexbox} from "react-layout-kit";
+import {useStyles} from "@/layout/DefaultLayout/Desktop/SideBar/styles";
 
 export interface TopActionProps {
   tab?: SidebarTabKey;
@@ -15,6 +17,7 @@ export interface TopActionProps {
 const TopActions = memo<TopActionProps>(({ tab }) => {
   const { t } = useTranslation('common');
   const switchBackToChat = useGlobalStore((s) => s.switchBackToChat);
+  const { styles, cx } = useStyles();
 
   return (
     <>
@@ -25,15 +28,15 @@ const TopActions = memo<TopActionProps>(({ tab }) => {
           e.preventDefault();
           switchBackToChat(useSessionStore.getState().activeId);
         }}
+        className={styles.item}
       >
-        <ActionIcon
-          active={tab === SidebarTabKey.Chat}
-          icon={MessageSquare}
-          placement={'right'}
-          size="large"
-          title={t('tab.chat')}
-        />
-        {/*<span>AI聊天助手</span>*/}
+        <Flexbox
+          horizontal
+          align={"space-between"}
+        >
+          <Icon icon={MessageSquare} size="40" ></Icon>
+          <span className={styles.itemText}>AI聊天助手</span>
+        </Flexbox>
       </Link>
       {/*<Link aria-label={t('tab.market')} href={'/market'}>*/}
       {/*  <ActionIcon*/}

@@ -20,6 +20,7 @@ export const useStyles = createStyles(({ css, token }) => ({
   top: css`
     position: sticky;
     top: 0;
+    padding: 24px 24px 0 24px;
   `,
 }));
 
@@ -32,7 +33,7 @@ const Header = memo(() => {
   const { mutate, isValidating } = useActionSWR('session.createSession', () => createSession());
 
   return (
-    <Flexbox className={styles.top} gap={16} padding={16}>
+    <Flexbox className={styles.top} gap={16} >
       {/*<Flexbox distribution={'space-between'} horizontal>*/}
       {/*  <Flexbox align={'center'} gap={4} horizontal>*/}
       {/*    <Logo className={styles.logo} size={36} type={'text'} />*/}

@@ -10,7 +10,7 @@ export const useStyles = createStyles(({ css, token }) => ({
   panel: css`
     height: 100%;
     color: ${token.colorTextSecondary};
-    background: ${token.colorBgContainer};
+    background: rgba(250, 250, 250, 1),
   `,
 }));
 
@@ -37,6 +37,7 @@ const FolderPanel = memo<PropsWithChildren>(({ children }) => {
           showSessionPanel: expand,
         });
       }}
+      expandable={false}
       onSizeChange={(_, size) => {
         if (!size) return;
 
