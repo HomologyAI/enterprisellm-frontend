@@ -34,16 +34,16 @@ export const useStyles = createStyles(({ css, token }) => ({
     width: 100%;
   `,
   item: css`
-    padding: 12px 6px;
+    padding: 4px 7px 4px 4px;
     width: 100%;
     color: rgba(0, 102, 255, 1);
     font-size: 18px;
-    border-radius: 4px;
+    border-radius: 8px;
     
     background: rgba(230, 244, 255, 1);
   `,
   itemText: css`
-    margin-left: 10px;
+    margin-left: 0px;
   `,
 
 }));
