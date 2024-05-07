@@ -12,17 +12,10 @@ export async function GET() {
     page: 1,
   }).then((resp) => {
     return NextResponse.json(resp.data);
-  }).catch((err) => {
-    const {
-      errorType = ChatErrorType.InternalServerError,
-      error: errorContent,
-      ...res
-    } = err as ChatCompletionErrorPayload;
-
-    const error = errorContent || err;
-    // track the error at server side
-    console.error(`Route: ${errorType}:`, error);
-
-    return createErrorResponse(errorType, { error, ...res });
+  }).catch((error) => {
+    console.error(`Route: ${'error'}:`, error.response.data);
+    const errorData = error?.response?.data || {}
+    const errorType = errorData?.status === 401 ? ChatErrorType.Unauthorized : ChatErrorType.InternalServerError;
+    return createErrorResponse(errorType, errorData);
   });
 }
