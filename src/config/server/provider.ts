@@ -92,8 +92,9 @@ declare global {
        */
       OPENROUTER_CUSTOM_MODELS?: string;
 
-      QWEN_API_KEY?: string;
-      QWEN_PROXY_URL?: string;
+      DIFY_CHAT_API_KEY?: string;
+      DIFY_DATASETS_API_KEY?: string;
+      DIFY_PROXY_URL?: string;
     }
   }
 }
@@ -128,7 +129,8 @@ export const getProviderConfig = () => {
 
   const TOGETHERAI_API_KEY = process.env.TOGETHERAI_API_KEY || '';
 
-  const QWEN_API_KEY = process.env.QWEN_API_KEY || '';
+  const DIFY_DATASETS_API_KEY = process.env.DIFY_DATASETS_API_KEY || '';
+  const DIFY_CHAT_API_KEY = process.env.DIFY_CHAT_API_KEY || '';
 
   // region format: iad1,sfo1
   let regions: string[] = [];
@@ -217,7 +219,8 @@ export const getProviderConfig = () => {
     OLLAMA_MODEL_LIST: process.env.OLLAMA_MODEL_LIST || process.env.OLLAMA_CUSTOM_MODELS,
     OLLAMA_CUSTOM_MODELS: process.env.OLLAMA_CUSTOM_MODELS,
 
-    QWEN_API_KEY,
-    QWEN_PROXY_URL: process.env.QWEN_PROXY_URL,
+    DIFY_PROXY_URL: process.env.DIFY_PROXY_URL,
+    DIFY_DATASETS_API_KEY,
+    DIFY_CHAT_API_KEY,
   };
 };

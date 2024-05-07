@@ -157,11 +157,11 @@ const getLlmOptionsFromPayload = (provider: string, payload: JWTPayload) => {
       };
     }
     case ModelProvider.Qwen: {
-      const { QWEN_PROXY_URL, QWEN_API_KEY } = getServerConfig();
-      const apiKey = apiKeyManager.pick(payload?.apiKey || QWEN_API_KEY);
+      const { DIFY_CHAT_API_KEY, DIFY_PROXY_URL } = getServerConfig();
+      const apiKey = apiKeyManager.pick(payload?.apiKey || DIFY_CHAT_API_KEY);
       return {
         apiKey,
-        baseURL: QWEN_PROXY_URL,
+        baseURL: DIFY_PROXY_URL,
       };
     }
   }
