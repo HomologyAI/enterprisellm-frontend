@@ -11,14 +11,12 @@ export async function GET() {
 
   const client = new DatasetsClient(DIFY_DATASETS_API_KEY, DIFY_PROXY_URL);
 
-  try {
-    const resp = await client.getDatasets({
-      limit: 20,
-      page: 1,
-    });
-
+  await client.getDatasets({
+    limit: 20,
+    page: 1,
+  }).then((resp) => {
     return NextResponse.json(resp.data);
-  } catch (err) {
+  }).catch((err) => {
     const {
       errorType = ChatErrorType.InternalServerError,
       error: errorContent,
@@ -30,5 +28,5 @@ export async function GET() {
     console.error(`Route: ${errorType}:`, error);
 
     return createErrorResponse(errorType, { error, ...res });
-  }
+  });
 }
