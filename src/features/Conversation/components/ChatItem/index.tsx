@@ -12,7 +12,7 @@ import { useSessionStore } from '@/store/session';
 import { sessionMetaSelectors } from '@/store/session/selectors';
 import { useUserStore } from '@/store/user';
 import { settingsSelectors } from '@/store/user/selectors';
-import { ChatMessage } from '@/types/message';
+import {ChatMessage, DifyMessageType} from '@/types/message';
 
 import ErrorMessageExtra, { getErrorAlertConfig } from '../../Error';
 import { renderMessagesExtra } from '../../Extras';
@@ -25,6 +25,7 @@ import {z} from "zod";
 import { UserOutlined } from '@ant-design/icons';
 import ChatItem from './Components/ChatItem';
 import BotAvatar from "@/features/Avatar/BotAvatar";
+import {Flexbox} from "react-layout-kit";
 
 const useStyles = createStyles(({ css, prefixCls }) => ({
   loading: css`
@@ -126,42 +127,51 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
     return <BotAvatar size={48}/>
   }, []);
 
+  const shouldShowRawItem = useMemo(() =>
+    [DifyMessageType.Alert].includes(item?.difyMsg?.msgType), [item?.difyMsg?.msgType]);
+
   return (
     item && (
       <>
         <HistoryDivider enable={enableHistoryDivider} />
-        <ChatItem
-          renderAvatar={renderAvatar}
-          className={cx(styles.message, isMessageLoading && styles.loading)}
-          editing={editing}
-          error={error}
-          errorMessage={<ErrorMessageExtra data={item} />}
-          fontSize={14}
-          loading={loading}
-          message={item.content}
-          messageExtra={<MessageExtra data={item} />}
-          onAvatarClick={onAvatarsClick?.(item.role)}
-          onChange={(value) => updateMessageContent(item.id, value)}
-          onDoubleClick={(e) => {
-            if (item.id === 'default' || item.error) return;
-            if (item.role && ['assistant', 'user'].includes(item.role) && e.altKey) {
-              setEditing(true);
-            }
-          }}
-          onEditingChange={setEditing}
-          placement={type === 'chat' ? (item.role === 'user' ? 'right' : 'left') : 'left'}
-          primary={item.role === 'user'}
-          renderMessage={(editableContent) => (
-            <RenderMessage data={item} editableContent={editableContent} />
-          )}
-          text={{
-            cancel: t('cancel'),
-            confirm: t('ok'),
-            edit: t('edit'),
-          }}
-          time={item.updatedAt || item.createdAt}
-          type={type === 'chat' ? 'block' : 'pure'}
-        />
+        {
+          shouldShowRawItem ? (
+            <RenderMessage data={item} editableContent={null} />
+          ) : (
+            <ChatItem
+              renderAvatar={renderAvatar}
+              className={cx(styles.message, isMessageLoading && styles.loading)}
+              editing={editing}
+              error={error}
+              errorMessage={<ErrorMessageExtra data={item} />}
+              fontSize={14}
+              loading={loading}
+              message={item.content}
+              messageExtra={<MessageExtra data={item} />}
+              onAvatarClick={onAvatarsClick?.(item.role)}
+              onChange={(value) => updateMessageContent(item.id, value)}
+              onDoubleClick={(e) => {
+                if (item.id === 'default' || item.error) return;
+                if (item.role && ['assistant', 'user'].includes(item.role) && e.altKey) {
+                  setEditing(true);
+                }
+              }}
+              onEditingChange={setEditing}
+              placement={type === 'chat' ? (item.role === 'user' ? 'right' : 'left') : 'left'}
+              primary={item.role === 'user'}
+              renderMessage={(editableContent) => (
+                <RenderMessage data={item} editableContent={editableContent} />
+              )}
+              text={{
+                cancel: t('cancel'),
+                confirm: t('ok'),
+                edit: t('edit'),
+              }}
+              time={item.updatedAt || item.createdAt}
+              type={type === 'chat' ? 'block' : 'pure'}
+            />
+          )
+        }
       </>
     )
   );

@@ -5,7 +5,7 @@ import { ChatMessage, ChatMessageError, ChatPluginPayload } from '@/types/messag
 
 export interface CreateMessageParams
   extends Partial<Omit<ChatMessage, 'content' | 'role'>>,
-    Pick<ChatMessage, 'content' | 'role'> {
+    Pick<ChatMessage, 'content' | 'role' | 'difyMsg'> {
   fromModel?: string;
   fromProvider?: string;
   sessionId: string;

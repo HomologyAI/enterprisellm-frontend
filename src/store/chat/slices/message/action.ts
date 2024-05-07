@@ -1,31 +1,31 @@
 /* eslint-disable sort-keys-fix/sort-keys-fix, typescript-sort-keys/interface */
 // Disable the auto sort key eslint rule to make the code more logic and readable
-import { copyToClipboard } from '@lobehub/ui';
-import { produce } from 'immer';
-import { template } from 'lodash-es';
-import { SWRResponse, mutate } from 'swr';
-import { StateCreator } from 'zustand/vanilla';
+import {copyToClipboard} from '@lobehub/ui';
+import {produce} from 'immer';
+import {template} from 'lodash-es';
+import {mutate, SWRResponse} from 'swr';
+import {StateCreator} from 'zustand/vanilla';
 
-import { LOADING_FLAT, isFunctionMessageAtStart, testFunctionMessageAtEnd } from '@/const/message';
-import { TraceEventType, TraceNameMap } from '@/const/trace';
-import { useClientDataSWR } from '@/libs/swr';
-import { chatService } from '@/services/chat';
-import { CreateMessageParams, messageService } from '@/services/message';
-import { topicService } from '@/services/topic';
-import { traceService } from '@/services/trace';
-import { useAgentStore } from '@/store/agent';
-import { agentSelectors } from '@/store/agent/selectors';
-import { chatHelpers } from '@/store/chat/helpers';
-import { ChatStore } from '@/store/chat/store';
-import { ChatMessage } from '@/types/message';
-import { TraceEventPayloads } from '@/types/trace';
-import { setNamespace } from '@/utils/storeDebug';
-import { nanoid } from '@/utils/uuid';
+import {isFunctionMessageAtStart, LOADING_FLAT, testFunctionMessageAtEnd} from '@/const/message';
+import {TraceEventType, TraceNameMap} from '@/const/trace';
+import {useClientDataSWR} from '@/libs/swr';
+import {chatService} from '@/services/chat';
+import {CreateMessageParams, messageService} from '@/services/message';
+import {topicService} from '@/services/topic';
+import {traceService} from '@/services/trace';
+import {useAgentStore} from '@/store/agent';
+import {agentSelectors} from '@/store/agent/selectors';
+import {chatHelpers} from '@/store/chat/helpers';
+import {ChatStore} from '@/store/chat/store';
+import {ChatMessage, DifyMessage, DifyMessageType} from '@/types/message';
+import {TraceEventPayloads} from '@/types/trace';
+import {setNamespace} from '@/utils/storeDebug';
+import {nanoid} from '@/utils/uuid';
 
-import { chatSelectors } from '../../selectors';
-import { MessageDispatch, messagesReducer } from './reducer';
+import {chatSelectors} from '../../selectors';
+import {MessageDispatch, messagesReducer} from './reducer';
 import {sessionService} from "@/services/session";
-import {sessionDifySelectors, sessionSelectors} from "@/store/session/slices/session/selectors";
+import {sessionDifySelectors} from "@/store/session/slices/session/selectors";
 import {useSessionStore} from "@/store/session";
 
 const n = setNamespace('message');
@@ -42,6 +42,8 @@ export interface ChatMessageAction {
   // create
   sendMessage: (params: SendMessageParams) => Promise<void>;
   addAIMessage: () => Promise<void>;
+  addDifyMessage: (msg: DifyMessage) => void;
+  addDifyDatasetsMessage: (sid: string) => Promise<void>;
   /**
    * regenerate message
    * trace enabled
@@ -127,6 +129,7 @@ export interface ChatMessageAction {
 
 const getAgentConfig = () => agentSelectors.currentAgentConfig(useAgentStore.getState());
 const getCurrentConversationId = () => sessionDifySelectors.currentSessionConversationId(useSessionStore.getState());
+const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSessionStore.getState());
 const refreshSessions = () => useSessionStore.getState().refreshSessions();
 
 const preventLeavingFn = (e: BeforeUnloadEvent) => {
@@ -236,6 +239,44 @@ export const chatMessage: StateCreator<
     });
 
     updateInputMessage('');
+  },
+  addDifyMessage: async (msg) => {
+    const { internalCreateMessage, activeId } =
+      get();
+    if (!activeId) return;
+
+    const newDatasetsMsg = msg ? msg : {
+      msgType: DifyMessageType.Datasets,
+      data: {
+        // datasets: getCurrentDatasets(),
+      }
+    } as DifyMessage;
+
+    await internalCreateMessage({
+      content: '',
+      role: 'assistant',
+      sessionId: activeId,
+      difyMsg: newDatasetsMsg,
+    });
+  },
+  addDifyDatasetsMessage: async (sid: string) => {
+    const { internalCreateMessage, activeId } =
+      get();
+
+    if (!activeId) return;
+
+    const newDatasetsMsg = {
+      msgType: DifyMessageType.Datasets,
+      data: {
+      }
+    } as DifyMessage;
+
+    await internalCreateMessage({
+      content: '',
+      role: 'assistant',
+      sessionId: sid,
+      difyMsg: newDatasetsMsg,
+    });
   },
   copyMessage: async (id, content) => {
     await copyToClipboard(content);

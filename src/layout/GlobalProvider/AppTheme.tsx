@@ -18,6 +18,7 @@ import { useUserStore } from '@/store/user';
 import { settingsSelectors } from '@/store/user/selectors';
 import { GlobalStyle } from '@/styles';
 import { setCookie } from '@/utils/cookie';
+import { lobeCustomToken } from '@lobehub/ui';
 
 const useStyles = createStyles(({ css, token }) => ({
   bg: css`
@@ -92,13 +93,13 @@ const AppTheme = memo<AppThemeProps>(
       settingsSelectors.currentSettings(s).neutralColor,
     ]);
 
-    useEffect(() => {
-      setCookie(LOBE_THEME_PRIMARY_COLOR, primaryColor);
-    }, [primaryColor]);
-
-    useEffect(() => {
-      setCookie(LOBE_THEME_NEUTRAL_COLOR, neutralColor);
-    }, [neutralColor]);
+    // useEffect(() => {
+    //   setCookie(LOBE_THEME_PRIMARY_COLOR, primaryColor);
+    // }, [primaryColor]);
+    //
+    // useEffect(() => {
+    //   setCookie(LOBE_THEME_NEUTRAL_COLOR, neutralColor);
+    // }, [neutralColor]);
 
     return (
       <ThemeProvider
@@ -111,6 +112,15 @@ const AppTheme = memo<AppThemeProps>(
           setCookie(LOBE_THEME_APPEARANCE, appearance);
         }}
         themeMode={themeMode}
+        customToken={(theme) => {
+          const tokens = lobeCustomToken(theme);
+
+          return {
+            ...tokens,
+            bnw: 'rgba(22, 119, 255, 1)',
+            bnw9: 'rgba(22, 119, 255, 1)',
+          };
+        }}
       >
         <GlobalStyle />
         <AntdStaticMethods />

@@ -7,6 +7,7 @@ import { FilePreview } from '@/types/files';
 import { setNamespace } from '@/utils/storeDebug';
 
 import { FileStore } from '../../store';
+import {UploadFile} from "antd/es/upload/interface";
 
 const n = setNamespace('image');
 
@@ -19,6 +20,7 @@ export interface FileAction {
   uploadFile: (file: File) => Promise<void>;
 
   useFetchFile: (id: string) => SWRResponse<FilePreview>;
+  updateFileList: (fileList: UploadFile[]) => void;
 }
 
 export const createFileSlice: StateCreator<
@@ -81,5 +83,12 @@ export const createFileSlice: StateCreator<
       get().setImageMapItem(id, item);
 
       return item;
-    }),
+  }),
+  updateFileList: (fileList) => {
+    set(
+      ({ fileList }),
+      false,
+      n('updateFileList'),
+    );
+  },
 });

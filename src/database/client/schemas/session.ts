@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { LobeMetaDataSchema } from '@/types/meta';
+import {DatasetsDataSchema, LobeMetaDataSchema} from '@/types/meta';
 
 const fewShotsSchema = z.array(
   z.object({
@@ -54,6 +54,7 @@ export const DB_SessionSchema = z.object({
   pinned: z.number().int().min(0).max(1).optional(),
   type: z.enum(['agent', 'group']).default('agent'),
   conversation_id: z.string().optional(),
+  datasets: DatasetsDataSchema.optional(),
 });
 
 export type DB_Session = z.infer<typeof DB_SessionSchema>;

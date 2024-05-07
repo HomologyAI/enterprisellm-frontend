@@ -89,7 +89,7 @@ export class ClientService implements ISessionService {
 
   async updateSession(
     id: string,
-    data: Partial<Pick<LobeAgentSession, 'group' | 'meta' | 'pinned' | 'conversation_id'>>,
+    data: Partial<Pick<LobeAgentSession, 'group' | 'meta' | 'pinned' | 'conversation_id' | 'datasets'>>,
   ) {
     const pinned = typeof data.pinned === 'boolean' ? (data.pinned ? 1 : 0) : undefined;
     return SessionModel.update(id, { ...data, pinned });

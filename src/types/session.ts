@@ -1,6 +1,7 @@
 import { LobeAgentConfig } from '@/types/agent';
 
 import { BaseDataModel, MetaData } from './meta';
+import {DifyDataset} from "@/libs/difyClient";
 
 export enum LobeSessionType {
   Agent = 'agent',
@@ -33,7 +34,6 @@ export interface LobeAgentSession extends BaseDataModel {
   model: string;
   pinned?: boolean;
   type: LobeSessionType.Agent;
-
   conversation_id?: string;
 }
 

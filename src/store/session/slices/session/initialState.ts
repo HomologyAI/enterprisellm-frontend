@@ -1,4 +1,5 @@
 import { CustomSessionGroup, LobeAgentSession, LobeSessionGroups } from '@/types/session';
+import {DifyDataset} from "@/libs/difyClient";
 
 export interface SessionState {
   /**
@@ -19,6 +20,7 @@ export interface SessionState {
    * it means defaultSessions
    */
   sessions: LobeAgentSession[];
+  datasets: DifyDataset[];
 }
 
 export const initialSessionState: SessionState = {
@@ -32,4 +34,5 @@ export const initialSessionState: SessionState = {
   searchKeywords: '',
   sessionGroups: [],
   sessions: [],
+  datasets: [],
 };

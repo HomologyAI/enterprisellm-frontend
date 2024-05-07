@@ -67,6 +67,7 @@ const currentChatsWithGuideMessage =
   (meta: MetaData) =>
   (s: ChatStore): ChatMessage[] => {
     const data = currentChats(s);
+    return data;
 
     const isBrandNewChat = data.length === 0;
 

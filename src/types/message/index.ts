@@ -7,6 +7,7 @@ import { LLMRoleType } from '../llm';
 import { BaseDataModel } from '../meta';
 import { ChatPluginPayload } from './tools';
 import { Translate } from './translate';
+import {DifyMessage} from "@/types/message/dify";
 
 /**
  * 聊天消息错误对象
@@ -28,6 +29,7 @@ export interface ChatTTS {
 }
 
 export * from './tools';
+export * from './dify';
 
 export interface ChatMessage extends BaseDataModel {
   content: string;
@@ -72,6 +74,11 @@ export interface ChatMessage extends BaseDataModel {
    * 观测链路 id
    */
   traceId?: string;
+
+  /**
+   * dify message
+   */
+  difyMsg?: DifyMessage;
 }
 
 export type ChatMessageMap = Record<string, ChatMessage>;

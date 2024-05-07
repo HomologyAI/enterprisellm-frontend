@@ -36,7 +36,7 @@ const SendMore = memo(() => {
     preferenceSelectors.useCmdEnterToSend(s),
     s.updatePreference,
   ]);
-  const addAIMessage = useChatStore((s) => s.addAIMessage);
+  const addAIMessage = useChatStore((s) => s.addDifyMessage);
 
   const sendMessage = useSendMessage();
 

@@ -14,6 +14,11 @@ const PluginSchema = z.object({
   type: z.enum(['default', 'markdown', 'standalone', 'builtin']).default('default'),
 });
 
+const DifyMessageSchema = z.object({
+  msgType: z.string(),
+  data: z.any(),
+});
+
 export const DB_MessageSchema = z.object({
   role: z.enum(['user', 'system', 'assistant', 'function']),
   content: z.string(),
@@ -36,6 +41,9 @@ export const DB_MessageSchema = z.object({
   quotaId: z.string().optional(),
   sessionId: z.string(),
   topicId: z.string().nullable().optional(),
+
+  // dify
+  difyMsg: DifyMessageSchema.optional(),
 });
 
 export type DB_Message = z.infer<typeof DB_MessageSchema>;

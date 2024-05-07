@@ -1,5 +1,5 @@
 import { Icon } from '@lobehub/ui';
-import { Button, Space } from 'antd';
+import {Button, Space, Upload} from 'antd';
 import { createStyles } from 'antd-style';
 import { ChevronUp, CornerDownLeft, LucideCommand } from 'lucide-react';
 import { rgba } from 'polished';
@@ -20,6 +20,8 @@ import { isMacOS } from '@/utils/platform';
 import DragUpload from './DragUpload';
 import { LocalFiles } from './LocalFiles';
 import SendMore from './SendMore';
+import {CloudUploadOutlined} from "@ant-design/icons";
+import UploadButton from "@/app/chat/(desktop)/features/ChatInput/Footer/UploadButton";
 
 const useStyles = createStyles(({ css, prefixCls, token }) => {
   return {
@@ -101,6 +103,9 @@ const Footer = memo<FooterProps>(({ setExpand }) => {
       padding={'0 0px'}
     >
       <Flexbox align={'center'} gap={0} horizontal>
+
+        <UploadButton />
+
         <Flexbox style={{ minWidth: 92 }}>
           {loading ? (
             <Button

@@ -8,10 +8,10 @@ import { message } from '@/components/AntdStaticMethods';
 import { DEFAULT_AGENT_LOBE_SESSION, INBOX_SESSION_ID } from '@/const/session';
 import { useClientDataSWR } from '@/libs/swr';
 import { sessionService } from '@/services/session';
-import { SessionStore } from '@/store/session';
+import {SessionStore, useSessionStore} from '@/store/session';
 import { useUserStore } from '@/store/user';
 import { settingsSelectors } from '@/store/user/selectors';
-import { MetaData } from '@/types/meta';
+import {DatasetsData, MetaData} from '@/types/meta';
 import {
   ChatSessionList,
   LobeAgentSession,
@@ -26,6 +26,9 @@ import { setNamespace } from '@/utils/storeDebug';
 import { SessionDispatch, sessionsReducer } from './reducers';
 import { sessionSelectors } from './selectors';
 import { sessionMetaSelectors } from './selectors/meta';
+import {DifyDataset, GetDatasetsResp} from "@/libs/difyClient";
+import {API_ENDPOINTS} from "@/services/_url";
+import {useChatStore} from "@/store/chat";
 
 const n = setNamespace('session');
 
@@ -55,7 +58,7 @@ export interface SessionAction {
   duplicateSession: (id: string) => Promise<void>;
   updateSessionGroupId: (sessionId: string, groupId: string) => Promise<void>;
   updateSessionMeta: (meta: Partial<MetaData>) => void;
-
+  updateSessionDatasets: (data: Partial<DatasetsData>) => void;
   /**
    * Pins or unpins a session.
    */
@@ -86,7 +89,11 @@ export interface SessionAction {
     actions?: string,
   ) => void;
   /* eslint-enable */
+  useFetchDatasets: () => SWRResponse<DatasetsData[]>;
 }
+
+const addDifyDatasetsMessage = (id: string) => useChatStore.getState().addDifyDatasetsMessage(id);
+const refreshMessages = () => useChatStore.getState().refreshMessages();
 
 export const createSessionSlice: StateCreator<
   SessionStore,
@@ -114,13 +121,17 @@ export const createSessionSlice: StateCreator<
       settingsSelectors.defaultAgent(useUserStore.getState()),
     );
 
+    // 创建一个新的session
     const newSession: LobeAgentSession = merge(defaultAgent, agent);
-
     const id = await sessionService.createSession(LobeSessionType.Agent, newSession);
     await refreshSessions();
 
     // Whether to goto  to the new session after creation, the default is to switch to
-    if (isSwitchSession) activeSession(id);
+    if (isSwitchSession)
+      await activeSession(id);
+
+    // // 创建一条新的数据集消息
+    await addDifyDatasetsMessage(id);
 
     return id;
   },
@@ -257,5 +268,41 @@ export const createSessionSlice: StateCreator<
   },
   refreshSessions: async () => {
     await mutate(FETCH_SESSIONS_KEY);
+  },
+  updateSessionDatasets: async (datasets) => {
+    const session = sessionSelectors.currentSession(get());
+    if (!session) return;
+
+    const { activeId, refreshSessions } = get();
+
+    await sessionService.updateSession(activeId, { datasets });
+    await refreshSessions();
+  },
+  useFetchDatasets: () => {
+    const {updateSessionDatasets} = get();
+    const session = sessionSelectors.currentSession(get());
+
+    return useSWR('fetchDifyDatasets', async () => {
+      return fetch(API_ENDPOINTS.difyDatasets, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'GET',
+      }).then((resp) => {
+        return resp.json();
+      });
+    }, {
+      dedupingInterval: 0,
+      refreshWhenOffline: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      onSuccess: (resp: GetDatasetsResp) => {
+        // console.log('session', session?.datasets);
+
+        if (!session?.datasets && resp?.data) {
+          updateSessionDatasets(resp.data);
+        }
+      }
+    });
   },
 });

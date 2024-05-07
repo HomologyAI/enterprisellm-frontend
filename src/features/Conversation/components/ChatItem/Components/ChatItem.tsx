@@ -61,15 +61,6 @@ const ChatItem = memo<ChatItemProps>(
         gap={mobile ? 6 : 20}
         {...rest}
       >
-        {/*<Avatar*/}
-        {/*  {...avatarProps}*/}
-        {/*  addon={avatarAddon}*/}
-        {/*  avatar={avatar}*/}
-        {/*  loading={loading}*/}
-        {/*  onClick={onAvatarClick}*/}
-        {/*  placement={placement}*/}
-        {/*  size={mobile ? MOBILE_AVATAR_SIZE : undefined}*/}
-        {/*/>*/}
         {renderAvatar}
         <Flexbox
           align={placement === 'left' ? 'flex-start' : 'flex-end'}
