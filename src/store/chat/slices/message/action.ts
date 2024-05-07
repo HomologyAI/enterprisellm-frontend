@@ -129,7 +129,6 @@ export interface ChatMessageAction {
 
 const getAgentConfig = () => agentSelectors.currentAgentConfig(useAgentStore.getState());
 const getCurrentConversationId = () => sessionDifySelectors.currentSessionConversationId(useSessionStore.getState());
-const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSessionStore.getState());
 const refreshSessions = () => useSessionStore.getState().refreshSessions();
 
 const preventLeavingFn = (e: BeforeUnloadEvent) => {

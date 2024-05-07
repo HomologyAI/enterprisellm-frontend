@@ -1,19 +1,14 @@
-import { Icon } from '@lobehub/ui';
 import { createStyles } from 'antd-style';
-import { FileImage, FileText, FileUpIcon } from 'lucide-react';
 import { rgba } from 'polished';
 import { memo, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Center, Flexbox } from 'react-layout-kit';
-
-import { useAgentStore } from '@/store/agent';
-import { agentSelectors } from '@/store/agent/selectors';
 import { useFileStore } from '@/store/file';
-import { useUserStore } from '@/store/user';
-import { modelProviderSelectors } from '@/store/user/selectors';
 import {CloudUploadOutlined} from "@ant-design/icons";
 import {Button, Upload, UploadProps} from "antd";
-import {UploadChangeParam, UploadFile} from "antd/es/upload/interface";
+import {useSessionStore} from "@/store/session";
+import {sessionDifySelectors} from "@/store/session/slices/session/selectors";
+import isEqual from "fast-deep-equal";
+import {useServerConfigStore} from "@/store/serverConfig";
+import {API_ENDPOINTS} from "@/services/_url";
 
 const useStyles = createStyles(({ css, token, stylish }) => {
   return {
@@ -70,44 +65,31 @@ const handleDragOver = (e: DragEvent) => {
 const UploadButton = memo(() => {
   const { styles } = useStyles();
 
-  const uploadFile = useFileStore((s) => s.uploadFile);
-  const fileList = useFileStore((s) => s.fileList);
-  const updateFileList = useFileStore((s) => s.updateFileList);
-
-  const model = useAgentStore(agentSelectors.currentAgentModel);
-
-  const enabledFiles = useUserStore(modelProviderSelectors.isModelEnabledFiles(model));
-
-  const uploadImages = async (fileList: FileList | undefined) => {
-    if (!fileList || fileList.length === 0) return;
-
-    const pools = Array.from(fileList).map(async (file) => {
-      // skip none-file items
-      if (!file.type.startsWith('image') && !enabledFiles) return;
-      await uploadFile(file);
-    });
-
-    await Promise.all(pools);
-  };
+  const fileList = useSessionStore(sessionDifySelectors.currentSessionFiles, isEqual);
+  const updateSessionFiles = useSessionStore(s => s.updateSessionFiles);
+  // const [fileList, setFileList] = useState([]);
 
   const handleUploadStatusChanged: UploadProps['onChange'] = (info) => {
     console.log('handleUploadStatusChanged', info);
     let newFileList = [...info.fileList];
+    // 需要将本地数据和新上传的数据做一个merge
 
-    updateFileList(newFileList);
+    updateSessionFiles(newFileList);
   };
 
   return (
     <Upload
+      action={API_ENDPOINTS.upload}
       showUploadList={false}
       onChange={handleUploadStatusChanged}
-      fileList={fileList}
+      // fileList={fileList}
       multiple
+      method="POST"
+      accept=".doc,.docx,.pdf"
     >
       <Button type="text">
         <CloudUploadOutlined />
       </Button>
-      {/*<input accept="" type="file" style="display: none;" />*/}
     </Upload>
   );
 });

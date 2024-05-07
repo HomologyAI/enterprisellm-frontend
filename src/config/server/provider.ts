@@ -220,6 +220,7 @@ export const getProviderConfig = () => {
     OLLAMA_CUSTOM_MODELS: process.env.OLLAMA_CUSTOM_MODELS,
 
     DIFY_PROXY_URL: process.env.DIFY_PROXY_URL,
+    BACK_END_URL: process.env.BACK_END_URL,
     DIFY_DATASETS_API_KEY,
     DIFY_CHAT_API_KEY,
   };

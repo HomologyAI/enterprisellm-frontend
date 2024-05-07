@@ -1,10 +1,12 @@
-import {memo, useMemo, useState} from 'react';
+import {memo, useCallback, useMemo, useState} from 'react';
 import { Flexbox } from 'react-layout-kit';
 import {createStyles} from "antd-style";
 import {UploadFile} from "antd/es/upload/interface";
 import {Button, Progress} from "antd";
 import {Trash} from "lucide-react";
 import {ActionIcon} from "@lobehub/ui";
+import {LocalUploadFile} from "@/types/session";
+import {useSessionStore} from "@/store/session";
 
 const useStyles = createStyles(({ css }) => {
   return {
@@ -33,8 +35,7 @@ const useStyles = createStyles(({ css }) => {
   };
 });
 
-
-const UploadFileItem = memo((props: UploadFile) => {
+const UploadFileItem = memo((props: LocalUploadFile) => {
   const { styles } = useStyles();
   const {
     name,
@@ -42,13 +43,19 @@ const UploadFileItem = memo((props: UploadFile) => {
     status,
     type,
     size,
+    localId,
   } = props;
 
   const desc = useMemo(() => {
     return status === 'uploading' ? '上传中...' : status === 'error' ? '文件上传失败' : `${type} ${size}`;
   }, [status]);
 
-  const handleRemoveFile = () => {}
+  const deleteSessionFile = useSessionStore(s => s.deleteSessionFile);
+
+  const handleRemoveFile = useCallback(() => {
+    deleteSessionFile(localId);
+  }, [localId]);
+
   return (
     <Flexbox horizontal className={styles.container} align="center">
       <Progress

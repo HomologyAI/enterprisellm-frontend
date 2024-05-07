@@ -11,14 +11,14 @@ import { sessionService } from '@/services/session';
 import {SessionStore, useSessionStore} from '@/store/session';
 import { useUserStore } from '@/store/user';
 import { settingsSelectors } from '@/store/user/selectors';
-import {DatasetsData, MetaData} from '@/types/meta';
+import {DatasetsData, FilesData, MetaData} from '@/types/meta';
 import {
   ChatSessionList,
   LobeAgentSession,
   LobeSessionGroups,
   LobeSessionType,
   LobeSessions,
-  SessionGroupId,
+  SessionGroupId, LocalUploadFile,
 } from '@/types/session';
 import { merge } from '@/utils/merge';
 import { setNamespace } from '@/utils/storeDebug';
@@ -29,6 +29,7 @@ import { sessionMetaSelectors } from './selectors/meta';
 import {DifyDataset, GetDatasetsResp} from "@/libs/difyClient";
 import {API_ENDPOINTS} from "@/services/_url";
 import {useChatStore} from "@/store/chat";
+import {UploadFile} from "antd/es/upload/interface";
 
 const n = setNamespace('session');
 
@@ -59,6 +60,8 @@ export interface SessionAction {
   updateSessionGroupId: (sessionId: string, groupId: string) => Promise<void>;
   updateSessionMeta: (meta: Partial<MetaData>) => void;
   updateSessionDatasets: (data: Partial<DatasetsData>) => void;
+  updateSessionFiles: (data: LocalUploadFile[]) => void;
+  deleteSessionFile: (uid: string) => void;
   /**
    * Pins or unpins a session.
    */
@@ -81,7 +84,10 @@ export interface SessionAction {
   internal_dispatchSessions: (payload: SessionDispatch) => void;
   internal_updateSession: (
     id: string,
-    data: Partial<{ group?: SessionGroupId; meta?: any; pinned?: boolean }>,
+    data: Partial<{
+      group?: SessionGroupId; meta?: any; pinned?: boolean,
+      files?: FilesData,
+    }>,
   ) => Promise<void>;
   internal_processSessions: (
     sessions: LobeSessions,
@@ -277,6 +283,44 @@ export const createSessionSlice: StateCreator<
 
     await sessionService.updateSession(activeId, { datasets });
     await refreshSessions();
+  },
+  deleteSessionFile: async (uid: string) => {
+    const session = sessionSelectors.currentSession(get());
+    const { activeId, internal_updateSession } = get();
+    if (!session) return;
+
+    const currentFileList = session?.files;
+
+    if (currentFileList?.length) {
+      const newFileList = currentFileList.filter((item) => item.localId !== uid);
+      await internal_updateSession(activeId, { files: newFileList });
+    }
+  },
+  updateSessionFiles: async (fileList) => {
+    const session = sessionSelectors.currentSession(get());
+    if (!session) return;
+    const { internal_updateSession, activeId,  } = get();
+
+    const oldFileList = session?.files || [];
+    const newFileList = fileList.map((uploadFile) => {
+      const { uid, status, size, name, type, percent, originFileObj} = uploadFile;
+
+      return {
+        status,
+        name,
+        size,
+        type,
+        percent,
+        localId: uid,
+        id: uploadFile?.response?.id,
+        extension: uploadFile?.response?.extension,
+      }
+    }) as FilesData;
+    const newIds = newFileList.map((v) => v.localId);
+
+    const mergeList = [...newFileList, ...oldFileList.filter((item) => !newIds.includes(item.localId))];
+    await internal_updateSession(activeId, { files: mergeList });
+    // set({ localUploadFiles: { ...localUploadFiles, [activeId]: fileList } }, false, n('updateSessionFiles'));
   },
   useFetchDatasets: () => {
     const {updateSessionDatasets} = get();

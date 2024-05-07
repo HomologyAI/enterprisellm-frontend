@@ -1,4 +1,6 @@
 // Types.d.ts
+import {AxiosResponse} from "axios";
+
 export const BASE_URL: string;
 
 export type RequestMethods = 'GET' | 'POST' | 'PATCH' | 'DELETE';
@@ -101,5 +103,24 @@ export interface GetDatasetsParams {
 }
 
 export declare class DatasetsClient extends DifyClient {
-  getDatasets(params: GetDatasetsParams): Promise<GetDatasetsResp>;
+  getDatasets(params: GetDatasetsParams): Promise<AxiosResponse<GetDatasetsResp>>;
+}
+
+export interface UploadFileParams {
+  user: string;
+  file: File;
+}
+
+export interface UploadFileResp {
+  id: string;
+  name: string;
+  size: number;
+  extension: string;
+  mime_type: string;
+  created_by: string;
+  created_at: number;
+}
+
+export declare class FileClient extends DifyClient {
+  upload(params: UploadFileParams): Promise<AxiosResponse<UploadFileResp>>;
 }

@@ -2,6 +2,8 @@ import { LobeAgentConfig } from '@/types/agent';
 
 import { BaseDataModel, MetaData } from './meta';
 import {DifyDataset} from "@/libs/difyClient";
+import {UploadFile} from "antd/es/upload/interface";
+import {z} from "zod";
 
 export enum LobeSessionType {
   Agent = 'agent',
@@ -28,13 +30,20 @@ export type SessionGroups = SessionGroupItem[];
 /**
  * Lobe Agent
  */
+
+export type LocalUploadFile = UploadFile<{
+  id: string;
+  localId: string;
+  extension: string;
+  type: string;
+}>
+
 export interface LobeAgentSession extends BaseDataModel {
   config: LobeAgentConfig;
   group?: SessionGroupId;
   model: string;
   pinned?: boolean;
   type: LobeSessionType.Agent;
-  conversation_id?: string;
 }
 
 export interface LobeAgentSettings {

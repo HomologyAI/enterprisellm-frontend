@@ -45,7 +45,11 @@ export const routes = {
     getDatasets: {
         method: "GET",
         url: () => `/datasets`,
-    }
+    },
+    upload: {
+        method: "GET",
+        url: () => `/files/upload`,
+    },
 };
 
 export class DifyClient {
@@ -253,6 +257,25 @@ export class DatasetsClient extends DifyClient {
             routes.getDatasets.url(),
             null,
             params,
+        );
+    }
+}
+
+export class FileClient extends DifyClient {
+    upload(params) {
+        const formData = new FormData();
+        formData.append('user', params.user); // 添加键值对
+        formData.append('file', params.file); // 添加文件，其中 `file` 是一个 File 对象
+
+        return this.sendRequest(
+            routes.upload.method,
+            routes.upload.url(),
+            formData,
+            null,
+            false,
+            {
+                "Content-Type": "multipart/form-data",
+            }
         );
     }
 }
