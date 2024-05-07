@@ -174,13 +174,17 @@ export class CompletionClient extends DifyClient {
 
 export class ChatClient extends DifyClient {
     createChatMessage(
-        inputs,
-        query,
-        user,
-        stream = false,
-        conversation_id = null,
-        files = null
+        config
     ) {
+        const {
+            inputs,
+            query,
+            user,
+            stream = false,
+            conversation_id = null,
+            files = null
+        } = config;
+
         const data = {
             inputs,
             query,

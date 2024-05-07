@@ -1,17 +1,13 @@
 import { NextResponse } from 'next/server'
-import {DatasetsClient} from "@/libs/difyClient";
-import {getServerConfig} from "@/config/server";
 import {createErrorResponse} from "@/app/api/errorResponse";
 import {ChatErrorType} from "@/types/fetch";
 import {ChatCompletionErrorPayload} from "@/libs/agent-runtime";
+import {datasetsClient} from "../clients";
 
 export const runtime = 'nodejs';
+
 export async function GET() {
-  const { DIFY_PROXY_URL, DIFY_DATASETS_API_KEY } = getServerConfig();
-
-  const client = new DatasetsClient(DIFY_DATASETS_API_KEY, DIFY_PROXY_URL);
-
-  await client.getDatasets({
+  return datasetsClient.getDatasets({
     limit: 20,
     page: 1,
   }).then((resp) => {

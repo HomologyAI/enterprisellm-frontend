@@ -217,16 +217,21 @@ class ChatService {
     params: GetChatCompletionPayload,
     options?: FetchOptions,
   ) => {
-    const payload = merge(
-      {
-        model: DEFAULT_AGENT_CONFIG.model,
-        stream: true,
-        ...DEFAULT_AGENT_CONFIG.params,
-      },
-      params,
-    );
+    const { messages, conversationsId } = params;
+    const message = messages?.length ?  messages[messages?.length - 1] : null;
 
-    return this.getDifyChatCompletion(payload, options);
+    const difyPayload: ChatStreamDifyPayLoad = {
+      query: message?.content || '',
+      stream: true,
+      conversation_id: conversationsId || '',
+      user: message?.meta?.userId || '',
+    };
+
+    return fetch(API_ENDPOINTS.difyChat, {
+      body: JSON.stringify(difyPayload),
+      method: 'POST',
+      signal: options.signal,
+    });
   }
 
   createAssistantMessageStream = async ({
@@ -271,7 +276,6 @@ class ChatService {
     const { signal } = options ?? {};
     const { messages, provider, conversationsId, ...res } = params;
     const message = messages?.length ?  messages[messages?.length - 1] : null;
-    console.log('getDifyChatCompletion', message);
 
     const payload = merge(
       {

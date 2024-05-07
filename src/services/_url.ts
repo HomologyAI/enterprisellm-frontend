@@ -44,4 +44,5 @@ export const API_ENDPOINTS = mapWithBasePath({
 
   difyDatasets: '/api/dify/datasets',
   upload: '/api/dify/upload',
+  difyChat: '/api/dify/chat',
 });
