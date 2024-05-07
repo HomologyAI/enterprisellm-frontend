@@ -5,6 +5,7 @@ import { App } from 'antd';
 import { ThemeAppearance, createStyles } from 'antd-style';
 import 'antd/dist/reset.css';
 import Image from 'next/image';
+import Link from 'next/link';
 import { PropsWithChildren, ReactNode, memo, useEffect } from 'react';
 
 import AntdStaticMethods from '@/components/AntdStaticMethods';
@@ -13,10 +14,11 @@ import {
   LOBE_THEME_NEUTRAL_COLOR,
   LOBE_THEME_PRIMARY_COLOR,
 } from '@/const/theme';
-import { useGlobalStore } from '@/store/global';
-import { settingsSelectors } from '@/store/global/selectors';
+import { useUserStore } from '@/store/user';
+import { settingsSelectors } from '@/store/user/selectors';
 import { GlobalStyle } from '@/styles';
 import { setCookie } from '@/utils/cookie';
+import { lobeCustomToken } from '@lobehub/ui';
 
 const useStyles = createStyles(({ css, token }) => ({
   bg: css`
@@ -83,20 +85,21 @@ const AppTheme = memo<AppThemeProps>(
     // console.debug('server:appearance', defaultAppearance);
     // console.debug('server:primaryColor', defaultPrimaryColor);
     // console.debug('server:neutralColor', defaultNeutralColor);
-    const themeMode = useGlobalStore((s) => settingsSelectors.currentSettings(s).themeMode);
+    // const themeMode = useUserStore((s) => settingsSelectors.currentSettings(s).themeMode);
+    const themeMode = "light";
 
-    const [primaryColor, neutralColor] = useGlobalStore((s) => [
+    const [primaryColor, neutralColor] = useUserStore((s) => [
       settingsSelectors.currentSettings(s).primaryColor,
       settingsSelectors.currentSettings(s).neutralColor,
     ]);
 
-    useEffect(() => {
-      setCookie(LOBE_THEME_PRIMARY_COLOR, primaryColor);
-    }, [primaryColor]);
-
-    useEffect(() => {
-      setCookie(LOBE_THEME_NEUTRAL_COLOR, neutralColor);
-    }, [neutralColor]);
+    // useEffect(() => {
+    //   setCookie(LOBE_THEME_PRIMARY_COLOR, primaryColor);
+    // }, [primaryColor]);
+    //
+    // useEffect(() => {
+    //   setCookie(LOBE_THEME_NEUTRAL_COLOR, neutralColor);
+    // }, [neutralColor]);
 
     return (
       <ThemeProvider
@@ -109,10 +112,19 @@ const AppTheme = memo<AppThemeProps>(
           setCookie(LOBE_THEME_APPEARANCE, appearance);
         }}
         themeMode={themeMode}
+        customToken={(theme) => {
+          const tokens = lobeCustomToken(theme);
+
+          return {
+            ...tokens,
+            bnw: 'rgba(22, 119, 255, 1)',
+            bnw9: 'rgba(22, 119, 255, 1)',
+          };
+        }}
       >
         <GlobalStyle />
         <AntdStaticMethods />
-        <ConfigProvider config={{ imgAs: Image, imgUnoptimized: true }}>
+        <ConfigProvider config={{ aAs: Link, imgAs: Image, imgUnoptimized: true }}>
           <Container>{children}</Container>
         </ConfigProvider>
       </ThemeProvider>

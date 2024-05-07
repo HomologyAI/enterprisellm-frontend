@@ -25,6 +25,10 @@ const getImageUrlOrBase64ByList = (idList: string[]) => (s: FilesStoreState) =>
 
 const imageUrlOrBase64List = (s: FilesStoreState) => getImageUrlOrBase64ByList(s.inputFilesList)(s);
 
+const currentSessionFileList = () => {
+
+};
+
 export const filesSelectors = {
   getImageDetailByList,
   getImageUrlOrBase64ById,

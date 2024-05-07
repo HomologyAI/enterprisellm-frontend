@@ -16,7 +16,7 @@ const useStyles = createStyles(({ stylish, css, cx }) =>
       display: flex;
       flex-direction: column;
       gap: 2px;
-      padding: 8px 8px 0;
+      padding: 33px 0px 0;
     `,
   ),
 );
@@ -33,5 +33,7 @@ const Sessions = memo(() => {
     </FolderPanel>
   );
 });
+
+Sessions.displayName = 'SessionsList';
 
 export default Sessions;

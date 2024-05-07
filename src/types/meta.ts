@@ -17,7 +17,14 @@ export const LobeMetaDataSchema = z.object({
   title: z.string().optional(),
 });
 
+export const DatasetsDataSchema = z.array(z.object({
+  isChecked: z.boolean().optional(),
+  id: z.string(),
+  name: z.string(),
+}))
+
 export type MetaData = z.infer<typeof LobeMetaDataSchema>;
+export type DatasetsData = z.infer<typeof DatasetsDataSchema>;
 
 export interface BaseDataModel {
   /**
@@ -35,4 +42,5 @@ export interface BaseDataModel {
    */
   updateAt?: number;
   updatedAt: number;
+  datasets: DatasetsData;
 }

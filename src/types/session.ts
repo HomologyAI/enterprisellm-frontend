@@ -1,6 +1,7 @@
 import { LobeAgentConfig } from '@/types/agent';
 
 import { BaseDataModel, MetaData } from './meta';
+import {DifyDataset} from "@/libs/difyClient";
 
 export enum LobeSessionType {
   Agent = 'agent',
@@ -30,8 +31,10 @@ export type SessionGroups = SessionGroupItem[];
 export interface LobeAgentSession extends BaseDataModel {
   config: LobeAgentConfig;
   group?: SessionGroupId;
+  model: string;
   pinned?: boolean;
   type: LobeSessionType.Agent;
+  conversation_id?: string;
 }
 
 export interface LobeAgentSettings {
@@ -44,15 +47,13 @@ export interface LobeAgentSettings {
 
 export type LobeSessions = LobeAgentSession[];
 
-export interface CustomSessionGroup {
+export interface CustomSessionGroup extends SessionGroupItem {
   children: LobeSessions;
-  id: SessionGroupId;
-  name: string;
 }
 
+export type LobeSessionGroups = SessionGroupItem[];
+
 export interface ChatSessionList {
-  all: LobeSessions;
-  customGroup: CustomSessionGroup[];
-  default: LobeSessions;
-  pinned: LobeSessions;
+  sessionGroups: LobeSessionGroups;
+  sessions: LobeSessions;
 }

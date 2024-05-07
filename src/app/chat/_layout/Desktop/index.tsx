@@ -15,7 +15,7 @@ const Desktop = memo(({ children }: PropsWithChildren) => {
         flex={1}
         height={'100%'}
         id={'lobe-conversion-container'}
-        style={{ position: 'relative' }}
+        style={{ position: 'relative', backgroundColor: '#FFF'}}
       >
         {children}
       </Flexbox>

@@ -6,23 +6,31 @@ import { useTranslation } from 'react-i18next';
 import { Flexbox } from 'react-layout-kit';
 
 import { useSessionStore } from '@/store/session';
-import { agentSelectors, sessionSelectors } from '@/store/session/selectors';
-import { pathString } from '@/utils/url';
+import { sessionMetaSelectors, sessionSelectors } from '@/store/session/selectors';
 
-import Tags from './Tags';
+import BotAvatar from "@/features/Avatar/BotAvatar";
+import {createStyles} from "antd-style";
+
+const useStyles = createStyles(
+  ({ css, token }) => css`
+    margin-left: 40px;
+    //margin-top: 28px;
+  `,
+);
 
 const Main = memo(() => {
   const { t } = useTranslation('chat');
 
   const router = useRouter();
+  const { styles } = useStyles();
 
   const [init, isInbox, title, description, avatar, backgroundColor] = useSessionStore((s) => [
     sessionSelectors.isSomeSessionActive(s),
     sessionSelectors.isInboxSession(s),
-    agentSelectors.currentAgentTitle(s),
-    agentSelectors.currentAgentDescription(s),
-    agentSelectors.currentAgentAvatar(s),
-    agentSelectors.currentAgentBackgroundColor(s),
+    sessionMetaSelectors.currentAgentTitle(s),
+    sessionMetaSelectors.currentAgentDescription(s),
+    sessionMetaSelectors.currentAgentAvatar(s),
+    sessionMetaSelectors.currentAgentBackgroundColor(s),
   ]);
 
   const displayTitle = isInbox ? t('inbox.title') : title;
@@ -38,19 +46,9 @@ const Main = memo(() => {
       />
     </Flexbox>
   ) : (
-    <Flexbox align={'flex-start'} gap={12} horizontal>
-      <Avatar
-        avatar={avatar}
-        background={backgroundColor}
-        onClick={() =>
-          isInbox
-            ? router.push('/settings/agent')
-            : router.push(pathString('/chat/settings', { search: location.search }))
-        }
-        size={40}
-        title={title}
-      />
-      <ChatHeaderTitle desc={displayDesc} tag={<Tags />} title={displayTitle} />
+    <Flexbox align="center" horizontal gap={20} className={styles}>
+      <BotAvatar size={60} />
+      <ChatHeaderTitle desc={displayDesc} title={displayTitle} />
     </Flexbox>
   );
 });
