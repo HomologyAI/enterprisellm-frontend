@@ -8,7 +8,6 @@ import {ChatCompletionErrorPayload} from "@/libs/agent-runtime";
 
 export const runtime = 'nodejs';
 export async function POST(req: Request) {
-  const { BACK_END_URL, DIFY_CHAT_API_KEY } = getServerConfig();
 
   try {
     const formData = await req.formData();

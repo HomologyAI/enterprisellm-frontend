@@ -14,7 +14,7 @@ const useStyles = createStyles(({ css, token, responsive }) => {
       margin-block: 2px;
       padding-right: 24px;
       padding-left: 24px;
-      background-color: rgba(250, 250, 250, 1);
+      background-color: #FAFAFA;
 
       border-radius: 0;
       ${responsive.mobile} {

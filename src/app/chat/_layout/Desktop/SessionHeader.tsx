@@ -34,19 +34,6 @@ const Header = memo(() => {
 
   return (
     <Flexbox className={styles.top} gap={16} >
-      {/*<Flexbox distribution={'space-between'} horizontal>*/}
-      {/*  <Flexbox align={'center'} gap={4} horizontal>*/}
-      {/*    <Logo className={styles.logo} size={36} type={'text'} />*/}
-      {/*    <SyncStatusTag />*/}
-      {/*  </Flexbox>*/}
-      {/*  <ActionIcon*/}
-      {/*    icon={MessageSquarePlus}*/}
-      {/*    onClick={() => createSession()}*/}
-      {/*    size={DESKTOP_HEADER_ICON_SIZE}*/}
-      {/*    style={{ flex: 'none' }}*/}
-      {/*    title={t('newAgent')}*/}
-      {/*  />*/}
-      {/*</Flexbox>*/}
       <SessionSearchBar />
     </Flexbox>
   );

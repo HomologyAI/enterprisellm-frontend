@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
     user = "",
     query = '',
     files = null,
+    datasets = [],
   } = body;
 
   return chatClient.createChatMessage(
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
       stream,
       conversation_id,
       files,
+      dataset_ids: datasets,
     }
   ).then((resp) => {
     return new Response(resp.data);

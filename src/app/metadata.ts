@@ -50,19 +50,9 @@ const metadata: Metadata = {
     type: 'website',
     url: homepage,
   },
-
   title: {
     default: title,
     template: '%s · LobeChat',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    description,
-    images: [
-      'https://registry.npmmirror.com/@lobehub/assets-favicons/latest/files/assets/og-960x540.png',
-    ],
-    site: '@lobehub',
-    title,
   },
 };
 

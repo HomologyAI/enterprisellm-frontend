@@ -12,16 +12,20 @@ import BotAvatar from "@/features/Avatar/BotAvatar";
 import {createStyles} from "antd-style";
 
 const useStyles = createStyles(
-  ({ css, token }) => css`
-    margin-left: 40px;
-    //margin-top: 28px;
-  `,
+  ({ css, token }) => {
+    return {
+      container: css`
+        margin-left: 20px;
+      `,
+      title: css`
+        font-size: 24px;
+      `,
+    }
+  }
 );
 
 const Main = memo(() => {
-  const { t } = useTranslation('chat');
 
-  const router = useRouter();
   const { styles } = useStyles();
 
   const [init, isInbox, title, description, avatar, backgroundColor] = useSessionStore((s) => [
@@ -33,9 +37,6 @@ const Main = memo(() => {
     sessionMetaSelectors.currentAgentBackgroundColor(s),
   ]);
 
-  const displayTitle = isInbox ? t('inbox.title') : title;
-  const displayDesc = isInbox ? t('inbox.desc') : description;
-
   return !init ? (
     <Flexbox horizontal>
       <Skeleton
@@ -46,9 +47,9 @@ const Main = memo(() => {
       />
     </Flexbox>
   ) : (
-    <Flexbox align="center" horizontal gap={20} className={styles}>
+    <Flexbox align="center" horizontal gap={20} className={styles.container}>
       <BotAvatar size={60} />
-      <ChatHeaderTitle desc={displayDesc} title={displayTitle} />
+      <p className={styles.title}>{title}</p>
     </Flexbox>
   );
 });

@@ -15,7 +15,8 @@ export const renderActions: Record<LLMRoleType, RenderAction> = {
   assistant: AssistantActionsBar,
   function: FunctionActionsBar,
   system: DefaultActionsBar,
-  user: UserActionsBar,
+  // user: UserActionsBar,
+  user: () => null,
 };
 
 export const useActionsClick = (): OnActionsClick => {
@@ -64,6 +65,14 @@ export const useActionsClick = (): OnActionsClick => {
 
       case 'tts': {
         ttsMessage(id);
+        break;
+      }
+
+      case 'like': {
+        break;
+      }
+
+      case 'unLike': {
         break;
       }
     }

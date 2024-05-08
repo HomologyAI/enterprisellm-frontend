@@ -23,6 +23,7 @@ interface ChatMessageConfig {
   stream?: boolean;
   conversation_id?: string | null;
   files?: File[] | null;
+  dataset_ids?: string[];
 }
 
 export declare class DifyClient {

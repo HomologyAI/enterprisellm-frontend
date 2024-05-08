@@ -16,7 +16,7 @@ export const routes = {
     },
     createChatMessage: {
         method: "POST",
-        url: () => `/chat-messages`,
+        url: () => process.env.NODE_ENV === 'development' ? '/chat-messages' : `/chat-homology-messages`,
     },
     getConversationMessages: {
         method: "GET",
@@ -182,7 +182,8 @@ export class ChatClient extends DifyClient {
             user,
             stream = false,
             conversation_id = null,
-            files = null
+            files = null,
+            dataset_ids = [],
         } = config;
 
         const data = {
@@ -191,6 +192,7 @@ export class ChatClient extends DifyClient {
             user,
             response_mode: stream ? "streaming" : "blocking",
             files,
+            dataset_ids,
         };
         if (conversation_id) data.conversation_id = conversation_id;
 

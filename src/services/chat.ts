@@ -38,6 +38,8 @@ interface FetchOptions {
 interface GetChatCompletionPayload extends Partial<Omit<ChatStreamPayload, 'messages'>> {
   messages: ChatMessage[];
   conversationsId?: string;
+  fileList?: string[];
+  datasets?: string[];
 }
 
 interface FetchAITaskResultParams {
@@ -217,7 +219,7 @@ class ChatService {
     params: GetChatCompletionPayload,
     options?: FetchOptions,
   ) => {
-    const { messages, conversationsId } = params;
+    const { messages, conversationsId, fileList = [], datasets = [] } = params;
     const message = messages?.length ?  messages[messages?.length - 1] : null;
 
     const difyPayload: ChatStreamDifyPayLoad = {
@@ -225,7 +227,10 @@ class ChatService {
       stream: true,
       conversation_id: conversationsId || '',
       user: message?.meta?.userId || '',
+      fileList,
+      datasets,
     };
+    console.log('difyPayload', difyPayload);
 
     return fetch(API_ENDPOINTS.difyChat, {
       body: JSON.stringify(difyPayload),

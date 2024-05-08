@@ -81,11 +81,6 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
         showAction={open}
         title={title}
       />
-      <CreateGroupModal
-        id={id}
-        onCancel={() => setCreateGroupModalOpen(false)}
-        open={createGroupModalOpen}
-      />
     </>
   );
 }, shallow);

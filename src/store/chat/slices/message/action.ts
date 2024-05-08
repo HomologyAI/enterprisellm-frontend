@@ -95,6 +95,8 @@ export interface ChatMessageAction {
     traceId?: string,
     sessionId: string,
     conversationsId: string,
+    fileList: string[],
+    datasets: string[],
   }) => Promise<{
     content: string;
     functionCallAtEnd: boolean;
@@ -130,6 +132,8 @@ export interface ChatMessageAction {
 const getAgentConfig = () => agentSelectors.currentAgentConfig(useAgentStore.getState());
 const getCurrentConversationId = () => sessionDifySelectors.currentSessionConversationId(useSessionStore.getState());
 const refreshSessions = () => useSessionStore.getState().refreshSessions();
+const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSessionStore.getState());
+const getCurrentFileList = () => sessionDifySelectors.currentSessionFiles(useSessionStore.getState());
 
 const preventLeavingFn = (e: BeforeUnloadEvent) => {
   // set returnValue to trigger alert modal
@@ -346,6 +350,10 @@ export const chatMessage: StateCreator<
 
     const mid = await get().internalCreateMessage(assistantMessage);
     const cId = getCurrentConversationId();
+    const fileList = getCurrentFileList().map((file) => file.id || '');
+    const datasets = getCurrentDatasets().filter((item) => {
+      return item?.isChecked;
+    }).map((dataset) => dataset.id);
 
     // 2. fetch the AI response
     const { isFunctionCall, content, functionCallAtEnd, functionCallContent, traceId } =
@@ -354,7 +362,9 @@ export const chatMessage: StateCreator<
         assistantMessageId: mid,
         traceId: trace,
         sessionId: activeId,
-        conversationsId: cId
+        conversationsId: cId,
+        fileList,
+        datasets,
       });
 
     // 3. if it's the function call message, trigger the function method
@@ -395,7 +405,7 @@ export const chatMessage: StateCreator<
 
     set({ messages }, false, n(`dispatchMessage/${payload.type}`, payload));
   },
-  fetchAIChatMessage: async ({messages, assistantMessageId, traceId, sessionId, conversationsId,}) => {
+  fetchAIChatMessage: async ({messages, assistantMessageId, traceId, sessionId, conversationsId, fileList, datasets }) => {
     const {
       toggleChatLoading,
       refreshMessages,
@@ -474,6 +484,8 @@ export const chatMessage: StateCreator<
         ...config.params,
         plugins: config.plugins,
         conversationsId,
+        fileList,
+        datasets,
       },
       trace: {
         traceId,

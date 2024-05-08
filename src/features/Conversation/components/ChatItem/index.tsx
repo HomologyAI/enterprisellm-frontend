@@ -118,6 +118,7 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
   });
 
   const renderAvatar = useMemo(() => {
+    if (!item) return null;
     if (item.role === 'user') {
       return (
         <UserAvatar />
@@ -169,6 +170,7 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
               }}
               time={item.updatedAt || item.createdAt}
               type={type === 'chat' ? 'block' : 'pure'}
+              actions={<ActionsBar index={index}/>}
             />
           )
         }
