@@ -13,7 +13,7 @@ export async function GET() {
   }).then((resp) => {
     return NextResponse.json(resp.data);
   }).catch((error) => {
-    console.error(`Route: ${'error'}:`, error.response.data);
+    console.error(`Route: ${'error'}:`, error?.response?.data);
     const errorData = error?.response?.data || {}
     const errorType = errorData?.status === 401 ? ChatErrorType.Unauthorized : ChatErrorType.InternalServerError;
     return createErrorResponse(errorType, errorData);
