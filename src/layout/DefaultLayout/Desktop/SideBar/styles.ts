@@ -15,7 +15,7 @@ import { createStyles } from 'antd-style';
 
 export const useStyles = createStyles(({ css, token }) => ({
   container: css`
-    width: 162px;
+    width: auto;
     height: 100%;
     min-height: 640px;
     padding-block: 0;
@@ -23,6 +23,18 @@ export const useStyles = createStyles(({ css, token }) => ({
 
     background: ${token.colorBgContainer};
     border-inline-end: 1px solid ${token.colorBorder};
+  `,
+  sider: css`
+  `,
+  menu: css`
+    background: ${token.colorBgContainer};
+    flex-shrink: 1;
+    flex-grow: 1;
+    margin-top: 20px;
+
+    .ant-menu-item {
+      padding: 0 16px;
+    }
   `,
   header: css`
     padding: 16px;
@@ -34,16 +46,16 @@ export const useStyles = createStyles(({ css, token }) => ({
     width: 100%;
   `,
   item: css`
-    padding: 4px 7px 4px 4px;
+    padding: 4px 12px 4px 12px;
     width: 100%;
     color: rgba(0, 102, 255, 1);
-    font-size: 18px;
+    font-size: 16px;
     border-radius: 8px;
-    
+  `,
+  activeItem: css`
     background: rgba(230, 244, 255, 1);
   `,
   itemText: css`
-    margin-left: 0px;
+    margin-left: 6px;
   `,
-
 }));

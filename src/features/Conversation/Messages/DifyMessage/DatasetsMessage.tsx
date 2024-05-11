@@ -17,6 +17,7 @@ import isEqual from "fast-deep-equal";
 import {SWRResponse} from "swr";
 import {DatasetsData} from "@/types/meta";
 import BubblesLoading from "@/features/Conversation/components/BubblesLoading";
+import {appsSelectors} from "@/store/apps";
 
 const useStyles = createStyles(
   ({ css, token }) => {

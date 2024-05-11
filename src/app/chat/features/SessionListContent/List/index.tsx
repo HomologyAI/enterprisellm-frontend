@@ -15,6 +15,7 @@ import { LobeAgentSession } from '@/types/session';
 import SkeletonList from '../SkeletonList';
 import AddButton from './AddButton';
 import SessionItem from './Item';
+import {useAppsStore} from "@/store/apps";
 
 const useStyles = createStyles(
   ({ css }) => css`
@@ -34,6 +35,7 @@ const SessionList = memo<SessionListProps>(({ dataSource, groupId, showAddButton
   const { styles } = useStyles();
 
   const { mobile } = useResponsive();
+  const appId = useAppsStore(s => s.activeId);
 
   const isEmpty = !dataSource || dataSource.length === 0;
   return !isInit ? (
@@ -41,7 +43,7 @@ const SessionList = memo<SessionListProps>(({ dataSource, groupId, showAddButton
   ) : !isEmpty ? (
     dataSource.map(({ id }) => (
       <LazyLoad className={styles} key={id}>
-        <Link aria-label={id} href={SESSION_CHAT_URL(id, mobile)}>
+        <Link aria-label={id} href={SESSION_CHAT_URL(id, appId, mobile)}>
           <SessionItem id={id} />
         </Link>
       </LazyLoad>

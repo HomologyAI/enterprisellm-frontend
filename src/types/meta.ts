@@ -66,4 +66,6 @@ export interface BaseDataModel {
   datasets: DatasetsData;
   files: FilesData;
   conversation_id?: string;
+  userId: string;
+  appId: string;
 }

@@ -8,6 +8,7 @@ import { message } from '@/components/AntdStaticMethods';
 import { DEFAULT_AGENT_LOBE_SESSION, INBOX_SESSION_ID } from '@/const/session';
 import { useClientDataSWR } from '@/libs/swr';
 import { sessionService } from '@/services/session';
+import {difyService} from '@/services/dify';
 import {SessionStore, useSessionStore} from '@/store/session';
 import { useUserStore } from '@/store/user';
 import { settingsSelectors } from '@/store/user/selectors';
@@ -30,6 +31,8 @@ import {DifyDataset, GetDatasetsResp} from "@/libs/difyClient";
 import {API_ENDPOINTS} from "@/services/_url";
 import {useChatStore} from "@/store/chat";
 import {UploadFile} from "antd/es/upload/interface";
+import {appsSelectors, useAppsStore} from "@/store/apps";
+import {DifyApp} from "@/types/dify";
 
 const n = setNamespace('session');
 
@@ -43,6 +46,7 @@ export interface SessionAction {
    * @param sessionId
    */
   activeSession: (sessionId: string) => void;
+  activeFirstSession: () => void;
   /**
    * reset sessions to default
    */
@@ -78,7 +82,7 @@ export interface SessionAction {
 
   updateSearchKeywords: (keywords: string) => void;
 
-  useFetchSessions: () => SWRResponse<ChatSessionList>;
+  useFetchSessions: (params: {userId: string}) => SWRResponse<ChatSessionList>;
   useSearchSessions: (keyword?: string) => SWRResponse<any>;
 
   internal_dispatchSessions: (payload: SessionDispatch) => void;
@@ -96,10 +100,14 @@ export interface SessionAction {
   ) => void;
   /* eslint-enable */
   useFetchDatasets: () => SWRResponse<DatasetsData[]>;
+  renameConversation: (name: string) => Promise<boolean>;
 }
 
 const addDifyDatasetsMessage = (id: string) => useChatStore.getState().addDifyDatasetsMessage(id);
-const refreshMessages = () => useChatStore.getState().refreshMessages();
+
+const getUserId = () => useUserStore.getState().userId || '';
+const getAppId = () => useAppsStore.getState().activeId;
+const getApp = () => appsSelectors.currentApp(useAppsStore.getState());
 
 export const createSessionSlice: StateCreator<
   SessionStore,
@@ -107,12 +115,58 @@ export const createSessionSlice: StateCreator<
   [],
   SessionAction
 > = (set, get) => ({
+  renameConversation: async (name) => {
+    const session = sessionSelectors.currentSession(get());
+    if (!session?.conversation_id) return false;
+
+    const {
+      userId = '',
+      conversation_id = '',
+    } = session;
+
+    const app = getApp();
+
+    const result = await difyService.renameConversation({
+      app,
+      data: {
+        conversation_id,
+        userId,
+        name,
+      },
+    });
+
+    if (result) {
+      // 修改session.title
+      const meta: MetaData = {
+        ...session.meta,
+        title: name,
+      }
+
+      const { activeId, refreshSessions } = get();
+      await sessionService.updateSession(activeId, { meta });
+      await refreshSessions();
+    }
+
+    return result;
+  },
+  activeFirstSession: () => {
+    const { sessions, activeId } = get();
+    if (!sessions.length) {
+      return;
+    }
+
+    const firstSession = sessions[0];
+    if (firstSession.id === activeId) {
+      return;
+    }
+
+    set({ activeId: firstSession.id }, false, n(`activeSession/${firstSession.id}`));
+  },
   activeSession: (sessionId) => {
     if (get().activeId === sessionId) return;
 
     set({ activeId: sessionId }, false, n(`activeSession/${sessionId}`));
   },
-
   clearSessions: async () => {
     await sessionService.removeAllSessions();
     await get().refreshSessions();
@@ -127,8 +181,20 @@ export const createSessionSlice: StateCreator<
       settingsSelectors.defaultAgent(useUserStore.getState()),
     );
 
+    const currentUserId = getUserId();
+    const currentAppId = getAppId();
+
     // 创建一个新的session
-    const newSession: LobeAgentSession = merge(defaultAgent, agent);
+    let newSession: LobeAgentSession = merge(defaultAgent, agent);
+
+    newSession = {
+      ...newSession,
+      userId: currentUserId,
+      appId: currentAppId,
+    }
+
+    console.log('newSession', currentUserId, currentAppId, newSession);
+
     const id = await sessionService.createSession(LobeSessionType.Agent, newSession);
     await refreshSessions();
 
@@ -208,9 +274,8 @@ export const createSessionSlice: StateCreator<
     await sessionService.updateSession(activeId, { meta });
     await refreshSessions();
   },
-
-  useFetchSessions: () =>
-    useClientDataSWR<ChatSessionList>(FETCH_SESSIONS_KEY, sessionService.getGroupedSessions, {
+  useFetchSessions: ({userId, appId}) =>
+    useClientDataSWR<ChatSessionList>([FETCH_SESSIONS_KEY, userId, appId], ([, userId, appId]) => sessionService.getGroupedSessions(userId, appId), {
       onSuccess: (data) => {
         if (
           get().isSessionsFirstFetchFinished &&
@@ -273,7 +338,9 @@ export const createSessionSlice: StateCreator<
     );
   },
   refreshSessions: async () => {
-    await mutate(FETCH_SESSIONS_KEY);
+    const currentUserId = getUserId();
+    const currentAppId = getAppId();
+    await mutate([FETCH_SESSIONS_KEY, currentUserId, currentAppId]);
   },
   updateSessionDatasets: async (datasets) => {
     const session = sessionSelectors.currentSession(get());
@@ -325,23 +392,14 @@ export const createSessionSlice: StateCreator<
   useFetchDatasets: () => {
     const {updateSessionDatasets} = get();
     const session = sessionSelectors.currentSession(get());
+    const app = getApp();
 
-    return useSWR('fetchDifyDatasets', async () => {
-      return fetch(API_ENDPOINTS.difyDatasets, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'GET',
-      }).then((resp) => {
-        return resp.json();
-      });
-    }, {
-      dedupingInterval: 0,
-      refreshWhenOffline: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      onSuccess: (resp: GetDatasetsResp) => {
-        // console.log('session', session?.datasets);
+    return useClientDataSWR(
+      'fetchDifyDatasets',
+      () => difyService.getDatasets({ app }),
+      {
+        onSuccess: (resp: GetDatasetsResp) => {
+        // console.log('resp', resp);
 
         if (!session?.datasets && resp?.data) {
           updateSessionDatasets(resp.data);

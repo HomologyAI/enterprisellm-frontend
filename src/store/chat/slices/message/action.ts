@@ -27,6 +27,8 @@ import {MessageDispatch, messagesReducer} from './reducer';
 import {sessionService} from "@/services/session";
 import {sessionDifySelectors} from "@/store/session/slices/session/selectors";
 import {useSessionStore} from "@/store/session";
+import {DifyApp} from "@/types/dify";
+import {appsSelectors, useAppsStore} from "@/store/apps";
 
 const n = setNamespace('message');
 
@@ -97,6 +99,7 @@ export interface ChatMessageAction {
     conversationsId: string,
     fileList: string[],
     datasets: string[],
+    app: DifyApp,
   }) => Promise<{
     content: string;
     functionCallAtEnd: boolean;
@@ -134,6 +137,7 @@ const getCurrentConversationId = () => sessionDifySelectors.currentSessionConver
 const refreshSessions = () => useSessionStore.getState().refreshSessions();
 const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSessionStore.getState());
 const getCurrentFileList = () => sessionDifySelectors.currentSessionFiles(useSessionStore.getState());
+const getCurrentApp = () => appsSelectors.currentApp(useAppsStore.getState());
 
 const preventLeavingFn = (e: BeforeUnloadEvent) => {
   // set returnValue to trigger alert modal
@@ -354,6 +358,7 @@ export const chatMessage: StateCreator<
     const datasets = getCurrentDatasets().filter((item) => {
       return item?.isChecked;
     }).map((dataset) => dataset.id);
+    const app = getCurrentApp();
 
     // 2. fetch the AI response
     const { isFunctionCall, content, functionCallAtEnd, functionCallContent, traceId } =
@@ -365,6 +370,7 @@ export const chatMessage: StateCreator<
         conversationsId: cId,
         fileList,
         datasets,
+        app,
       });
 
     // 3. if it's the function call message, trigger the function method
@@ -405,7 +411,7 @@ export const chatMessage: StateCreator<
 
     set({ messages }, false, n(`dispatchMessage/${payload.type}`, payload));
   },
-  fetchAIChatMessage: async ({messages, assistantMessageId, traceId, sessionId, conversationsId, fileList, datasets }) => {
+  fetchAIChatMessage: async ({messages, assistantMessageId, traceId, sessionId, conversationsId, fileList, datasets , app}) => {
     const {
       toggleChatLoading,
       refreshMessages,
@@ -486,6 +492,7 @@ export const chatMessage: StateCreator<
         conversationsId,
         fileList,
         datasets,
+        app,
       },
       trace: {
         traceId,

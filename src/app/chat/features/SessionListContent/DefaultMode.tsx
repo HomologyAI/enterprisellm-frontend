@@ -4,6 +4,8 @@ import { useSessionStore } from '@/store/session';
 import { sessionSelectors } from '@/store/session/selectors';
 
 import SessionList from './List';
+import {useUserStore} from "@/store/user";
+import {appsSelectors, useAppsStore} from "@/store/apps";
 
 const SessionDefaultMode = memo(() => {
 
@@ -13,20 +15,25 @@ const SessionDefaultMode = memo(() => {
     sessions,
     createSession,
     activeSession,
+    activeId,
   ] = useSessionStore((s) => [
     s.isSessionsFirstFetchFinished,
     s.useFetchSessions,
     s.sessions,
     s.createSession,
     s.activeSession,
+    s.activeId,
   ]);
 
-  useFetchSessions();
+  const userId = useUserStore(s => s.userId);
+  const appId = useAppsStore(appsSelectors.currentAppId, isEqual);
+
+  useFetchSessions({ userId, appId });
 
   const didInit = useRef(false);
 
   useEffect(() => {
-    if (init && !didInit.current) {
+    if (init && !didInit.current && !activeId) {
       didInit.current = true;
 
       if (sessions.length) {
@@ -36,7 +43,11 @@ const SessionDefaultMode = memo(() => {
         createSession()
       }
     }
-  }, [init, sessions]);
+  }, [init, sessions, activeId]);
+
+  useEffect(() => {
+
+  }, [appId]);
 
   const defaultSessions = useSessionStore(sessionSelectors.defaultSessions, isEqual);
 

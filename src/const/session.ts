@@ -13,6 +13,9 @@ export const DEFAULT_AGENT_LOBE_SESSION: LobeAgentSession = {
   model: DEFAULT_AGENT_CONFIG.model,
   type: LobeSessionType.Agent,
   updatedAt: Date.now(),
+  conversation_id: '',
+  userId: '',
+  appId: '',
 };
 
 export const DEFAULT_INBOX_SESSION: LobeAgentSession = merge(DEFAULT_AGENT_LOBE_SESSION, {

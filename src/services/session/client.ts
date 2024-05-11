@@ -39,8 +39,8 @@ export class ClientService implements ISessionService {
     if (res) return res?.id;
   }
 
-  async getGroupedSessions(): Promise<ChatSessionList> {
-    return SessionModel.queryWithGroups();
+  async getGroupedSessions(userId: string, appId: string): Promise<ChatSessionList> {
+    return SessionModel.queryWithGroups(userId, appId);
   }
 
   async getSessionConfig(id: string): Promise<LobeAgentConfig> {

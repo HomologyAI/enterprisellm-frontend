@@ -5,28 +5,28 @@ import { PropsWithChildren, memo } from 'react';
 import { Flexbox } from 'react-layout-kit';
 
 import ClientResponsiveLayout from '@/components/client/ClientResponsiveLayout';
-import { useActiveTabKey } from '@/hooks/useActiveTabKey';
 import { useIsPWA } from '@/hooks/useIsPWA';
 
 import SideBar from './SideBar';
+import {useAppsStore} from "@/store/apps";
+import FullscreenLoading from "@/components/FullscreenLoading";
+import {Layout} from "antd";
 
 const Desktop = memo<PropsWithChildren>(({ children }) => {
   const isPWA = useIsPWA();
   const theme = useTheme();
 
-  const sidebarKey = useActiveTabKey();
+  const apps = useAppsStore(s => s.apps);
+  console.log('Desktop apps', apps);
 
-  return (
-    <Flexbox
-      height={'100%'}
-      horizontal
-      style={isPWA ? { borderTop: `1px solid ${theme.colorBorder}` } : {}}
-      width={'100%'}
+  return apps?.length ? (
+    <Layout
+      style={{ width: '100%', height: '100%' }}
     >
-      <SideBar sidebarKey={sidebarKey} />
+      <SideBar />
       {children}
-    </Flexbox>
-  );
+    </Layout>
+  ) : <FullscreenLoading title="尚书大模型启动中，请稍等"/>;
 });
 
 export default ClientResponsiveLayout({ Desktop, Mobile: () => import('../Mobile') });

@@ -2,6 +2,10 @@ import { AgentRuntimeErrorType, ILobeAgentRuntimeErrorType } from '@/libs/agent-
 import { ChatErrorType, ErrorResponse, ErrorType } from '@/types/fetch';
 
 const getStatus = (errorType: ILobeAgentRuntimeErrorType | ErrorType) => {
+  if (errorType === AgentRuntimeErrorType.InvalidParams) {
+    return 500;
+  }
+
   // InvalidAccessCode / InvalidAzureAPIKey / InvalidOpenAIAPIKey / InvalidZhipuAPIKey ....
   if (errorType.toString().includes('Invalid')) return 401;
 

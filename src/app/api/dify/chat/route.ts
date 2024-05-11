@@ -18,7 +18,12 @@ export async function POST(req: NextRequest) {
     query = '',
     files = null,
     datasets = [],
+    app,
   } = body;
+
+  if (app?.apiKey) {
+    chatClient.updateApiKey(app.apiKey);
+  }
 
   return chatClient.createChatMessage(
     {

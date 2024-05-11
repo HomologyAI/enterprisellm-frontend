@@ -56,6 +56,8 @@ export const DB_SessionSchema = z.object({
   conversation_id: z.string().optional(),
   datasets: DatasetsDataSchema.optional(),
   files: FilesDataSchema.optional(),
+  userId: z.string(),
+  appId: z.string(),
 });
 
 export type DB_Session = z.infer<typeof DB_SessionSchema>;

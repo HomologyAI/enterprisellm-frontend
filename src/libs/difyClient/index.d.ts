@@ -71,6 +71,8 @@ export declare class ChatClient extends DifyClient {
   renameConversation(conversation_id: string, name: string, user: User): Promise<any>;
 
   deleteConversation(conversation_id: string, user: User): Promise<any>;
+
+  getConversationName(conversation_id: string, user: User): Promise<any>;
 }
 
 export interface DifyDataset {

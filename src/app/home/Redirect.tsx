@@ -5,6 +5,7 @@ import { memo, useEffect } from 'react';
 
 import { messageService } from '@/services/message';
 import { sessionService } from '@/services/session';
+import {useAppsStore} from "@/store/apps";
 
 const checkHasConversation = async () => {
   const hasMessages = await messageService.hasMessages();
@@ -15,6 +16,9 @@ const checkHasConversation = async () => {
 const Redirect = memo(() => {
   const router = useRouter();
 
+  const apps = useAppsStore(s => s.apps);
+  console.log('Redirect apps', apps);
+
   useEffect(() => {
     // checkHasConversation().then((hasData) => {
     //   if (hasData) {
@@ -23,8 +27,10 @@ const Redirect = memo(() => {
     //     router.replace('/welcome');
     //   }
     // });
-    router.replace('/chat');
-  }, []);
+    if (apps?.length) {
+      router.replace('/chat');
+    }
+  }, [apps]);
 
   return null;
 });

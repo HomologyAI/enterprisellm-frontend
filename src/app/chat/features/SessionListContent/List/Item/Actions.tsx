@@ -12,15 +12,18 @@ import {
   Pin,
   PinOff,
   Trash,
+  Edit,
 } from 'lucide-react';
-import { memo, useMemo } from 'react';
+import {memo, useMemo, useRef} from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { configService } from '@/services/config';
 import { useSessionStore } from '@/store/session';
 import { sessionHelpers } from '@/store/session/helpers';
-import { sessionGroupSelectors, sessionSelectors } from '@/store/session/selectors';
+import {sessionGroupSelectors, sessionMetaSelectors, sessionSelectors} from '@/store/session/selectors';
 import { SessionDefaultGroup } from '@/types/session';
+import EditNameModalContent from "@/app/chat/features/SessionListContent/List/Item/EditNameModalContent";
+import {API_ENDPOINTS} from "@/services/_url";
 
 const useStyles = createStyles(({ css }) => ({
   modalRoot: css`
@@ -39,16 +42,20 @@ const Actions = memo<ActionProps>(({ group, id, openCreateGroupModal, setOpen })
   const { styles } = useStyles();
   const { t } = useTranslation('chat');
 
-  const sessionCustomGroups = useSessionStore(sessionGroupSelectors.sessionGroupItems, isEqual);
-  const [pin, removeSession, pinSession, duplicateSession, updateSessionGroup] = useSessionStore(
+  const [pin, removeSession, renameConversation, title, conversationId] = useSessionStore(
     (s) => {
       const session = sessionSelectors.getSessionById(id)(s);
+
+      const meta = session.meta;
+      const title = sessionMetaSelectors.getTitle(meta);
+      const conversationId = session.conversation_id;
+
       return [
         sessionHelpers.getSessionPinned(session),
         s.removeSession,
-        s.pinSession,
-        s.duplicateSession,
-        s.updateSessionGroupId,
+        s.renameConversation,
+        title,
+        conversationId,
       ];
     },
   );
@@ -57,110 +64,72 @@ const Actions = memo<ActionProps>(({ group, id, openCreateGroupModal, setOpen })
 
   const isDefault = group === SessionDefaultGroup.Default;
   // const hasDivider = !isDefault || Object.keys(sessionByGroup).length > 0;
+  const titleRef = useRef(title);
 
   const items: MenuProps['items'] = useMemo(
-    () => [
-      // {
-      //   icon: <Icon icon={pin ? PinOff : Pin} />,
-      //   key: 'pin',
-      //   label: t(pin ? 'pinOff' : 'pin'),
-      //   onClick: () => {
-      //     pinSession(id, !pin);
-      //   },
-      // },
-      // {
-      //   icon: <Icon icon={LucideCopy} />,
-      //   key: 'duplicate',
-      //   label: t('duplicate', { ns: 'common' }),
-      //   onClick: ({ domEvent }) => {
-      //     domEvent.stopPropagation();
-      //
-      //     duplicateSession(id);
-      //   },
-      // },
-      // {
-      //   type: 'divider',
-      // },
-      // {
-      //   children: [
-      //     ...sessionCustomGroups.map(({ id: groupId, name }) => ({
-      //       icon: group === groupId ? <Icon icon={Check} /> : <div />,
-      //       key: groupId,
-      //       label: name,
-      //       onClick: () => {
-      //         updateSessionGroup(id, groupId);
-      //       },
-      //     })),
-      //     {
-      //       icon: isDefault ? <Icon icon={Check} /> : <div />,
-      //       key: 'defaultList',
-      //       label: t('defaultList'),
-      //       onClick: () => {
-      //         updateSessionGroup(id, SessionDefaultGroup.Default);
-      //       },
-      //     },
-      //     {
-      //       type: 'divider',
-      //     },
-      //     {
-      //       icon: <Icon icon={LucidePlus} />,
-      //       key: 'createGroup',
-      //       label: <div>{t('sessionGroup.createGroup')}</div>,
-      //       onClick: ({ domEvent }) => {
-      //         domEvent.stopPropagation();
-      //         openCreateGroupModal();
-      //       },
-      //     },
-      //   ],
-      //   icon: <Icon icon={ListTree} />,
-      //   key: 'moveGroup',
-      //   label: t('sessionGroup.moveGroup'),
-      // },
-      // {
-      //   type: 'divider',
-      // },
-      // {
-      //   children: [
-      //     {
-      //       key: 'agent',
-      //       label: t('exportType.agent', { ns: 'common' }),
-      //       onClick: () => {
-      //         configService.exportSingleAgent(id);
-      //       },
-      //     },
-      //     {
-      //       key: 'agentWithMessage',
-      //       label: t('exportType.agentWithMessage', { ns: 'common' }),
-      //       onClick: () => {
-      //         configService.exportSingleSession(id);
-      //       },
-      //     },
-      //   ],
-      //   icon: <Icon icon={HardDriveDownload} />,
-      //   key: 'export',
-      //   label: t('export', { ns: 'common' }),
-      // },
-      {
-        danger: true,
-        icon: <Icon icon={Trash} />,
-        key: 'delete',
-        label: t('delete', { ns: 'common' }),
-        onClick: ({ domEvent }) => {
-          domEvent.stopPropagation();
-          modal.confirm({
-            centered: true,
-            okButtonProps: { danger: true },
-            onOk: async () => {
-              await removeSession(id);
-              message.success(t('confirmRemoveSessionSuccess'));
-            },
-            rootClassName: styles.modalRoot,
-            title: t('confirmRemoveSessionItemAlert'),
-          });
+    () => {
+      const res = [
+        {
+          danger: true,
+          icon: <Icon icon={Trash} />,
+          key: 'delete',
+          label: '删除对话',
+          onClick: ({ domEvent }) => {
+            domEvent.stopPropagation();
+            modal.confirm({
+              centered: true,
+              okButtonProps: { danger: true },
+              onOk: async () => {
+                await removeSession(id);
+                message.success(t('confirmRemoveSessionSuccess'));
+              },
+              rootClassName: styles.modalRoot,
+              title: t('confirmRemoveSessionItemAlert'),
+            });
+          },
         },
-      },
-    ],
-    [id, pin],
+      ];
+      if (conversationId) {
+        res.push(
+          {
+            danger: false,
+            icon: <Icon icon={Edit} />,
+            key: 'edit',
+            label: '编辑对话标题',
+            onClick: ({ domEvent }) => {
+              domEvent.stopPropagation();
+
+              modal.confirm({
+                centered: true,
+                okButtonProps: { danger: false },
+                content: (
+                  <EditNameModalContent
+                    title={title}
+                    onChanged={(e) => {
+                      titleRef.current = e.target.value;
+                    }}
+                  />
+                ),
+                title: '编辑对话标题',
+                onOk: async () => {
+                  const res = await renameConversation(titleRef.current);
+
+                  if (res) {
+                    message.success(t('编辑对话标题成功'));
+                  } else {
+                    message.error(t('编辑对话标题失败'));
+                  }
+                },
+                // rootClassName: styles.modalRoot,
+              });
+            },
+          },
+        )
+      }
+
+      return res;
+    },
+    [id, pin, title, conversationId],
   );
 
   return (

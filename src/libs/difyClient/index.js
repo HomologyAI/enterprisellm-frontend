@@ -26,6 +26,10 @@ export const routes = {
         method: "GET",
         url: () => `/conversations`,
     },
+    getConversationName: {
+        method: "GET",
+        url: (conversation_id) => `/conversations/${conversation_id}/get_name`,
+    },
     renameConversation: {
         method: "POST",
         url: (conversation_id) => `/conversations/${conversation_id}/name`,
@@ -242,6 +246,15 @@ export class ChatClient extends DifyClient {
         return this.sendRequest(
             routes.renameConversation.method,
             routes.renameConversation.url(conversation_id),
+            data
+        );
+    }
+
+    getConversationName(conversation_id, name, user) {
+        const data = { user };
+        return this.sendRequest(
+            routes.getConversationName.method,
+            routes.getConversationName.url(conversation_id),
             data
         );
     }
