@@ -54,6 +54,10 @@ export const routes = {
         method: "GET",
         url: () => `/files/upload`,
     },
+    getApps: {
+        method: "GET",
+        url: () => `/apps`,
+    },
 };
 
 export class DifyClient {
@@ -265,6 +269,13 @@ export class ChatClient extends DifyClient {
             routes.deleteConversation.method,
             routes.deleteConversation.url(conversation_id),
             data
+        );
+    }
+
+    getApps() {
+        return this.sendRequest(
+            routes.getApps.method,
+            routes.getApps.url(),
         );
     }
 }
