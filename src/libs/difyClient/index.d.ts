@@ -73,6 +73,8 @@ export declare class ChatClient extends DifyClient {
   deleteConversation(conversation_id: string, user: User): Promise<any>;
 
   getConversationName(conversation_id: string, user: User): Promise<any>;
+
+  getApps(): Promise<any>;
 }
 
 export interface DifyDataset {
@@ -99,6 +101,18 @@ export interface GetDatasetsResp {
   total: number;
   page: number;
 }
+
+export interface DifyRawApp {
+  id: string;
+  name: string;
+  mode: string;
+  icon: string,
+  icon_background: string;
+  token: string;
+  datasets: DifyDataset[];
+}
+
+export type GetAppResp = DifyRawApp[];
 
 export interface GetDatasetsParams {
   page: number;

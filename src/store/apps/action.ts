@@ -1,12 +1,13 @@
 import useSWR, { SWRResponse } from 'swr';
 import type { StateCreator } from 'zustand/vanilla';
 
-import { FetchDifyAppsResp } from '@/types/dify';
+import {DifyApp, FetchDifyAppsResp} from '@/types/dify';
 
 import type { Store } from './store';
 import {API_ENDPOINTS} from "@/services/_url";
 import {useClientDataSWR} from "@/libs/swr";
 import {GetDatasetsResp} from "@/libs/difyClient";
+import {difyService} from "@/services/dify";
 
 export interface StoreAction {
   useFetchApps: () => SWRResponse<FetchDifyAppsResp>;
@@ -23,23 +24,16 @@ export const createAppsAction: StateCreator<
     set({ activeId: activeId }, false);
   },
   useFetchApps: () =>
-    useSWR('fetchDifyApps', async () => {
-      return fetch(API_ENDPOINTS.difyApps, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'GET',
-      }).then((resp) => {
-        return resp.json();
-      });
+    useClientDataSWR('fetchDifyApps', () => {
+      return difyService.getApps();
     }, {
-      dedupingInterval: 0,
-      refreshWhenOffline: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      onSuccess: (resp: GetDatasetsResp) => {
+      onSuccess: (resp: DifyApp[]) => {
         console.log('session', resp);
         set({ apps: resp, fetchingState: 'success' }, false);
+
+        if (!resp || !resp.length) {
+          set({ fetchingState: 'error' }, false);
+        }
       },
       onError: () => {
         set({ fetchingState: 'error' }, false);

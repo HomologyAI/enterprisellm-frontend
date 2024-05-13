@@ -44,7 +44,32 @@ class DifyService {
         return data.body;
       }
       return null;
-    })
+    });
+  }
+
+  getData(url: string, params = {}) {
+    let fetchUrl = url;
+    const keys = Object.keys(params);
+
+    if (keys.length > 0) {
+      const paramsStr = keys.map((key) => `${key}=${params[key]}`).join('&');
+      fetchUrl = `${url}?${paramsStr}`;
+    }
+
+    return fetch(fetchUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    }).then(async (resp) => {
+      const data = (await resp.json()) as DifyServiceResp;
+      console.log('datafetchUrl', data);
+
+      if (data?.succ === 1) {
+        return data.body;
+      }
+      return null;
+    });
   }
 
   renameConversation (data: DifyServicePayload<DifyServiceRenamePayload>) {
@@ -53,6 +78,10 @@ class DifyService {
 
   getDatasets (payload: DifyServicePayload<never>) {
     return this.fetchData<DifyServicePayload<never>>(API_ENDPOINTS.difyDatasets, payload);
+  }
+
+  getApps() {
+    return this.getData(API_ENDPOINTS.difyApps);
   }
 }
 

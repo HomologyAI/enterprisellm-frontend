@@ -399,7 +399,7 @@ export const createSessionSlice: StateCreator<
       () => difyService.getDatasets({ app }),
       {
         onSuccess: (resp: GetDatasetsResp) => {
-        // console.log('resp', resp);
+        console.log('resp', JSON.stringify(resp.data));
 
         if (!session?.datasets && resp?.data) {
           updateSessionDatasets(resp.data);

@@ -1,7 +1,7 @@
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ResolvingViewport } from 'next';
 import { cookies } from 'next/headers';
-import {PropsWithChildren, useEffect, useState} from 'react';
+import {PropsWithChildren} from 'react';
 import { isRtlLang } from 'rtl-detect';
 
 import Analytics from '@/components/Analytics';
@@ -10,18 +10,6 @@ import AuthProvider from '@/layout/AuthProvider';
 import GlobalProvider from '@/layout/GlobalProvider';
 import LayoutRoutes from '@/layout/routes';
 import { isMobileDevice } from '@/utils/responsive';
-import {getDifyAppsData} from "@/app/api/dify/apps/route";
-import FullscreenLoading from "@/components/FullscreenLoading";
-import useSWR from "swr";
-import {API_ENDPOINTS} from "@/services/_url";
-import AppsProvider from "@/layout/GlobalProvider/AppsProvider";
-
-async function getApps() {
-  const result = await getDifyAppsData();
-  const data = await result.json();
-  console.log('result', data);
-  return data;
-}
 
 const RootLayout = async ({ children }: PropsWithChildren) => {
   const cookieStore = cookies();

@@ -1,23 +1,42 @@
 'use client';
 
-import { useTheme } from 'antd-style';
 import { PropsWithChildren, memo } from 'react';
-import { Flexbox } from 'react-layout-kit';
-
 import ClientResponsiveLayout from '@/components/client/ClientResponsiveLayout';
-import { useIsPWA } from '@/hooks/useIsPWA';
 
 import SideBar from './SideBar';
 import {useAppsStore} from "@/store/apps";
 import FullscreenLoading from "@/components/FullscreenLoading";
-import {Layout} from "antd";
+import {Button, Layout, Result} from "antd";
+import {Center, Flexbox} from "react-layout-kit";
 
 const Desktop = memo<PropsWithChildren>(({ children }) => {
-  const isPWA = useIsPWA();
-  const theme = useTheme();
-
   const apps = useAppsStore(s => s.apps);
+  const fetchingState = useAppsStore(s => s.fetchingState);
   console.log('Desktop apps', apps);
+
+  if (fetchingState === 'error') {
+    return (
+      <Flexbox height={'100%'} style={{ userSelect: 'none' }} width={'100%'}>
+        <Center flex={1} gap={12} width={'100%'}>
+          <Center gap={16} horizontal>
+            <Result
+              status="500"
+              title="500"
+              subTitle="加载失败."
+              extra={
+                (
+                  <Button
+                    onClick={() => {
+                      location.reload();
+                    }}
+                    type="primary">重新加载</Button>
+                )}
+            />
+          </Center>
+        </Center>
+      </Flexbox>
+    )
+  }
 
   return apps?.length ? (
     <Layout

@@ -14,10 +14,8 @@ import {useChatStore} from "@/store/chat";
 import {useSessionStore} from "@/store/session";
 import {sessionDifySelectors, sessionSelectors} from "@/store/session/slices/session/selectors";
 import isEqual from "fast-deep-equal";
-import {SWRResponse} from "swr";
-import {DatasetsData} from "@/types/meta";
 import BubblesLoading from "@/features/Conversation/components/BubblesLoading";
-import {appsSelectors} from "@/store/apps";
+import {appsSelectors, useAppsStore} from "@/store/apps";
 
 const useStyles = createStyles(
   ({ css, token }) => {
@@ -47,6 +45,8 @@ export const DatasetsMessage = memo<
   const { id } = msg;
   const { styles } = useStyles();
   const datasets = useSessionStore(sessionDifySelectors.currentDifyDatasets, isEqual) as DifyDataset[];
+  const initDatasets = useAppsStore(appsSelectors.currentAppDatasets, isEqual) as DifyDataset[];
+
   const [checkedIds, setCheckedIds] = useState([]);
   const datasetsIds = useMemo(() => datasets.map((item) => item.id), [datasets]);
 
@@ -64,7 +64,12 @@ export const DatasetsMessage = memo<
     state.updateSessionDatasets,
   ]);
 
-  const { isLoading } = (useFetchDatasets as () => SWRResponse<DatasetsData[]>)();
+  // const { isLoading } = (useFetchDatasets as () => SWRResponse<DatasetsData[]>)();
+
+  const displayDatasets = useMemo(() => {
+    if (datasets?.length) return datasets;
+    return initDatasets;
+  }, [datasets, initDatasets]);
 
   useEffect(() => {
     if (datasets.length) {
@@ -120,7 +125,7 @@ export const DatasetsMessage = memo<
   }, []);
 
   const RenderList = useMemo(() => {
-    return datasets?.map((item) => {
+    return displayDatasets?.map((item) => {
       const isChecked = checkedIds.find((id) => {
         return id === item.id;
       });
@@ -143,9 +148,9 @@ export const DatasetsMessage = memo<
         </Checkbox>
       )
     });
-  }, [datasets, checkedIds]);
+  }, [displayDatasets, checkedIds]);
 
-  return isLoading ? <BubblesLoading /> : (
+  return !displayDatasets.length ? <BubblesLoading /> : (
     <Flexbox className={styles.container} >
       <p>欢迎使用尚书AI大模型聊天助手</p>
       <br/>
