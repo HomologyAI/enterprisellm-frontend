@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode, memo, useState} from 'react';
+import {ReactNode, memo, useState, useMemo} from 'react';
 import { Flexbox } from 'react-layout-kit';
 
 import {DivProps, FluentEmoji} from '@lobehub/ui';
@@ -37,6 +37,8 @@ const SideNav = memo<SideNavProps>(({ className, avatar, topActions, bottomActio
     [s.apps, s.activeId, s.updateActiveAppId]
   );
 
+  console.log('activeIdactiveId', activeId);
+
   const items = apps.map((item) => {
     // const isActive = activeId === item.appId;
 
@@ -46,6 +48,13 @@ const SideNav = memo<SideNavProps>(({ className, avatar, topActions, bottomActio
       label: item.name,
     }
   });
+
+  const defaultSelectedKeys = useMemo(() => {
+    if (activeId) {
+      return [activeId];
+    }
+    return [];
+  }, [activeId]);
 
   return (
     <ConfigProvider
@@ -58,46 +67,48 @@ const SideNav = memo<SideNavProps>(({ className, avatar, topActions, bottomActio
         }
       }}
     >
-      <Sider
-        collapsible
-        collapsed={collapse}
-        onCollapse={(value) => setCollapse(value)}
-        style={{ background: '#FFFFFF' }}
-        trigger={null}
-        className={styles.sider}
-        width={200}
-        collapsedWidth={77}
-      >
-        <Flexbox
-          direction="vertical"
-          justify={'space-between'}
-          className={styles.container}
+      {
+        !!apps.length && activeId &&
+        <Sider
+          collapsible
+          collapsed={collapse}
+          onCollapse={(value) => setCollapse(value)}
+          style={{ background: '#FFFFFF' }}
+          trigger={null}
+          className={styles.sider}
+          width={200}
+          collapsedWidth={77}
         >
-          {avatar}
-          <Menu
-            className={cx(styles.menu)}
-            defaultSelectedKeys={[activeId]}
-            mode="inline"
-            items={items}
-            onSelect={(e) => {
-              console.log('e', e);
-              updateActiveAppId(e.key);
-            }}
-            inlineIndent={16}
-          />
-        <Button
-          type="text"
-          icon={collapse ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          onClick={() => setCollapse(!collapse)}
-          style={{
-            fontSize: '16px',
-            width: 64,
-            height: 64,
-            alignSelf: "center",
-          }}
-        />
-      </Flexbox>
-      </Sider>
+          <Flexbox
+            direction="vertical"
+            justify={'space-between'}
+            className={styles.container}
+          >
+            {avatar}
+            <Menu
+              className={cx(styles.menu)}
+              defaultSelectedKeys={[activeId]}
+              mode="inline"
+              items={items}
+              onSelect={(e) => {
+                updateActiveAppId(e.key);
+              }}
+              inlineIndent={16}
+            />
+            <Button
+              type="text"
+              icon={collapse ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapse(!collapse)}
+              style={{
+                fontSize: '16px',
+                width: 64,
+                height: 64,
+                alignSelf: "center",
+              }}
+            />
+          </Flexbox>
+        </Sider>
+      }
     </ConfigProvider>
   )
 

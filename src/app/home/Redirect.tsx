@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { memo, useEffect } from 'react';
+import {memo, useEffect, useLayoutEffect} from 'react';
 
 import { messageService } from '@/services/message';
 import { sessionService } from '@/services/session';
@@ -19,7 +19,7 @@ const Redirect = memo(() => {
   const apps = useAppsStore(s => s.apps);
   console.log('Redirect apps', apps);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // checkHasConversation().then((hasData) => {
     //   if (hasData) {
     //     router.replace('/chat');
@@ -27,10 +27,8 @@ const Redirect = memo(() => {
     //     router.replace('/welcome');
     //   }
     // });
-    if (apps?.length) {
-      router.replace('/chat');
-    }
-  }, [apps]);
+    router.replace('/chat');
+  }, []);
 
   return null;
 });

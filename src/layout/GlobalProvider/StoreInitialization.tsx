@@ -20,8 +20,7 @@ const StoreInitialization = memo(() => {
   // const useInitGlobalPreference = useGlobalStore((s) => s.useInitGlobalPreference);
 
   const useFetchDefaultAgentConfig = useAgentStore((s) => s.useFetchDefaultAgentConfig);
-  const useFetchApps = useAppsStore(s => s.useFetchApps);
-  useFetchApps();
+
 
   // init the system preference
   // useInitPreference();
