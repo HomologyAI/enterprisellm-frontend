@@ -36,12 +36,19 @@ export async function GET() {
   return chatClient.getApps().then((resp) => {
     if (resp?.data) {
       const data = resp.data.map((item: DifyRawApp) => {
+        const datasets = item?.datasets || [];
+
         return {
           appId: item.id,
           icon: item?.icon || '🤖',
           name: item.name,
           appKey: item.token || '',
-          datasets: item?.datasets || [],
+          datasets: datasets.map((item) => {
+            return {
+              id: item[0],
+              name: item[1],
+            }
+          })
         }
       });
       return createSuccessResponse(data);

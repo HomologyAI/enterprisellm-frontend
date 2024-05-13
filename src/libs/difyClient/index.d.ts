@@ -109,7 +109,7 @@ export interface DifyRawApp {
   icon: string,
   icon_background: string;
   token: string;
-  datasets: DifyDataset[];
+  datasets: string[][];
 }
 
 export type GetAppResp = DifyRawApp[];
