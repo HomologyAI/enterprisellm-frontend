@@ -1,10 +1,8 @@
-import {useEffect, useRef} from 'react';
+import {useEffect} from 'react';
 
 import { useAgentStore } from '@/store/agent';
-import { agentSelectors } from '@/store/agent/selectors';
 import { useChatStore } from '@/store/chat';
 import { useSessionStore } from '@/store/session';
-import { useToolStore } from '@/store/tool';
 
 export const useInitConversation = () => {
   const [sessionId] = useSessionStore((s) => [s.activeId]);
@@ -18,7 +16,7 @@ export const useInitConversation = () => {
   ]);
 
   useFetchMessages(sessionId, activeTopicId);
-  useFetchTopics(sessionId);
+  // useFetchTopics(sessionId);
   useFetchAgentConfig(sessionId);
 
   // const [useFetchPluginStore, useFetchInstalledPlugins, checkPluginsIsInstalled] = useToolStore(
@@ -34,7 +32,6 @@ export const useInitConversation = () => {
     const unsubscribe = useSessionStore.subscribe(
       (s) => s.activeId,
       (activeId) => {
-        switchTopic();
 
         useAgentStore.setState({ activeId }, false, 'updateActiveId');
       },

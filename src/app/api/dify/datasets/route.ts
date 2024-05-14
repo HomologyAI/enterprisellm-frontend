@@ -1,35 +1,35 @@
-import { type NextRequest } from 'next/server'
-import { NextResponse } from 'next/server'
-import {DatasetsClient} from "@/libs/difyClient";
-import {getServerConfig} from "@/config/server";
+import {NextRequest, NextResponse} from 'next/server'
 import {createErrorResponse} from "@/app/api/errorResponse";
 import {ChatErrorType} from "@/types/fetch";
 import {ChatCompletionErrorPayload} from "@/libs/agent-runtime";
+import {datasetsClient} from "../clients";
+import {createSuccessResponse} from "@/app/api/successResponse";
 
 export const runtime = 'nodejs';
-export async function GET() {
-  const { DIFY_PROXY_URL, DIFY_DATASETS_API_KEY } = getServerConfig();
 
-  const client = new DatasetsClient(DIFY_DATASETS_API_KEY, DIFY_PROXY_URL);
+export async function POST(req: NextRequest) {
+  const body = await req.json();
 
-  try {
-    const resp = await client.getDatasets({
-      limit: 20,
-      page: 1,
-    });
+  const {
+    app,
+  } = body;
 
-    return NextResponse.json(resp.data);
-  } catch (err) {
-    const {
-      errorType = ChatErrorType.InternalServerError,
-      error: errorContent,
-      ...res
-    } = err as ChatCompletionErrorPayload;
-
-    const error = errorContent || err;
-    // track the error at server side
-    console.error(`Route: ${errorType}:`, error);
-
-    return createErrorResponse(errorType, { error, ...res });
+  if (app?.datasetsAppKey) {
+    datasetsClient.updateApiKey(app.datasetsAppKey);
   }
+
+  return datasetsClient.getDatasets({
+    limit: 20,
+    page: 1,
+  }).then((resp) => {
+    if (resp?.data) {
+      return createSuccessResponse(resp.data);
+    }
+    return createErrorResponse(ChatErrorType.InternalServerError, resp?.data);
+  }).catch((error) => {
+    console.error(`Route: ${'error'}:`, error?.response?.data);
+    const errorData = error?.response?.data || {}
+    const errorType = errorData?.status === 401 ? ChatErrorType.Unauthorized : ChatErrorType.InternalServerError;
+    return createErrorResponse(errorType, errorData);
+  });
 }

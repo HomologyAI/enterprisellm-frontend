@@ -3,6 +3,7 @@ import { useHover } from 'ahooks';
 import { createStyles, useResponsive } from 'antd-style';
 import { memo, useMemo, useRef } from 'react';
 import BotAvatar from "@/features/Avatar/BotAvatar";
+import {Flexbox} from "react-layout-kit";
 
 const { Item } = List;
 
@@ -14,7 +15,7 @@ const useStyles = createStyles(({ css, token, responsive }) => {
       margin-block: 2px;
       padding-right: 24px;
       padding-left: 24px;
-      background-color: rgba(250, 250, 250, 1);
+      background-color: #FAFAFA;
 
       border-radius: 0;
       ${responsive.mobile} {

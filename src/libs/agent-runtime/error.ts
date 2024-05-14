@@ -52,6 +52,8 @@ export const AgentRuntimeErrorType = {
 
   InvalidQwenAPIKey: 'InvalidQwenAPIKey',
   QwenBizError: 'QwenBizError',
+
+  InvalidParams: 'InvalidParams',
 } as const;
 
 export type ILobeAgentRuntimeErrorType =

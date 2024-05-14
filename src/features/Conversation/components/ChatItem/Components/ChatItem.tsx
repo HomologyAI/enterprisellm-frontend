@@ -4,15 +4,12 @@ import { useResponsive } from 'antd-style';
 import { memo } from 'react';
 import { Flexbox } from 'react-layout-kit';
 
-// import Actions from './components/Actions';
-import Avatar from './Avatar';
+import Actions from './Actions';
 import ErrorContent from './ErrorContent';
 import MessageContent from './MessageContent';
 import Title from './Title';
 import { useStyles } from './styles';
 import type { ChatItemProps } from './type';
-
-const MOBILE_AVATAR_SIZE = 32;
 
 const ChatItem = memo<ChatItemProps>(
   ({
@@ -97,6 +94,7 @@ const ChatItem = memo<ChatItemProps>(
                 type={type}
               />
             )}
+            <Actions actions={actions} editing={editing} placement={placement} type={type} />
           </Flexbox>
         </Flexbox>
       </Flexbox>

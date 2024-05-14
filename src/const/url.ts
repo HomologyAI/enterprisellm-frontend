@@ -38,8 +38,8 @@ export const MORE_MODEL_PROVIDER_REQUEST_URL =
 export const AGENTS_INDEX_GITHUB = 'https://github.com/lobehub/lobe-chat-agents';
 export const AGENTS_INDEX_GITHUB_ISSUE = urlJoin(AGENTS_INDEX_GITHUB, 'issues/new');
 
-export const SESSION_CHAT_URL = (id: string = INBOX_SESSION_ID, mobile?: boolean) =>
-  mobile ? `/chat/mobile?session=${id}` : `/chat?session=${id}`;
+export const SESSION_CHAT_URL = (id: string = INBOX_SESSION_ID, appId, mobile?: boolean) =>
+  mobile ? `/chat/mobile?session=${id}` : `/chat?session=${id}&app=${appId}`;
 
 export const imageUrl = (filename: string) => withBasePath(`/images/${filename}`);
 

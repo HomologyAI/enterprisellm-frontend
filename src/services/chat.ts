@@ -29,6 +29,7 @@ import { createTraceHeader, getTraceId } from '@/utils/trace';
 
 import { createHeaderWithAuth, getProviderAuthPayload } from './_auth';
 import { API_ENDPOINTS } from './_url';
+import {DifyApp} from "@/types/dify";
 
 interface FetchOptions {
   signal?: AbortSignal | undefined;
@@ -38,6 +39,9 @@ interface FetchOptions {
 interface GetChatCompletionPayload extends Partial<Omit<ChatStreamPayload, 'messages'>> {
   messages: ChatMessage[];
   conversationsId?: string;
+  fileList?: string[];
+  datasets?: string[];
+  app: DifyApp;
 }
 
 interface FetchAITaskResultParams {
@@ -217,16 +221,26 @@ class ChatService {
     params: GetChatCompletionPayload,
     options?: FetchOptions,
   ) => {
-    const payload = merge(
-      {
-        model: DEFAULT_AGENT_CONFIG.model,
-        stream: true,
-        ...DEFAULT_AGENT_CONFIG.params,
-      },
-      params,
-    );
+    const { messages, conversationsId, fileList = [], datasets = [], app } = params;
+    const message = messages?.length ?  messages[messages?.length - 1] : null;
 
-    return this.getDifyChatCompletion(payload, options);
+    const difyPayload: ChatStreamDifyPayLoad = {
+      query: message?.content || '',
+      stream: true,
+      conversation_id: conversationsId || '',
+      user: message?.meta?.userId || '',
+      fileList,
+      datasets,
+      app,
+    };
+
+    console.log('difyPayload', difyPayload);
+
+    return fetch(API_ENDPOINTS.difyChat, {
+      body: JSON.stringify(difyPayload),
+      method: 'POST',
+      signal: options.signal,
+    });
   }
 
   createAssistantMessageStream = async ({
@@ -238,23 +252,8 @@ class ChatService {
     onFinish,
     trace,
   }: CreateAssistantMessageStream) => {
-    if (params.provider === ModelProvider.Qwen) {
-      return fetchSSEDify(
-        () => this.createDifyAssistantMessage(params, {
-          signal: abortController?.signal,
-          trace: this.mapTrace(trace, TraceTagMap.Chat),
-        }),
-        {
-          onAbort,
-          onErrorHandle,
-          onFinish,
-          onMessageHandle,
-        },
-      );
-    }
-
-    return fetchSSE(
-      () => this.createAssistantMessage(params, {
+    return fetchSSEDify(
+      () => this.createDifyAssistantMessage(params, {
         signal: abortController?.signal,
         trace: this.mapTrace(trace, TraceTagMap.Chat),
       }),
@@ -265,13 +264,24 @@ class ChatService {
         onMessageHandle,
       },
     );
+    // return fetchSSE(
+    //   () => this.createAssistantMessage(params, {
+    //     signal: abortController?.signal,
+    //     trace: this.mapTrace(trace, TraceTagMap.Chat),
+    //   }),
+    //   {
+    //     onAbort,
+    //     onErrorHandle,
+    //     onFinish,
+    //     onMessageHandle,
+    //   },
+    // );
   };
 
   getDifyChatCompletion = async (params: Partial<ChatStreamDifyPayLoad>, options?: FetchOptions) => {
     const { signal } = options ?? {};
     const { messages, provider, conversationsId, ...res } = params;
     const message = messages?.length ?  messages[messages?.length - 1] : null;
-    console.log('getDifyChatCompletion', message);
 
     const payload = merge(
       {

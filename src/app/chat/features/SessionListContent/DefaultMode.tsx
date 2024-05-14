@@ -1,26 +1,14 @@
-import { CollapseProps } from 'antd';
 import isEqual from 'fast-deep-equal';
-import {memo, useEffect, useMemo, useRef, useState} from 'react';
-import { useTranslation } from 'react-i18next';
-
-import { useGlobalStore } from '@/store/global';
-import { preferenceSelectors } from '@/store/global/selectors';
+import {memo, useEffect, useRef} from 'react';
 import { useSessionStore } from '@/store/session';
 import { sessionSelectors } from '@/store/session/selectors';
-import { SessionDefaultGroup } from '@/types/session';
 
-import Actions from '../SessionListContent/CollapseGroup/Actions';
-import CollapseGroup from './CollapseGroup';
 import SessionList from './List';
-import ConfigGroupModal from './Modals/ConfigGroupModal';
-import RenameGroupModal from './Modals/RenameGroupModal';
+import {useUserStore} from "@/store/user";
+import {appsSelectors, useAppsStore} from "@/store/apps";
+import {INBOX_SESSION_ID} from "@/const/session";
 
 const SessionDefaultMode = memo(() => {
-  const { t } = useTranslation('chat');
-
-  const [activeGroupId, setActiveGroupId] = useState<string>();
-  const [renameGroupModalOpen, setRenameGroupModalOpen] = useState(false);
-  const [configGroupModalOpen, setConfigGroupModalOpen] = useState(false);
 
   const [
     init,
@@ -28,80 +16,47 @@ const SessionDefaultMode = memo(() => {
     sessions,
     createSession,
     activeSession,
+    activeId,
   ] = useSessionStore((s) => [
     s.isSessionsFirstFetchFinished,
     s.useFetchSessions,
     s.sessions,
     s.createSession,
     s.activeSession,
+    s.activeId,
   ]);
 
-  useFetchSessions();
+  const userId = useUserStore(s => s.userId);
+  const appId = useAppsStore(appsSelectors.currentAppId, isEqual);
+
+
+  useFetchSessions({ userId, appId });
 
   const didInit = useRef(false);
 
   useEffect(() => {
-    if (init && !didInit.current) {
-      didInit.current = true;
+    // if (init && !didInit.current && !activeId) {
+    //   didInit.current = true;
+    //
+    //   if (sessions.length) {
+    //     // 切换到第一个session
+    //     activeSession(sessions[0].id);
+    //   } else {
+    //     createSession()
+    //   }
+    // }
+  }, [init, sessions, activeId]);
 
-      if (sessions.length) {
-        // 切换到第一个session
-        activeSession(sessions[0].id);
-      } else {
-        createSession()
-      }
+  useEffect(() => {
+    if (!sessions.length && init && userId) {
+      createSession()
     }
-  }, [init, sessions]);
+  }, [appId, sessions, init, userId]);
 
   const defaultSessions = useSessionStore(sessionSelectors.defaultSessions, isEqual);
-  const customSessionGroups = useSessionStore(sessionSelectors.customSessionGroups, isEqual);
-  const pinnedSessions = useSessionStore(sessionSelectors.pinnedSessions, isEqual);
-
-  const [sessionGroupKeys, updatePreference] = useGlobalStore((s) => [
-    preferenceSelectors.sessionGroupKeys(s),
-    s.updatePreference,
-  ]);
-
-  const items = useMemo(
-    () =>
-      [
-        pinnedSessions &&
-          pinnedSessions.length > 0 && {
-            children: <SessionList dataSource={pinnedSessions} />,
-            extra: <Actions isPinned openConfigModal={() => setConfigGroupModalOpen(true)} />,
-            key: SessionDefaultGroup.Pinned,
-            label: t('pin'),
-          },
-        ...(customSessionGroups || []).map(({ id, name, children }) => ({
-          children: <SessionList dataSource={children} groupId={id} />,
-          extra: (
-            <Actions
-              id={id}
-              isCustomGroup
-              onOpenChange={(isOpen) => {
-                if (isOpen) setActiveGroupId(id);
-              }}
-              openConfigModal={() => setConfigGroupModalOpen(true)}
-              openRenameModal={() => setRenameGroupModalOpen(true)}
-            />
-          ),
-          key: id,
-          label: name,
-        })),
-        {
-          children: <SessionList dataSource={defaultSessions || []} />,
-          extra: <Actions openConfigModal={() => setConfigGroupModalOpen(true)} />,
-          key: SessionDefaultGroup.Default,
-          label: t('defaultList'),
-        },
-      ].filter(Boolean) as CollapseProps['items'],
-    [customSessionGroups, pinnedSessions, defaultSessions],
-  );
 
   return (
-    <>
-      <SessionList dataSource={defaultSessions || []} />
-    </>
+    <SessionList dataSource={defaultSessions || []} />
   );
 });
 

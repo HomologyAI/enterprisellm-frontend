@@ -14,9 +14,8 @@ import {useChatStore} from "@/store/chat";
 import {useSessionStore} from "@/store/session";
 import {sessionDifySelectors, sessionSelectors} from "@/store/session/slices/session/selectors";
 import isEqual from "fast-deep-equal";
-import {SWRResponse} from "swr";
-import {DatasetsData} from "@/types/meta";
 import BubblesLoading from "@/features/Conversation/components/BubblesLoading";
+import {appsSelectors, useAppsStore} from "@/store/apps";
 
 const useStyles = createStyles(
   ({ css, token }) => {
@@ -46,8 +45,9 @@ export const DatasetsMessage = memo<
   const { id } = msg;
   const { styles } = useStyles();
   const datasets = useSessionStore(sessionDifySelectors.currentDifyDatasets, isEqual) as DifyDataset[];
+  const initDatasets = useAppsStore(appsSelectors.currentAppDatasets, isEqual) as DifyDataset[];
+
   const [checkedIds, setCheckedIds] = useState([]);
-  const datasetsIds = useMemo(() => datasets.map((item) => item.id), [datasets]);
 
   const [
     addDifyMessage,
@@ -63,11 +63,16 @@ export const DatasetsMessage = memo<
     state.updateSessionDatasets,
   ]);
 
-  const { isLoading } = (useFetchDatasets as () => SWRResponse<DatasetsData[]>)();
+  // const { isLoading } = (useFetchDatasets as () => SWRResponse<DatasetsData[]>)();
+
+  const displayDatasets = useMemo(() => {
+    if (datasets?.length) return datasets;
+    return initDatasets;
+  }, [datasets, initDatasets]);
 
   useEffect(() => {
-    if (datasets.length) {
-      const ids = datasets.filter((item) => {
+    if (displayDatasets.length) {
+      const ids = displayDatasets.filter((item) => {
         return Boolean(item?.isChecked);
       }).map((item) => {
         return item.id;
@@ -75,12 +80,14 @@ export const DatasetsMessage = memo<
 
       setCheckedIds(ids);
     }
-  }, [datasets]);
+  }, [displayDatasets]);
+
+  const datasetsIds = useMemo(() => displayDatasets.map((item) => item.id), [displayDatasets]);
 
   const handleConfirm = useCallback(async () => {
     const computedCheckedTitle = () => {
       const names = checkedIds.map((id) => {
-        return `【${datasets.find((item) => item.id === id)?.name}】`;
+        return `【${displayDatasets.find((item) => item.id === id)?.name}】`;
       });
 
       if (!checkedIds.length) {
@@ -99,7 +106,7 @@ export const DatasetsMessage = memo<
       },
     } as DifyAlertMessage
 
-    const newData = datasets.map((item) => {
+    const newData = displayDatasets.map((item) => {
       return {
         ...item,
         isChecked: checkedIds.includes(item.id),
@@ -108,7 +115,7 @@ export const DatasetsMessage = memo<
 
     await updateSessionDatasets(newData);
     addDifyMessage(message);
-  }, [checkedIds, datasets, id]);
+  }, [checkedIds, displayDatasets, id]);
 
   const checkAll = useCallback(() => {
     setCheckedIds(datasetsIds);
@@ -119,7 +126,7 @@ export const DatasetsMessage = memo<
   }, []);
 
   const RenderList = useMemo(() => {
-    return datasets?.map((item) => {
+    return displayDatasets?.map((item) => {
       const isChecked = checkedIds.find((id) => {
         return id === item.id;
       });
@@ -142,9 +149,9 @@ export const DatasetsMessage = memo<
         </Checkbox>
       )
     });
-  }, [datasets, checkedIds]);
+  }, [displayDatasets, checkedIds]);
 
-  return isLoading ? <BubblesLoading /> : (
+  return !displayDatasets.length ? <BubblesLoading /> : (
     <Flexbox className={styles.container} >
       <p>欢迎使用尚书AI大模型聊天助手</p>
       <br/>

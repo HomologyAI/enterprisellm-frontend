@@ -27,25 +27,42 @@ class _SessionModel extends BaseModel {
   // **************** Query *************** //
 
   async query({
+    userId,
     pageSize = 9999,
     current = 0,
-  }: { current?: number; pageSize?: number } = {}): Promise<LobeSessions> {
+    appId,
+  }: { current?: number; pageSize?: number, userId: string, appId: string } = {}): Promise<LobeSessions> {
     const offset = current * pageSize;
+    // 这是查询所有session的地方
+    if (!userId) return [];
 
-    const items: DBModel<DB_Session>[] = await this.table
-      .orderBy('updatedAt')
-      .reverse()
+    let data: DBModel<DB_Session>[];
+
+    data = await this.table.where({userId, appId})
       .offset(offset)
       .limit(pageSize)
       .toArray();
 
-    return this.mapToAgentSessions(items);
+    data = data.sort((a, b) => {
+      return b.updatedAt - a.updatedAt;
+    });
+
+    console.log('query', userId, appId, data);
+
+    // const items: DBModel<DB_Session>[] = await this.table
+    //   .orderBy('updatedAt')
+    //   .reverse()
+    //   .offset(offset)
+    //   .limit(pageSize)
+    //   .toArray();
+
+    return this.mapToAgentSessions(data);
   }
 
-  async queryWithGroups(): Promise<ChatSessionList> {
+  async queryWithGroups(userId: string, appId: string): Promise<ChatSessionList> {
     const sessionGroups = await SessionGroupModel.query();
 
-    const sessions = await this.query();
+    const sessions = await this.query({ userId, appId });
 
     return { sessionGroups, sessions };
   }

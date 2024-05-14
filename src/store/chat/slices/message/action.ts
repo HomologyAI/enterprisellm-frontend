@@ -27,6 +27,8 @@ import {MessageDispatch, messagesReducer} from './reducer';
 import {sessionService} from "@/services/session";
 import {sessionDifySelectors} from "@/store/session/slices/session/selectors";
 import {useSessionStore} from "@/store/session";
+import {DifyApp} from "@/types/dify";
+import {appsSelectors, useAppsStore} from "@/store/apps";
 
 const n = setNamespace('message');
 
@@ -95,6 +97,9 @@ export interface ChatMessageAction {
     traceId?: string,
     sessionId: string,
     conversationsId: string,
+    fileList: string[],
+    datasets: string[],
+    app: DifyApp,
   }) => Promise<{
     content: string;
     functionCallAtEnd: boolean;
@@ -129,8 +134,10 @@ export interface ChatMessageAction {
 
 const getAgentConfig = () => agentSelectors.currentAgentConfig(useAgentStore.getState());
 const getCurrentConversationId = () => sessionDifySelectors.currentSessionConversationId(useSessionStore.getState());
-const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSessionStore.getState());
 const refreshSessions = () => useSessionStore.getState().refreshSessions();
+const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSessionStore.getState());
+const getCurrentFileList = () => sessionDifySelectors.currentSessionFiles(useSessionStore.getState());
+const getCurrentApp = () => appsSelectors.currentApp(useAppsStore.getState());
 
 const preventLeavingFn = (e: BeforeUnloadEvent) => {
   // set returnValue to trigger alert modal
@@ -312,6 +319,8 @@ export const chatMessage: StateCreator<
         messageService.getMessages(sessionId, topicId),
       {
         onSuccess: (messages, key) => {
+          console.log('messages', messages);
+
           set(
             { activeId: sessionId, messages, messagesInit: true },
             false,
@@ -347,6 +356,11 @@ export const chatMessage: StateCreator<
 
     const mid = await get().internalCreateMessage(assistantMessage);
     const cId = getCurrentConversationId();
+    const fileList = getCurrentFileList().map((file) => file.id || '');
+    const datasets = getCurrentDatasets().filter((item) => {
+      return item?.isChecked;
+    }).map((dataset) => dataset.id);
+    const app = getCurrentApp();
 
     // 2. fetch the AI response
     const { isFunctionCall, content, functionCallAtEnd, functionCallContent, traceId } =
@@ -355,7 +369,10 @@ export const chatMessage: StateCreator<
         assistantMessageId: mid,
         traceId: trace,
         sessionId: activeId,
-        conversationsId: cId
+        conversationsId: cId,
+        fileList,
+        datasets,
+        app,
       });
 
     // 3. if it's the function call message, trigger the function method
@@ -396,7 +413,7 @@ export const chatMessage: StateCreator<
 
     set({ messages }, false, n(`dispatchMessage/${payload.type}`, payload));
   },
-  fetchAIChatMessage: async ({messages, assistantMessageId, traceId, sessionId, conversationsId,}) => {
+  fetchAIChatMessage: async ({messages, assistantMessageId, traceId, sessionId, conversationsId, fileList, datasets , app}) => {
     const {
       toggleChatLoading,
       refreshMessages,
@@ -475,6 +492,9 @@ export const chatMessage: StateCreator<
         ...config.params,
         plugins: config.plugins,
         conversationsId,
+        fileList,
+        datasets,
+        app,
       },
       trace: {
         traceId,

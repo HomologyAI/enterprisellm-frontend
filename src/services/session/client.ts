@@ -39,8 +39,8 @@ export class ClientService implements ISessionService {
     if (res) return res?.id;
   }
 
-  async getGroupedSessions(): Promise<ChatSessionList> {
-    return SessionModel.queryWithGroups();
+  async getGroupedSessions(userId: string, appId: string): Promise<ChatSessionList> {
+    return SessionModel.queryWithGroups(userId, appId);
   }
 
   async getSessionConfig(id: string): Promise<LobeAgentConfig> {
@@ -89,7 +89,7 @@ export class ClientService implements ISessionService {
 
   async updateSession(
     id: string,
-    data: Partial<Pick<LobeAgentSession, 'group' | 'meta' | 'pinned' | 'conversation_id' | 'datasets'>>,
+    data: Partial<Pick<LobeAgentSession, 'files' | 'group' | 'meta' | 'pinned' | 'conversation_id' | 'datasets'>>,
   ) {
     const pinned = typeof data.pinned === 'boolean' ? (data.pinned ? 1 : 0) : undefined;
     return SessionModel.update(id, { ...data, pinned });

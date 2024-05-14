@@ -20,6 +20,7 @@ import {
   dbSchemaV6,
   dbSchemaV7,
   dbSchemaV8,
+  dbSchemaV9,
 } from './schemas';
 import { DBModel, LOBE_CHAT_LOCAL_DB_NAME } from './types/db';
 
@@ -66,6 +67,9 @@ export class BrowserDB extends Dexie {
 
     this.version(8)
       .stores(dbSchemaV8);
+
+    this.version(9)
+      .stores(dbSchemaV9);
 
     this.files = this.table('files');
     this.sessions = this.table('sessions');
@@ -145,14 +149,14 @@ export class BrowserDB extends Dexie {
     });
   };
 
-  upgradeToV8 = async (trans: Transaction) => {
-    const users = trans.table('users');
-    await users.toCollection().modify((user: DB_User) => {
-      if (user.settings) {
-        user.settings = MigrationLLMSettings.migrateSettings(user.settings as any);
-      }
-    });
-  };
+  // upgradeToV9 = async (trans: Transaction) => {
+  //   console.log('清理所有数据...');
+  //
+  //   const tables = trans.db.tables;
+  //   for (let i = 0; i < tables.length; i++) {
+  //     await tables[i].clear();
+  //   }
+  // };
 }
 
 export const browserDB = new BrowserDB();

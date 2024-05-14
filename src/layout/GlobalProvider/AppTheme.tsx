@@ -82,9 +82,6 @@ export interface AppThemeProps {
 
 const AppTheme = memo<AppThemeProps>(
   ({ children, defaultAppearance, defaultPrimaryColor, defaultNeutralColor }) => {
-    // console.debug('server:appearance', defaultAppearance);
-    // console.debug('server:primaryColor', defaultPrimaryColor);
-    // console.debug('server:neutralColor', defaultNeutralColor);
     // const themeMode = useUserStore((s) => settingsSelectors.currentSettings(s).themeMode);
     const themeMode = "light";
 
@@ -102,32 +99,13 @@ const AppTheme = memo<AppThemeProps>(
     // }, [neutralColor]);
 
     return (
-      <ThemeProvider
-        customTheme={{
-          neutralColor: neutralColor ?? defaultNeutralColor,
-          primaryColor: primaryColor ?? defaultPrimaryColor,
-        }}
-        defaultAppearance={defaultAppearance}
-        onAppearanceChange={(appearance) => {
-          setCookie(LOBE_THEME_APPEARANCE, appearance);
-        }}
-        themeMode={themeMode}
-        customToken={(theme) => {
-          const tokens = lobeCustomToken(theme);
-
-          return {
-            ...tokens,
-            bnw: 'rgba(22, 119, 255, 1)',
-            bnw9: 'rgba(22, 119, 255, 1)',
-          };
-        }}
-      >
+      <>
         <GlobalStyle />
         <AntdStaticMethods />
         <ConfigProvider config={{ aAs: Link, imgAs: Image, imgUnoptimized: true }}>
           <Container>{children}</Container>
         </ConfigProvider>
-      </ThemeProvider>
+      </>
     );
   },
 );

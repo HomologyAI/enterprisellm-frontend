@@ -131,6 +131,8 @@ export const getProviderConfig = () => {
 
   const DIFY_DATASETS_API_KEY = process.env.DIFY_DATASETS_API_KEY || '';
   const DIFY_CHAT_API_KEY = process.env.DIFY_CHAT_API_KEY || '';
+  const DIFY_PROXY_URL =
+    process.env.NODE_ENV === 'development' ? 'https://api.dify.ai/v1' : process.env.DIFY_PROXY_URL || '';
 
   // region format: iad1,sfo1
   let regions: string[] = [];
@@ -219,7 +221,7 @@ export const getProviderConfig = () => {
     OLLAMA_MODEL_LIST: process.env.OLLAMA_MODEL_LIST || process.env.OLLAMA_CUSTOM_MODELS,
     OLLAMA_CUSTOM_MODELS: process.env.OLLAMA_CUSTOM_MODELS,
 
-    DIFY_PROXY_URL: process.env.DIFY_PROXY_URL,
+    DIFY_PROXY_URL,
     DIFY_DATASETS_API_KEY,
     DIFY_CHAT_API_KEY,
   };

@@ -8,17 +8,18 @@ import { message } from '@/components/AntdStaticMethods';
 import { DEFAULT_AGENT_LOBE_SESSION, INBOX_SESSION_ID } from '@/const/session';
 import { useClientDataSWR } from '@/libs/swr';
 import { sessionService } from '@/services/session';
-import {SessionStore, useSessionStore} from '@/store/session';
+import {difyService} from '@/services/dify';
+import {SessionStore} from '@/store/session';
 import { useUserStore } from '@/store/user';
 import { settingsSelectors } from '@/store/user/selectors';
-import {DatasetsData, MetaData} from '@/types/meta';
+import {DatasetsData, FilesData, MetaData} from '@/types/meta';
 import {
   ChatSessionList,
   LobeAgentSession,
   LobeSessionGroups,
   LobeSessionType,
   LobeSessions,
-  SessionGroupId,
+  SessionGroupId, LocalUploadFile,
 } from '@/types/session';
 import { merge } from '@/utils/merge';
 import { setNamespace } from '@/utils/storeDebug';
@@ -29,6 +30,9 @@ import { sessionMetaSelectors } from './selectors/meta';
 import {DifyDataset, GetDatasetsResp} from "@/libs/difyClient";
 import {API_ENDPOINTS} from "@/services/_url";
 import {useChatStore} from "@/store/chat";
+import {UploadFile} from "antd/es/upload/interface";
+import {appsSelectors, useAppsStore} from "@/store/apps";
+import {DifyApp} from "@/types/dify";
 
 const n = setNamespace('session');
 
@@ -42,6 +46,9 @@ export interface SessionAction {
    * @param sessionId
    */
   activeSession: (sessionId: string) => void;
+  initSessions: (queryId: string) => void;
+  updateQueryId: (queryId: string) => void;
+  activeFirstSession: () => void;
   /**
    * reset sessions to default
    */
@@ -59,6 +66,8 @@ export interface SessionAction {
   updateSessionGroupId: (sessionId: string, groupId: string) => Promise<void>;
   updateSessionMeta: (meta: Partial<MetaData>) => void;
   updateSessionDatasets: (data: Partial<DatasetsData>) => void;
+  updateSessionFiles: (data: LocalUploadFile[]) => void;
+  deleteSessionFile: (uid: string) => void;
   /**
    * Pins or unpins a session.
    */
@@ -75,13 +84,16 @@ export interface SessionAction {
 
   updateSearchKeywords: (keywords: string) => void;
 
-  useFetchSessions: () => SWRResponse<ChatSessionList>;
+  useFetchSessions: (params: {userId: string}) => SWRResponse<ChatSessionList>;
   useSearchSessions: (keyword?: string) => SWRResponse<any>;
 
   internal_dispatchSessions: (payload: SessionDispatch) => void;
   internal_updateSession: (
     id: string,
-    data: Partial<{ group?: SessionGroupId; meta?: any; pinned?: boolean }>,
+    data: Partial<{
+      group?: SessionGroupId; meta?: any; pinned?: boolean,
+      files?: FilesData,
+    }>,
   ) => Promise<void>;
   internal_processSessions: (
     sessions: LobeSessions,
@@ -90,10 +102,14 @@ export interface SessionAction {
   ) => void;
   /* eslint-enable */
   useFetchDatasets: () => SWRResponse<DatasetsData[]>;
+  renameConversation: (name: string) => Promise<boolean>;
 }
 
 const addDifyDatasetsMessage = (id: string) => useChatStore.getState().addDifyDatasetsMessage(id);
-const refreshMessages = () => useChatStore.getState().refreshMessages();
+
+const getUserId = () => useUserStore.getState().userId || '';
+const getAppId = () => useAppsStore.getState().activeId;
+const getApp = () => appsSelectors.currentApp(useAppsStore.getState());
 
 export const createSessionSlice: StateCreator<
   SessionStore,
@@ -101,12 +117,58 @@ export const createSessionSlice: StateCreator<
   [],
   SessionAction
 > = (set, get) => ({
+  renameConversation: async (name) => {
+    const session = sessionSelectors.currentSession(get());
+    if (!session?.conversation_id) return false;
+
+    const {
+      userId = '',
+      conversation_id = '',
+    } = session;
+
+    const app = getApp();
+
+    const result = await difyService.renameConversation({
+      app,
+      data: {
+        conversation_id,
+        userId,
+        name,
+      },
+    });
+
+    if (result) {
+      // 修改session.title
+      const meta: MetaData = {
+        ...session.meta,
+        title: name,
+      }
+
+      const { activeId, refreshSessions } = get();
+      await sessionService.updateSession(activeId, { meta });
+      await refreshSessions();
+    }
+
+    return result;
+  },
+  activeFirstSession: () => {
+    const { sessions, activeId } = get();
+    if (!sessions.length) {
+      return;
+    }
+
+    const firstSession = sessions[0];
+    if (firstSession.id === activeId) {
+      return;
+    }
+
+    set({ activeId: firstSession.id }, false, n(`activeSession/${firstSession.id}`));
+  },
   activeSession: (sessionId) => {
     if (get().activeId === sessionId) return;
 
     set({ activeId: sessionId }, false, n(`activeSession/${sessionId}`));
   },
-
   clearSessions: async () => {
     await sessionService.removeAllSessions();
     await get().refreshSessions();
@@ -121,8 +183,20 @@ export const createSessionSlice: StateCreator<
       settingsSelectors.defaultAgent(useUserStore.getState()),
     );
 
+    const currentUserId = getUserId();
+    const currentAppId = getAppId();
+
     // 创建一个新的session
-    const newSession: LobeAgentSession = merge(defaultAgent, agent);
+    let newSession: LobeAgentSession = merge(defaultAgent, agent);
+
+    newSession = {
+      ...newSession,
+      userId: currentUserId,
+      appId: currentAppId,
+    }
+
+    console.log('newSession', currentUserId, currentAppId, newSession);
+
     const id = await sessionService.createSession(LobeSessionType.Agent, newSession);
     await refreshSessions();
 
@@ -202,9 +276,10 @@ export const createSessionSlice: StateCreator<
     await sessionService.updateSession(activeId, { meta });
     await refreshSessions();
   },
-
-  useFetchSessions: () =>
-    useClientDataSWR<ChatSessionList>(FETCH_SESSIONS_KEY, sessionService.getGroupedSessions, {
+  useFetchSessions: ({userId, appId, onSuccess}) =>
+    useClientDataSWR<ChatSessionList>([FETCH_SESSIONS_KEY, userId, appId], ([, userId, appId]) => {
+      return sessionService.getGroupedSessions(userId, appId);
+    }, {
       onSuccess: (data) => {
         if (
           get().isSessionsFirstFetchFinished &&
@@ -218,6 +293,29 @@ export const createSessionSlice: StateCreator<
           data.sessionGroups,
           n('useFetchSessions/updateData') as any,
         );
+        //
+        console.log('useFetchSessions', get().querySessionId);
+
+        const queryId = get().querySessionId;
+        // if (queryId === INBOX_SESSION_ID) {
+        //   set({ activeId: data.sessions[0].id }, false);
+        // } else {
+        //   if (data.sessions.find((s) => s.id === queryId)) {
+        //     set({ activeId: queryId }, false);
+        //   } else {
+        //     set({ activeId: data.sessions[0].id }, false);
+        //   }
+        // }
+        const sessions = data.sessions;
+
+        if (sessions.length) {
+          if (data.sessions.find((s) => s.id === queryId)) {
+            set({ activeId: queryId }, false);
+          } else {
+            set({ activeId: data.sessions[0].id }, false);
+          }
+        }
+
         set({ isSessionsFirstFetchFinished: true }, false, n('useFetchSessions/onSuccess', data));
       },
     }),
@@ -267,7 +365,9 @@ export const createSessionSlice: StateCreator<
     );
   },
   refreshSessions: async () => {
-    await mutate(FETCH_SESSIONS_KEY);
+    const currentUserId = getUserId();
+    const currentAppId = getAppId();
+    await mutate([FETCH_SESSIONS_KEY, currentUserId, currentAppId]);
   },
   updateSessionDatasets: async (datasets) => {
     const session = sessionSelectors.currentSession(get());
@@ -278,26 +378,55 @@ export const createSessionSlice: StateCreator<
     await sessionService.updateSession(activeId, { datasets });
     await refreshSessions();
   },
+  deleteSessionFile: async (uid: string) => {
+    const session = sessionSelectors.currentSession(get());
+    const { activeId, internal_updateSession } = get();
+    if (!session) return;
+
+    const currentFileList = session?.files;
+
+    if (currentFileList?.length) {
+      const newFileList = currentFileList.filter((item) => item.localId !== uid);
+      await internal_updateSession(activeId, { files: newFileList });
+    }
+  },
+  updateSessionFiles: async (fileList) => {
+    const session = sessionSelectors.currentSession(get());
+    if (!session) return;
+    const { internal_updateSession, activeId,  } = get();
+
+    const oldFileList = session?.files || [];
+    const newFileList = fileList.map((uploadFile) => {
+      const { uid, status, size, name, type, percent, originFileObj} = uploadFile;
+
+      return {
+        status,
+        name,
+        size,
+        type,
+        percent,
+        localId: uid,
+        id: uploadFile?.response?.id,
+        extension: uploadFile?.response?.extension,
+      }
+    }) as FilesData;
+    const newIds = newFileList.map((v) => v.localId);
+
+    const mergeList = [...newFileList, ...oldFileList.filter((item) => !newIds.includes(item.localId))];
+    await internal_updateSession(activeId, { files: mergeList });
+    // set({ localUploadFiles: { ...localUploadFiles, [activeId]: fileList } }, false, n('updateSessionFiles'));
+  },
   useFetchDatasets: () => {
     const {updateSessionDatasets} = get();
     const session = sessionSelectors.currentSession(get());
+    const app = getApp();
 
-    return useSWR('fetchDifyDatasets', async () => {
-      return fetch(API_ENDPOINTS.difyDatasets, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'GET',
-      }).then((resp) => {
-        return resp.json();
-      });
-    }, {
-      dedupingInterval: 0,
-      refreshWhenOffline: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      onSuccess: (resp: GetDatasetsResp) => {
-        // console.log('session', session?.datasets);
+    return useClientDataSWR(
+      'fetchDifyDatasets',
+      () => difyService.getDatasets({ app }),
+      {
+        onSuccess: (resp: GetDatasetsResp) => {
+        console.log('resp', JSON.stringify(resp.data));
 
         if (!session?.datasets && resp?.data) {
           updateSessionDatasets(resp.data);
@@ -305,4 +434,18 @@ export const createSessionSlice: StateCreator<
       }
     });
   },
+  initSessions: async (queryId: string) => {
+    const { activeId, sessions, } = get();
+    const session = sessionSelectors.currentSession(get());
+    console.log('initSessions', sessions, activeId);
+
+    if (queryId === INBOX_SESSION_ID) {
+
+    } else {
+
+    }
+  },
+  updateQueryId: (id) => {
+    set({querySessionId: id},false);
+  }
 });

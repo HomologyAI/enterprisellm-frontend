@@ -1,13 +1,10 @@
 'use client';
 
-import { useTranslation } from 'react-i18next';
-
 import FullscreenLoading from '@/components/FullscreenLoading';
 
 const Loading = () => {
-  const { t } = useTranslation('common');
 
-  return <FullscreenLoading title={t('appInitializing')} />;
+  return <FullscreenLoading title={"尚书大模型启动中，请稍等"} />;
 };
 
 export default Loading;

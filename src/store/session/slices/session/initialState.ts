@@ -1,5 +1,6 @@
-import { CustomSessionGroup, LobeAgentSession, LobeSessionGroups } from '@/types/session';
+import {CustomSessionGroup, LobeAgentSession, LobeSessionGroups, LocalUploadFile} from '@/types/session';
 import {DifyDataset} from "@/libs/difyClient";
+import {UploadFile} from "antd/es/upload/interface";
 
 export interface SessionState {
   /**
@@ -20,7 +21,8 @@ export interface SessionState {
    * it means defaultSessions
    */
   sessions: LobeAgentSession[];
-  datasets: DifyDataset[];
+  localUploadFiles: Record<string, LocalUploadFile[]>;
+  querySessionId: string;
 }
 
 export const initialSessionState: SessionState = {
@@ -34,5 +36,6 @@ export const initialSessionState: SessionState = {
   searchKeywords: '',
   sessionGroups: [],
   sessions: [],
-  datasets: [],
+  localUploadFiles: {},
+  querySessionId: '',
 };

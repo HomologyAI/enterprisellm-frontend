@@ -43,4 +43,9 @@ export const API_ENDPOINTS = mapWithBasePath({
   microsoft: '/api/tts/microsoft-speech',
 
   difyDatasets: '/api/dify/datasets',
+  upload: '/api/dify/upload',
+  difyChat: '/api/dify/chat',
+  difyApps: '/api/dify/apps',
+  difyRename: '/api/dify/rename',
+  difyGetName: '/api/dify/name',
 });

@@ -16,7 +16,7 @@ export const routes = {
     },
     createChatMessage: {
         method: "POST",
-        url: () => `/chat-messages`,
+        url: () => process.env.NODE_ENV === 'development' ? '/chat-messages' : `/chat-homology-messages`,
     },
     getConversationMessages: {
         method: "GET",
@@ -25,6 +25,10 @@ export const routes = {
     getConversations: {
         method: "GET",
         url: () => `/conversations`,
+    },
+    getConversationName: {
+        method: "GET",
+        url: (conversation_id) => `/conversations/${conversation_id}/get_name`,
     },
     renameConversation: {
         method: "POST",
@@ -45,7 +49,15 @@ export const routes = {
     getDatasets: {
         method: "GET",
         url: () => `/datasets`,
-    }
+    },
+    upload: {
+        method: "GET",
+        url: () => `/files/upload`,
+    },
+    getApps: {
+        method: "GET",
+        url: () => `/apps`,
+    },
 };
 
 export class DifyClient {
@@ -170,19 +182,25 @@ export class CompletionClient extends DifyClient {
 
 export class ChatClient extends DifyClient {
     createChatMessage(
-        inputs,
-        query,
-        user,
-        stream = false,
-        conversation_id = null,
-        files = null
+        config
     ) {
+        const {
+            inputs,
+            query,
+            user,
+            stream = false,
+            conversation_id = null,
+            files = null,
+            dataset_ids = [],
+        } = config;
+
         const data = {
             inputs,
             query,
             user,
             response_mode: stream ? "streaming" : "blocking",
             files,
+            dataset_ids,
         };
         if (conversation_id) data.conversation_id = conversation_id;
 
@@ -236,12 +254,28 @@ export class ChatClient extends DifyClient {
         );
     }
 
+    getConversationName(conversation_id, name, user) {
+        const data = { user };
+        return this.sendRequest(
+            routes.getConversationName.method,
+            routes.getConversationName.url(conversation_id),
+            data
+        );
+    }
+
     deleteConversation(conversation_id, user) {
         const data = { user };
         return this.sendRequest(
             routes.deleteConversation.method,
             routes.deleteConversation.url(conversation_id),
             data
+        );
+    }
+
+    getApps() {
+        return this.sendRequest(
+            routes.getApps.method,
+            routes.getApps.url(),
         );
     }
 }
@@ -253,6 +287,25 @@ export class DatasetsClient extends DifyClient {
             routes.getDatasets.url(),
             null,
             params,
+        );
+    }
+}
+
+export class FileClient extends DifyClient {
+    upload(params) {
+        const formData = new FormData();
+        formData.append('user', params.user); // 添加键值对
+        formData.append('file', params.file); // 添加文件，其中 `file` 是一个 File 对象
+
+        return this.sendRequest(
+            routes.upload.method,
+            routes.upload.url(),
+            formData,
+            null,
+            false,
+            {
+                "Content-Type": "multipart/form-data",
+            }
         );
     }
 }

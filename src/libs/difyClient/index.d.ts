@@ -1,4 +1,6 @@
 // Types.d.ts
+import {AxiosResponse} from "axios";
+
 export const BASE_URL: string;
 
 export type RequestMethods = 'GET' | 'POST' | 'PATCH' | 'DELETE';
@@ -21,6 +23,7 @@ interface ChatMessageConfig {
   stream?: boolean;
   conversation_id?: string | null;
   files?: File[] | null;
+  dataset_ids?: string[];
 }
 
 export declare class DifyClient {
@@ -68,6 +71,10 @@ export declare class ChatClient extends DifyClient {
   renameConversation(conversation_id: string, name: string, user: User): Promise<any>;
 
   deleteConversation(conversation_id: string, user: User): Promise<any>;
+
+  getConversationName(conversation_id: string, user: User): Promise<any>;
+
+  getApps(): Promise<any>;
 }
 
 export interface DifyDataset {
@@ -95,11 +102,42 @@ export interface GetDatasetsResp {
   page: number;
 }
 
+export interface DifyRawApp {
+  id: string;
+  name: string;
+  mode: string;
+  icon: string,
+  icon_background: string;
+  token: string;
+  datasets: string[][];
+}
+
+export type GetAppResp = DifyRawApp[];
+
 export interface GetDatasetsParams {
   page: number;
   limit: number;
 }
 
 export declare class DatasetsClient extends DifyClient {
-  getDatasets(params: GetDatasetsParams): Promise<GetDatasetsResp>;
+  getDatasets(params: GetDatasetsParams): Promise<AxiosResponse<GetDatasetsResp>>;
+}
+
+export interface UploadFileParams {
+  user: string;
+  file: File;
+}
+
+export interface UploadFileResp {
+  id: string;
+  name: string;
+  size: number;
+  extension: string;
+  mime_type: string;
+  created_by: string;
+  created_at: number;
+}
+
+export declare class FileClient extends DifyClient {
+  upload(params: UploadFileParams): Promise<AxiosResponse<UploadFileResp>>;
 }

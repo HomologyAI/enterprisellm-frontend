@@ -87,3 +87,9 @@ export const dbSchemaV8 = {
   sessions:
     '&id, type, group, pinned, meta.title, meta.description, meta.tags, createdAt, updatedAt, conversation_id',
 };
+
+export const dbSchemaV9 = {
+  ...dbSchemaV8,
+  sessions:
+    '&id, type, group, pinned, meta.title, meta.description, meta.tags, createdAt, updatedAt, conversation_id, userId, appId, [userId+appId]',
+};

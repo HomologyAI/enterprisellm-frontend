@@ -25,7 +25,7 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
   const [active] = useSessionStore((s) => [s.activeId === id]);
   const [loading] = useChatStore((s) => [!!s.chatLoadingId && id === s.activeId]);
 
-  const [pin, title, description, avatar, avatarBackground, updateAt, model, group] =
+  const [pin, title, description, avatar, avatarBackground, updateAt, model, group,  activeSession] =
     useSessionStore((s) => {
       const session = sessionSelectors.getSessionById(id)(s);
       const meta = session.meta;
@@ -39,6 +39,7 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
         session?.updatedAt,
         session.model,
         session?.group,
+        s.activeSession,
       ];
     });
 
@@ -75,16 +76,14 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
         avatar={avatar}
         avatarBackground={avatarBackground}
         date={updateAt}
-        description={description}
+        description={""}
         loading={loading}
         pin={pin}
         showAction={open}
         title={title}
-      />
-      <CreateGroupModal
-        id={id}
-        onCancel={() => setCreateGroupModalOpen(false)}
-        open={createGroupModalOpen}
+        onClick={() => {
+          activeSession(id)
+        }}
       />
     </>
   );

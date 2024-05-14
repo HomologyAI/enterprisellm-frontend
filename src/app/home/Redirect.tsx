@@ -1,10 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { memo, useEffect } from 'react';
+import {memo, useEffect, useLayoutEffect} from 'react';
 
 import { messageService } from '@/services/message';
 import { sessionService } from '@/services/session';
+import {useAppsStore} from "@/store/apps";
 
 const checkHasConversation = async () => {
   const hasMessages = await messageService.hasMessages();
@@ -15,14 +16,18 @@ const checkHasConversation = async () => {
 const Redirect = memo(() => {
   const router = useRouter();
 
-  useEffect(() => {
-    checkHasConversation().then((hasData) => {
-      if (hasData) {
-        router.replace('/chat');
-      } else {
-        router.replace('/welcome');
-      }
-    });
+  const apps = useAppsStore(s => s.apps);
+  console.log('Redirect apps', apps);
+
+  useLayoutEffect(() => {
+    // checkHasConversation().then((hasData) => {
+    //   if (hasData) {
+    //     router.replace('/chat');
+    //   } else {
+    //     router.replace('/welcome');
+    //   }
+    // });
+    router.replace('/chat');
   }, []);
 
   return null;

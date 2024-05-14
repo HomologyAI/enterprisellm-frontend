@@ -18,6 +18,7 @@ import AppTheme from './AppTheme';
 import Locale from './Locale';
 import StoreInitialization from './StoreInitialization';
 import StyleRegistry from './StyleRegistry';
+import AppsInitialization from "@/layout/GlobalProvider/AppsInitialization";
 
 let DebugUI: FC = () => null;
 
@@ -58,6 +59,7 @@ const GlobalLayout = async ({ children }: GlobalLayoutProps) => {
           defaultPrimaryColor={primaryColor?.value as any}
         >
           <StoreInitialization />
+          <AppsInitialization />
           <ServerConfigStoreProvider featureFlags={serverFeatureFlags} serverConfig={serverConfig}>
             {children}
           </ServerConfigStoreProvider>
