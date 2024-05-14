@@ -33,6 +33,7 @@ import {useChatStore} from "@/store/chat";
 import {UploadFile} from "antd/es/upload/interface";
 import {appsSelectors, useAppsStore} from "@/store/apps";
 import {DifyApp} from "@/types/dify";
+import {SessionModel} from "@/database/client/models/session";
 
 const n = setNamespace('session');
 
@@ -103,6 +104,7 @@ export interface SessionAction {
   /* eslint-enable */
   useFetchDatasets: () => SWRResponse<DatasetsData[]>;
   renameConversation: (name: string) => Promise<boolean>;
+  autoRenameConversation: (sessionId: string) => Promise<void>;
 }
 
 const addDifyDatasetsMessage = (id: string) => useChatStore.getState().addDifyDatasetsMessage(id);
@@ -117,6 +119,37 @@ export const createSessionSlice: StateCreator<
   [],
   SessionAction
 > = (set, get) => ({
+  autoRenameConversation: async (sessionId) => {
+    if (!sessionId) return;
+    const session = get().sessions.find((s) => s.id === sessionId);
+    if (!session) return;
+    console.log('autoRenameConversation', session);
+
+    // 用户自己修改了，那就不管了
+    if (session?.meta?.title) {
+      return;
+    }
+
+    const {
+      userId = '',
+      conversation_id = '',
+    } = session;
+
+    const app = getApp();
+
+    const resp = await difyService.getConversationName({
+      app,
+      data: {
+        userId,
+        conversation_id,
+      }
+    });
+
+    if (resp?.name) {
+      await sessionService.updateSession(sessionId, { meta: { title: resp.name } });
+      await get().refreshSessions();
+    }
+  },
   renameConversation: async (name) => {
     const session = sessionSelectors.currentSession(get());
 

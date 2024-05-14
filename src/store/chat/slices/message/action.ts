@@ -135,6 +135,7 @@ export interface ChatMessageAction {
 const getAgentConfig = () => agentSelectors.currentAgentConfig(useAgentStore.getState());
 const getCurrentConversationId = () => sessionDifySelectors.currentSessionConversationId(useSessionStore.getState());
 const refreshSessions = () => useSessionStore.getState().refreshSessions();
+const autoRenameConversation = (sessionId: string) => useSessionStore.getState().autoRenameConversation(sessionId);
 const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSessionStore.getState());
 const getCurrentFileList = () => sessionDifySelectors.currentSessionFiles(useSessionStore.getState());
 const getCurrentApp = () => appsSelectors.currentApp(useAppsStore.getState());
@@ -534,8 +535,11 @@ export const chatMessage: StateCreator<
         // 更新conversation_id，第一次没有conversationsId的时候更新
 
         if (!conversationsId && conversation_id) {
+          // firstTime createConversation
           await sessionService.updateSession(sessionId, { conversation_id });
           await refreshSessions();
+          // ai生成标题名称
+          autoRenameConversation(sessionId);
         }
       },
       onMessageHandle: async (text) => {

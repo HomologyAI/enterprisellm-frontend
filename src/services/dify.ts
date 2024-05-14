@@ -13,9 +13,8 @@ export interface DifyServicePayload<T> {
 
 export interface DifyServiceRenamePayload {
   name: string;
-  // userId: string;
-  // conversation_id: string;
 }
+
 
 export interface DifyServiceResp {
   succ: 0 | 1;
@@ -82,6 +81,10 @@ class DifyService {
 
   getApps() {
     return this.getData(API_ENDPOINTS.difyApps);
+  }
+
+  getConversationName (payload: DifyServicePayload<void>) {
+    return this.fetchData<void>(API_ENDPOINTS.difyGetName, payload);
   }
 }
 
