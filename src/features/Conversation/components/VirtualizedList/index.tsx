@@ -19,7 +19,7 @@ const itemContent = (index: number, id: string) => {
   if (id === WELCOME_ID) return <InboxWelcome />;
 
   return index === 0 ? (
-    <div style={{ height: 24 + (isMobile ? 0 : 100) }} />
+    <div style={{ height: 0 }} />
   ) : (
     <Item id={id} index={index - 1} />
   );

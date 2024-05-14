@@ -15,6 +15,10 @@ export const LobeMetaDataSchema = z.object({
    * 名称
    */
   title: z.string().optional(),
+  /**
+   * 最后一条消息内容
+   */
+  lastMsgContent: z.string().optional(),
 });
 
 export const DatasetsDataSchema = z.array(z.object({

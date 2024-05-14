@@ -55,7 +55,7 @@ const ChatItem = memo<ChatItemProps>(
       <Flexbox
         className={cx(styles.container, className)}
         direction={placement === 'left' ? 'horizontal' : 'horizontal-reverse'}
-        gap={mobile ? 6 : 20}
+        gap={mobile ? 6 : 12}
         {...rest}
       >
         {renderAvatar}

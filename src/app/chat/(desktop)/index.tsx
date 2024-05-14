@@ -11,7 +11,7 @@ import SideBar from './features/SideBar';
 
 const Desktop = memo(() => (
   <>
-    <ChatHeader />
+    {/*<ChatHeader />*/}
     <Flexbox flex={1} height={'calc(100% - 200px)'} horizontal>
       <Conversation />
       {/*<SideBar />*/}

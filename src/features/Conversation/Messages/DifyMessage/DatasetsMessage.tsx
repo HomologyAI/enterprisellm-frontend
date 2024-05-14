@@ -153,7 +153,7 @@ export const DatasetsMessage = memo<
 
   return !displayDatasets.length ? <BubblesLoading /> : (
     <Flexbox className={styles.container} >
-      <p>欢迎使用尚书AI大模型聊天助手</p>
+      <p>欢迎使用交投AI聊天助手</p>
       <br/>
       <p>请选择以下知识库，回答都将来自于知识库内。</p>
       <Flexbox className={styles.main} gap={8}>

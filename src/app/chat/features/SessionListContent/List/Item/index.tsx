@@ -12,6 +12,7 @@ import { sessionMetaSelectors, sessionSelectors } from '@/store/session/selector
 import ListItem from '../../ListItem';
 import CreateGroupModal from '../../Modals/CreateGroupModal';
 import Actions from './Actions';
+import {messageService} from "@/services/message";
 
 interface SessionItemProps {
   id: string;
@@ -25,7 +26,15 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
   const [active] = useSessionStore((s) => [s.activeId === id]);
   const [loading] = useChatStore((s) => [!!s.chatLoadingId && id === s.activeId]);
 
-  const [pin, title, description, avatar, avatarBackground, updateAt, model, group,  activeSession] =
+  const [pin, title,
+    avatar,
+    lastMsgContent,
+    avatarBackground,
+    updateAt,
+    model,
+    group,
+    activeSession,
+  ] =
     useSessionStore((s) => {
       const session = sessionSelectors.getSessionById(id)(s);
       const meta = session.meta;
@@ -33,8 +42,8 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
       return [
         sessionHelpers.getSessionPinned(session),
         sessionMetaSelectors.getTitle(meta),
-        sessionMetaSelectors.getDescription(meta),
         sessionMetaSelectors.getAvatar(meta),
+        sessionMetaSelectors.getSessionLastMsgContent(meta),
         meta.backgroundColor,
         session?.updatedAt,
         session.model,
@@ -42,6 +51,8 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
         s.activeSession,
       ];
     });
+
+  const messages = useChatStore(s => s.messages);
 
   const showModel = model !== defaultModel;
 
@@ -76,7 +87,7 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
         avatar={avatar}
         avatarBackground={avatarBackground}
         date={updateAt}
-        description={""}
+        description={lastMsgContent}
         loading={loading}
         pin={pin}
         showAction={open}

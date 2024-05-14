@@ -89,43 +89,41 @@ const Actions = memo<ActionProps>(({ group, id, openCreateGroupModal, setOpen })
           },
         },
       ];
-      if (conversationId) {
-        res.push(
-          {
-            danger: false,
-            icon: <Icon icon={Edit} />,
-            key: 'edit',
-            label: '编辑对话标题',
-            onClick: ({ domEvent }) => {
-              domEvent.stopPropagation();
+      res.push(
+        {
+          danger: false,
+          icon: <Icon icon={Edit} />,
+          key: 'edit',
+          label: '编辑对话标题',
+          onClick: ({ domEvent }) => {
+            domEvent.stopPropagation();
 
-              modal.confirm({
-                centered: true,
-                okButtonProps: { danger: false },
-                content: (
-                  <EditNameModalContent
-                    title={title}
-                    onChanged={(e) => {
-                      titleRef.current = e.target.value;
-                    }}
-                  />
-                ),
-                title: '编辑对话标题',
-                onOk: async () => {
-                  const res = await renameConversation(titleRef.current);
+            modal.confirm({
+              centered: true,
+              okButtonProps: { danger: false },
+              content: (
+                <EditNameModalContent
+                  title={title}
+                  onChanged={(e) => {
+                    titleRef.current = e.target.value;
+                  }}
+                />
+              ),
+              title: '编辑对话标题',
+              onOk: async () => {
+                const res = await renameConversation(titleRef.current);
 
-                  if (res) {
-                    message.success(t('编辑对话标题成功'));
-                  } else {
-                    message.error(t('编辑对话标题失败'));
-                  }
-                },
-                // rootClassName: styles.modalRoot,
-              });
-            },
+                if (res) {
+                  message.success(t('编辑对话标题成功'));
+                } else {
+                  message.error(t('编辑对话标题失败'));
+                }
+              },
+              // rootClassName: styles.modalRoot,
+            });
           },
-        )
-      }
+        },
+      )
 
       return res;
     },

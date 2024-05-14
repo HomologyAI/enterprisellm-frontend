@@ -121,11 +121,14 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
     if (!item) return null;
     if (item.role === 'user') {
       return (
-        <UserAvatar />
+        <UserAvatar size={40} style={{
+          fontSize: 16,
+          backgroundColor: '#BFBFBF'
+        }}/>
       )
     }
 
-    return <BotAvatar size={48}/>
+    return <BotAvatar />
   }, []);
 
   const shouldShowRawItem = useMemo(() =>

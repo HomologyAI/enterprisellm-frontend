@@ -43,6 +43,7 @@ interface SendMessageParams {
 export interface ChatMessageAction {
   // create
   sendMessage: (params: SendMessageParams) => Promise<void>;
+  saveSessionLastMsg: (sessionId: string, content: string) => Promise<void>;
   addAIMessage: () => Promise<void>;
   addDifyMessage: (msg: DifyMessage) => void;
   addDifyDatasetsMessage: (sid: string) => Promise<void>;
@@ -135,6 +136,7 @@ export interface ChatMessageAction {
 const getAgentConfig = () => agentSelectors.currentAgentConfig(useAgentStore.getState());
 const getCurrentConversationId = () => sessionDifySelectors.currentSessionConversationId(useSessionStore.getState());
 const refreshSessions = () => useSessionStore.getState().refreshSessions();
+const autoRenameConversation = (sessionId: string) => useSessionStore.getState().autoRenameConversation(sessionId);
 const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSessionStore.getState());
 const getCurrentFileList = () => sessionDifySelectors.currentSessionFiles(useSessionStore.getState());
 const getCurrentApp = () => appsSelectors.currentApp(useAppsStore.getState());
@@ -190,8 +192,15 @@ export const chatMessage: StateCreator<
     await messageService.removeAllMessages();
     await refreshMessages();
   },
+  saveSessionLastMsg: async (sessionId, content) => {
+    console.log('saveSessionLastMsg', sessionId, content);
+    if (sessionId && content) {
+      await sessionService.updateSession(sessionId, { meta: { lastMsgContent: content } });
+      await refreshSessions();
+    }
+  },
   sendMessage: async ({ message, files, onlyAddUserMessage }) => {
-    const { coreProcessMessage, activeTopicId, activeId } = get();
+    const { coreProcessMessage, activeTopicId, activeId, saveSessionLastMsg, } = get();
     if (!activeId) return;
 
     const fileIdList = files?.map((f) => f.id);
@@ -210,6 +219,7 @@ export const chatMessage: StateCreator<
     };
 
     const id = await get().internalCreateMessage(newMessage);
+    await saveSessionLastMsg(activeId, message);
 
     // if only add user message, then stop
     if (onlyAddUserMessage) return;
@@ -220,17 +230,17 @@ export const chatMessage: StateCreator<
     await coreProcessMessage(messages, id);
 
     // check activeTopic and then auto create topic
-    const chats = chatSelectors.currentChats(get());
+    // const chats = chatSelectors.currentChats(get());
 
-    const agentConfig = getAgentConfig();
-    // if autoCreateTopic is false, then stop
-    if (!agentConfig.enableAutoCreateTopic) return;
-
-    if (!activeTopicId && chats.length >= agentConfig.autoCreateTopicThreshold) {
-      const { saveToTopic, switchTopic } = get();
-      const id = await saveToTopic();
-      if (id) switchTopic(id);
-    }
+    // const agentConfig = getAgentConfig();
+    // // if autoCreateTopic is false, then stop
+    // if (!agentConfig.enableAutoCreateTopic) return;
+    //
+    // if (!activeTopicId && chats.length >= agentConfig.autoCreateTopicThreshold) {
+    //   const { saveToTopic, switchTopic } = get();
+    //   const id = await saveToTopic();
+    //   if (id) switchTopic(id);
+    // }
   },
   addAIMessage: async () => {
     const { internalCreateMessage, updateInputMessage, activeTopicId, activeId, inputMessage } =
@@ -532,10 +542,14 @@ export const chatMessage: StateCreator<
 
         await internalUpdateMessageContent(assistantMessageId, content);
         // 更新conversation_id，第一次没有conversationsId的时候更新
+        await get().saveSessionLastMsg(sessionId, content);
 
         if (!conversationsId && conversation_id) {
+          // firstTime createConversation
           await sessionService.updateSession(sessionId, { conversation_id });
           await refreshSessions();
+          // ai生成标题名称
+          autoRenameConversation(sessionId);
         }
       },
       onMessageHandle: async (text) => {
