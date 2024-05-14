@@ -45,7 +45,7 @@ const Desktop = memo<PropsWithChildren>(({ children }) => {
       <SideBar />
       {children}
     </Layout>
-  ) : <FullscreenLoading title="尚书大模型启动中，请稍等"/>;
+  ) : <FullscreenLoading title="交投AI启动中，请稍等"/>;
 });
 
 export default ClientResponsiveLayout({ Desktop, Mobile: () => import('../Mobile') });

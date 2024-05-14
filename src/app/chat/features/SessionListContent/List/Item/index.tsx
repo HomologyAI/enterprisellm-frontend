@@ -12,6 +12,7 @@ import { sessionMetaSelectors, sessionSelectors } from '@/store/session/selector
 import ListItem from '../../ListItem';
 import CreateGroupModal from '../../Modals/CreateGroupModal';
 import Actions from './Actions';
+import {messageService} from "@/services/message";
 
 interface SessionItemProps {
   id: string;
@@ -26,7 +27,14 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
   const [loading] = useChatStore((s) => [!!s.chatLoadingId && id === s.activeId]);
 
   const [pin, title,
-    avatar, avatarBackground, updateAt, model, group,  activeSession] =
+    avatar,
+    lastMsgContent,
+    avatarBackground,
+    updateAt,
+    model,
+    group,
+    activeSession,
+  ] =
     useSessionStore((s) => {
       const session = sessionSelectors.getSessionById(id)(s);
       const meta = session.meta;
@@ -35,6 +43,7 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
         sessionHelpers.getSessionPinned(session),
         sessionMetaSelectors.getTitle(meta),
         sessionMetaSelectors.getAvatar(meta),
+        sessionMetaSelectors.getSessionLastMsgContent(meta),
         meta.backgroundColor,
         session?.updatedAt,
         session.model,
@@ -69,17 +78,6 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
     [showModel, model],
   );
 
-  const description = useMemo(() => {
-    if (messages.length) {
-      // const firstMsg = messages.reverse().filter((msg) => {
-      //   return !!msg.content;
-      // });
-      // console.log('firstMsg', firstMsg);
-      // return firstMsg?.[0]?.content || '';
-    }
-    return '';
-  }, [messages]);
-
   return (
     <>
       <ListItem
@@ -89,7 +87,7 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
         avatar={avatar}
         avatarBackground={avatarBackground}
         date={updateAt}
-        description={""}
+        description={lastMsgContent}
         loading={loading}
         pin={pin}
         showAction={open}

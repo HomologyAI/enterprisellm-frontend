@@ -4,6 +4,7 @@ import { createStyles, useResponsive } from 'antd-style';
 import { memo, useMemo, useRef } from 'react';
 import BotAvatar from "@/features/Avatar/BotAvatar";
 import {Flexbox} from "react-layout-kit";
+import SessionListItem from "@/app/chat/features/SessionListContent/List/SessionListItem";
 
 const { Item } = List;
 
@@ -43,7 +44,7 @@ const ListItem = memo<ListItemProps & { avatar: string; avatarBackground?: strin
     );
 
     return (
-      <Item
+      <SessionListItem
         actions={actions}
         active={mobile ? false : active}
         avatar={avatarRender}

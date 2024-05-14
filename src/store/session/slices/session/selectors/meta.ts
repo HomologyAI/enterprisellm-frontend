@@ -33,6 +33,9 @@ const getTitle = (s: MetaData) => s.title || t('defaultSession', { ns: 'common' 
 export const getDescription = (s: MetaData) =>
   s.description || t('noDescription', { ns: 'common' });
 
+const getSessionLastMsgContent = (s: MetaData) => s.lastMsgContent || '';
+
+
 export const sessionMetaSelectors = {
   currentAgentAvatar,
   currentAgentBackgroundColor,
@@ -42,4 +45,5 @@ export const sessionMetaSelectors = {
   getAvatar,
   getDescription,
   getTitle,
+  getSessionLastMsgContent,
 };

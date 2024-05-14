@@ -37,7 +37,7 @@ const UserAvatar = React.memo((props: Props) => {
       className={styles.avatar}
       style={style}
     >
-      尚
+      交
     </Avatar>
   )
 });
