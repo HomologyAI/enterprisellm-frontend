@@ -29,7 +29,7 @@ const FolderPanel = memo<PropsWithChildren>(({ children }) => {
       className={styles.panel}
       defaultSize={{ width: tmpWidth }}
       expand={sessionExpandable}
-      maxWidth={400}
+      maxWidth={330}
       minWidth={FOLDER_WIDTH}
       onExpandChange={(expand) => {
         updatePreference({

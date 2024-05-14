@@ -11,18 +11,18 @@ const useStyles = createStyles(({ css, token, responsive }) => {
   return {
     container: css`
       position: relative;
-
-      margin-block: 2px;
-      padding-right: 24px;
-      padding-left: 24px;
+      margin-block: 0;
+      padding-inline: 12px;
       background-color: #FAFAFA;
-
+      height: 75px;
+      
       border-radius: 0;
-      ${responsive.mobile} {
-        margin-block: 0;
-        padding-left: 12px;
-        border-radius: 0;
-      }
+      
+      // ${responsive.mobile} {
+      //   margin-block: 0;
+      //   padding-left: 12px;
+      //   border-radius: 0;
+      // }
     `,
     active: css`
       background-color: rgba(230, 244, 255, 1);
@@ -38,10 +38,8 @@ const ListItem = memo<ListItemProps & { avatar: string; avatarBackground?: strin
     const { styles, cx } = useStyles({ active });
 
     const avatarRender = useMemo(
-      () => (
-        <BotAvatar />
-      ),
-      [isHovering, avatar, avatarBackground],
+      () => (<Flexbox height={0}/>),
+      [],
     );
 
     return (

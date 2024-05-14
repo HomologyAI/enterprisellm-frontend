@@ -5,6 +5,7 @@ import {createStyles} from "antd-style";
 interface Props {
   size?: number;
   shape?: 'circle' | 'square';
+  style?: React.CSSProperties;
 }
 
 const useStyles = createStyles(
@@ -24,6 +25,7 @@ const UserAvatar = React.memo((props: Props) => {
   const {
     size = 48,
     shape = 'circle',
+    style,
   } = props;
 
   const {styles} = useStyles();
@@ -33,6 +35,7 @@ const UserAvatar = React.memo((props: Props) => {
       size={size}
       shape={shape}
       className={styles.avatar}
+      style={style}
     >
       尚
     </Avatar>

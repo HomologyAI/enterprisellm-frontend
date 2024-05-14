@@ -29,10 +29,10 @@ export const useStyles = createStyles(
       background-color: ${!primary
       ? isDarkMode
         ? token.colorFill
-        : 'rgba(230, 244, 255, 1)'
+        : '#FAFAFA'
       : isDarkMode
         ? token.colorFillSecondary
-        : 'rgba(163, 212, 255, 1)'};
+        : '#FAFAFA'};
       border-radius: 8px;
 
       transition: background-color 100ms ${token.motionEaseOut};
@@ -87,7 +87,7 @@ export const useStyles = createStyles(
           position: relative;
           width: 100%;
           max-width: 100vw;
-          padding: 30px;
+          padding: 32px 128px 30px 36px;
 
           time {
             display: inline-block;

@@ -119,7 +119,6 @@ export const createSessionSlice: StateCreator<
 > = (set, get) => ({
   renameConversation: async (name) => {
     const session = sessionSelectors.currentSession(get());
-    if (!session?.conversation_id) return false;
 
     const {
       userId = '',
@@ -127,15 +126,18 @@ export const createSessionSlice: StateCreator<
     } = session;
 
     const app = getApp();
+    let result = true;
 
-    const result = await difyService.renameConversation({
-      app,
-      data: {
-        conversation_id,
-        userId,
-        name,
-      },
-    });
+    if (conversation_id && userId) {
+       result = await difyService.renameConversation({
+        app,
+        data: {
+          conversation_id,
+          userId,
+          name,
+        },
+      });
+    }
 
     if (result) {
       // 修改session.title

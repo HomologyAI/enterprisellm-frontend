@@ -25,7 +25,8 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
   const [active] = useSessionStore((s) => [s.activeId === id]);
   const [loading] = useChatStore((s) => [!!s.chatLoadingId && id === s.activeId]);
 
-  const [pin, title, description, avatar, avatarBackground, updateAt, model, group,  activeSession] =
+  const [pin, title,
+    avatar, avatarBackground, updateAt, model, group,  activeSession] =
     useSessionStore((s) => {
       const session = sessionSelectors.getSessionById(id)(s);
       const meta = session.meta;
@@ -33,7 +34,6 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
       return [
         sessionHelpers.getSessionPinned(session),
         sessionMetaSelectors.getTitle(meta),
-        sessionMetaSelectors.getDescription(meta),
         sessionMetaSelectors.getAvatar(meta),
         meta.backgroundColor,
         session?.updatedAt,
@@ -42,6 +42,8 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
         s.activeSession,
       ];
     });
+
+  const messages = useChatStore(s => s.messages);
 
   const showModel = model !== defaultModel;
 
@@ -66,6 +68,17 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
       ),
     [showModel, model],
   );
+
+  const description = useMemo(() => {
+    if (messages.length) {
+      // const firstMsg = messages.reverse().filter((msg) => {
+      //   return !!msg.content;
+      // });
+      // console.log('firstMsg', firstMsg);
+      // return firstMsg?.[0]?.content || '';
+    }
+    return '';
+  }, [messages]);
 
   return (
     <>
