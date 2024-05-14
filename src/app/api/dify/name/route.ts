@@ -37,12 +37,14 @@ export async function POST(req: NextRequest) {
     conversation_id,
     userId,
   ).then((resp) => {
+    console.log('resp', resp);
+
     if (resp?.data?.status === 'normal') {
       return createSuccessResponse(resp.data);
     }
     return createErrorResponse(ChatErrorType.InternalServerError, resp?.data);
   }).catch((error) => {
-    console.error(`Route: ${'error'}:`, error?.response?.data);
+    console.error(`Route: ${'error'}:`, error);
     const errorData = error?.response?.data || {}
     const errorType = errorData?.status === 401 ? ChatErrorType.Unauthorized : ChatErrorType.InternalServerError;
     return createErrorResponse(errorType, errorData);
