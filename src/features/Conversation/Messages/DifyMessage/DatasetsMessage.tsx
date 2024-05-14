@@ -48,7 +48,6 @@ export const DatasetsMessage = memo<
   const initDatasets = useAppsStore(appsSelectors.currentAppDatasets, isEqual) as DifyDataset[];
 
   const [checkedIds, setCheckedIds] = useState([]);
-  const datasetsIds = useMemo(() => datasets.map((item) => item.id), [datasets]);
 
   const [
     addDifyMessage,
@@ -72,8 +71,8 @@ export const DatasetsMessage = memo<
   }, [datasets, initDatasets]);
 
   useEffect(() => {
-    if (datasets.length) {
-      const ids = datasets.filter((item) => {
+    if (displayDatasets.length) {
+      const ids = displayDatasets.filter((item) => {
         return Boolean(item?.isChecked);
       }).map((item) => {
         return item.id;
@@ -81,12 +80,14 @@ export const DatasetsMessage = memo<
 
       setCheckedIds(ids);
     }
-  }, [datasets]);
+  }, [displayDatasets]);
+
+  const datasetsIds = useMemo(() => displayDatasets.map((item) => item.id), [displayDatasets]);
 
   const handleConfirm = useCallback(async () => {
     const computedCheckedTitle = () => {
       const names = checkedIds.map((id) => {
-        return `【${datasets.find((item) => item.id === id)?.name}】`;
+        return `【${displayDatasets.find((item) => item.id === id)?.name}】`;
       });
 
       if (!checkedIds.length) {
@@ -105,7 +106,7 @@ export const DatasetsMessage = memo<
       },
     } as DifyAlertMessage
 
-    const newData = datasets.map((item) => {
+    const newData = displayDatasets.map((item) => {
       return {
         ...item,
         isChecked: checkedIds.includes(item.id),
@@ -114,7 +115,7 @@ export const DatasetsMessage = memo<
 
     await updateSessionDatasets(newData);
     addDifyMessage(message);
-  }, [checkedIds, datasets, id]);
+  }, [checkedIds, displayDatasets, id]);
 
   const checkAll = useCallback(() => {
     setCheckedIds(datasetsIds);
