@@ -319,6 +319,8 @@ export const chatMessage: StateCreator<
         messageService.getMessages(sessionId, topicId),
       {
         onSuccess: (messages, key) => {
+          console.log('messages', messages);
+
           set(
             { activeId: sessionId, messages, messagesInit: true },
             false,

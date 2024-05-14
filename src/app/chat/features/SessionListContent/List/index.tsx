@@ -43,9 +43,7 @@ const SessionList = memo<SessionListProps>(({ dataSource, groupId, showAddButton
   ) : !isEmpty ? (
     dataSource.map(({ id }) => (
       <LazyLoad className={styles} key={id}>
-        <Link aria-label={id} href={SESSION_CHAT_URL(id, appId, mobile)}>
-          <SessionItem id={id} />
-        </Link>
+        <SessionItem id={id} />
       </LazyLoad>
     ))
   ) : showCreateSession ? (

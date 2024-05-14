@@ -10,6 +10,7 @@ import {Button, ConfigProvider, Menu} from "antd";
 import {Layout} from 'antd';
 import {DesktopOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PieChartOutlined} from "@ant-design/icons";
 import {useAppsStore} from "@/store/apps";
+import {useGlobalStore} from "@/store/global";
 
 const { Sider } = Layout;
 
@@ -30,6 +31,7 @@ export interface SideNavProps extends DivProps {
 
 const SideNav = memo<SideNavProps>(({ className, avatar, topActions, bottomActions, ...rest }) => {
   const { styles, cx } = useStyles();
+  const switchBackToChat = useGlobalStore((s) => s.switchBackToChat);
 
   const [collapse, setCollapse] = useState(false);
 
@@ -48,13 +50,6 @@ const SideNav = memo<SideNavProps>(({ className, avatar, topActions, bottomActio
       label: item.name,
     }
   });
-
-  const defaultSelectedKeys = useMemo(() => {
-    if (activeId) {
-      return [activeId];
-    }
-    return [];
-  }, [activeId]);
 
   return (
     <ConfigProvider
@@ -91,7 +86,9 @@ const SideNav = memo<SideNavProps>(({ className, avatar, topActions, bottomActio
               mode="inline"
               items={items}
               onSelect={(e) => {
-                updateActiveAppId(e.key);
+                // updateActiveAppId(e.key);
+                const nextAppId = e.key;
+                switchBackToChat(nextAppId);
               }}
               inlineIndent={16}
             />

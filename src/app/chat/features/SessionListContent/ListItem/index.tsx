@@ -3,6 +3,7 @@ import { useHover } from 'ahooks';
 import { createStyles, useResponsive } from 'antd-style';
 import { memo, useMemo, useRef } from 'react';
 import BotAvatar from "@/features/Avatar/BotAvatar";
+import {Flexbox} from "react-layout-kit";
 
 const { Item } = List;
 

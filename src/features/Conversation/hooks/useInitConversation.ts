@@ -32,7 +32,6 @@ export const useInitConversation = () => {
     const unsubscribe = useSessionStore.subscribe(
       (s) => s.activeId,
       (activeId) => {
-        switchTopic();
 
         useAgentStore.setState({ activeId }, false, 'updateActiveId');
       },

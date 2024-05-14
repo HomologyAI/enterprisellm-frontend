@@ -7,14 +7,19 @@ import { memo, useEffect } from 'react';
 import { createStoreUpdater } from 'zustand-utils';
 
 import { useSessionStore } from '@/store/session';
+import {INBOX_SESSION_ID} from "@/const/session";
 
 // sync outside state to useSessionStore
 const SessionHydration = memo(() => {
   const useStoreUpdater = createStoreUpdater(useSessionStore);
 
-  const [activeSession, sessions] = useSessionStore(s => [
-    s.activeSession,
+  const [activeId, sessions, activeSession, createSession, initSessions, updateQueryId] = useSessionStore(s => [
+    s.activeId,
     s.sessions,
+    s.activeSession,
+    s.createSession,
+    s.initSessions,
+    s.updateQueryId
   ]);
 
   const { mobile } = useResponsive();
@@ -27,18 +32,28 @@ const SessionHydration = memo(() => {
   );
 
   useEffect(() => {
-    console.log('hasSession', querySessionId);
+    console.log('querySessionId', querySessionId, sessions);
+    initSessions(querySessionId);
 
-    if (querySessionId === 'inbox') {
-      activeSession(querySessionId);
-    } else if (sessions.length) {
-      const hasSession= sessions.find((s) => s.id === querySessionId);
-
-      if (hasSession) {
-        activeSession(querySessionId);
-      }
-    }
-  }, [querySessionId, sessions]);
+    // if (querySessionId === INBOX_SESSION_ID) {
+    //   if (sessions.length) {
+    //     activeSession(sessions[0].id);
+    //   } else {
+    //     createSession();
+    //   }
+    // } else if (sessions.length) {
+    //   const hasSession = sessions.find((s) => s.id === querySessionId);
+    //
+    //   if (hasSession && activeId !== querySessionId) {
+    //     activeSession(querySessionId);
+    //   } else {
+    //     activeSession(sessions[0].id);
+    //   }
+    // } else {
+    //   createSession();
+    // }
+    updateQueryId(querySessionId);
+  }, [querySessionId]);
 
   useEffect(() => {
     const unsubscribe = useSessionStore.subscribe(

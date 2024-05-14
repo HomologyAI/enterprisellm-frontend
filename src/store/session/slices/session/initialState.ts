@@ -22,6 +22,7 @@ export interface SessionState {
    */
   sessions: LobeAgentSession[];
   localUploadFiles: Record<string, LocalUploadFile[]>;
+  querySessionId: string;
 }
 
 export const initialSessionState: SessionState = {
@@ -36,4 +37,5 @@ export const initialSessionState: SessionState = {
   sessionGroups: [],
   sessions: [],
   localUploadFiles: {},
+  querySessionId: '',
 };

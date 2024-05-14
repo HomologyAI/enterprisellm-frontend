@@ -20,7 +20,7 @@ const n = setNamespace('preference');
  * 设置操作
  */
 export interface GlobalStoreAction {
-  switchBackToChat: (sessionId?: string) => void;
+  switchBackToChat: (appId: string) => void;
   toggleChatSideBar: (visible?: boolean) => void;
   toggleExpandSessionGroup: (id: string, expand: boolean) => void;
   toggleMobileTopic: (visible?: boolean) => void;
@@ -36,8 +36,8 @@ export const globalActionSlice: StateCreator<
   [],
   GlobalStoreAction
 > = (set, get) => ({
-  switchBackToChat: (sessionId) => {
-    get().router?.push(SESSION_CHAT_URL(sessionId || INBOX_SESSION_ID, get().isMobile));
+  switchBackToChat: (appId) => {
+    get().router?.push(`/chat?app=${appId}&session=inbox`);
   },
   toggleChatSideBar: (newValue) => {
     const showChatSideBar =

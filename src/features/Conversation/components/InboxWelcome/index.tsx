@@ -37,38 +37,10 @@ const useStyles = createStyles(({ css, responsive }) => ({
 }));
 
 const InboxWelcome = memo(() => {
-  const { t } = useTranslation('welcome');
-  const [greeting, setGreeting] = useState<'morning' | 'noon' | 'afternoon' | 'night'>();
-  const { styles } = useStyles();
-
-  useEffect(() => {
-    const now = new Date();
-    const hours = now.getHours();
-
-    if (hours >= 4 && hours < 11) {
-      setGreeting('morning');
-    } else if (hours >= 11 && hours < 14) {
-      setGreeting('noon');
-    } else if (hours >= 14 && hours < 18) {
-      setGreeting('afternoon');
-    } else {
-      setGreeting('night');
-    }
-  }, []);
 
   return (
-    <Center padding={16} width={'100%'}>
-      <Flexbox className={styles.container} gap={16} style={{ maxWidth: 800 }} width={'100%'}>
-        <Flexbox align={'center'} gap={8} horizontal>
-          <FluentEmoji emoji={'👋'} size={40} type={'anim'} />
-          <h1 className={styles.title}>{greeting && t(`guide.welcome.${greeting}`)}</h1>
-        </Flexbox>
-        <Markdown className={styles.desc} variant={'chat'}>
-          {t('guide.defaultMessage')}
-        </Markdown>
-        <AgentsSuggest />
-        <QuestionSuggest />
-      </Flexbox>
+    <Center padding={16} height={'100%'} >
+
     </Center>
   );
 });

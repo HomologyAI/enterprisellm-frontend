@@ -9,7 +9,7 @@ import { DEFAULT_AGENT_LOBE_SESSION, INBOX_SESSION_ID } from '@/const/session';
 import { useClientDataSWR } from '@/libs/swr';
 import { sessionService } from '@/services/session';
 import {difyService} from '@/services/dify';
-import {SessionStore, useSessionStore} from '@/store/session';
+import {SessionStore} from '@/store/session';
 import { useUserStore } from '@/store/user';
 import { settingsSelectors } from '@/store/user/selectors';
 import {DatasetsData, FilesData, MetaData} from '@/types/meta';
@@ -46,6 +46,8 @@ export interface SessionAction {
    * @param sessionId
    */
   activeSession: (sessionId: string) => void;
+  initSessions: (queryId: string) => void;
+  updateQueryId: (queryId: string) => void;
   activeFirstSession: () => void;
   /**
    * reset sessions to default
@@ -274,8 +276,10 @@ export const createSessionSlice: StateCreator<
     await sessionService.updateSession(activeId, { meta });
     await refreshSessions();
   },
-  useFetchSessions: ({userId, appId}) =>
-    useClientDataSWR<ChatSessionList>([FETCH_SESSIONS_KEY, userId, appId], ([, userId, appId]) => sessionService.getGroupedSessions(userId, appId), {
+  useFetchSessions: ({userId, appId, onSuccess}) =>
+    useClientDataSWR<ChatSessionList>([FETCH_SESSIONS_KEY, userId, appId], ([, userId, appId]) => {
+      return sessionService.getGroupedSessions(userId, appId);
+    }, {
       onSuccess: (data) => {
         if (
           get().isSessionsFirstFetchFinished &&
@@ -289,6 +293,29 @@ export const createSessionSlice: StateCreator<
           data.sessionGroups,
           n('useFetchSessions/updateData') as any,
         );
+        //
+        console.log('useFetchSessions', get().querySessionId);
+
+        const queryId = get().querySessionId;
+        // if (queryId === INBOX_SESSION_ID) {
+        //   set({ activeId: data.sessions[0].id }, false);
+        // } else {
+        //   if (data.sessions.find((s) => s.id === queryId)) {
+        //     set({ activeId: queryId }, false);
+        //   } else {
+        //     set({ activeId: data.sessions[0].id }, false);
+        //   }
+        // }
+        const sessions = data.sessions;
+
+        if (sessions.length) {
+          if (data.sessions.find((s) => s.id === queryId)) {
+            set({ activeId: queryId }, false);
+          } else {
+            set({ activeId: data.sessions[0].id }, false);
+          }
+        }
+
         set({ isSessionsFirstFetchFinished: true }, false, n('useFetchSessions/onSuccess', data));
       },
     }),
@@ -407,4 +434,18 @@ export const createSessionSlice: StateCreator<
       }
     });
   },
+  initSessions: async (queryId: string) => {
+    const { activeId, sessions, } = get();
+    const session = sessionSelectors.currentSession(get());
+    console.log('initSessions', sessions, activeId);
+
+    if (queryId === INBOX_SESSION_ID) {
+
+    } else {
+
+    }
+  },
+  updateQueryId: (id) => {
+    set({querySessionId: id},false);
+  }
 });
