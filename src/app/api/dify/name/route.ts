@@ -37,8 +37,6 @@ export async function POST(req: NextRequest) {
     conversation_id,
     userId,
   ).then((resp) => {
-    console.log('resp', resp);
-
     if (resp?.data?.status === 'normal') {
       return createSuccessResponse(resp.data);
     }
