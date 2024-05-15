@@ -356,8 +356,11 @@ export const createSessionSlice: StateCreator<
       [SEARCH_SESSIONS_KEY, keyword],
       async () => {
         if (!keyword) return [];
+        const currentUserId = getUserId();
+        const currentAppId = getAppId();
+        console.log('currentAppId', currentAppId, currentUserId);
 
-        return sessionService.searchSessions(keyword);
+        return sessionService.searchSessions(keyword, currentUserId, currentAppId);
       },
       { revalidateOnFocus: false, revalidateOnMount: false },
     ),
