@@ -27,6 +27,7 @@ const useStyles = createStyles(({ css }) => {
     textareaContainer: css`
       position: relative;
       flex: 1;
+      margin-right: calc(74px + 36px);
     `,
   };
 });
@@ -51,7 +52,7 @@ const InputArea = memo<InputAreaProps>(({ setExpand }) => {
 
   const sendMessage = useSendMessage();
 
-  useAutoFocus(ref);
+  // useAutoFocus(ref);
 
   const hasValue = !!value;
 

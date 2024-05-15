@@ -42,7 +42,7 @@ const ChatInput = memo(() => {
         <Flexbox
           gap={8}
           height={'100%'}
-          padding={'12px 0 16px'}
+          padding={'16px 0 16px'}
           style={{
             minHeight: CHAT_TEXTAREA_HEIGHT,
             position: 'relative',
