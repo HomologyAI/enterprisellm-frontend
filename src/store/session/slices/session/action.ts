@@ -27,13 +27,9 @@ import { setNamespace } from '@/utils/storeDebug';
 import { SessionDispatch, sessionsReducer } from './reducers';
 import { sessionSelectors } from './selectors';
 import { sessionMetaSelectors } from './selectors/meta';
-import {DifyDataset, GetDatasetsResp} from "@/libs/difyClient";
-import {API_ENDPOINTS} from "@/services/_url";
+import {GetDatasetsResp} from "@/libs/difyClient";
 import {useChatStore} from "@/store/chat";
-import {UploadFile} from "antd/es/upload/interface";
 import {appsSelectors, useAppsStore} from "@/store/apps";
-import {DifyApp} from "@/types/dify";
-import {SessionModel} from "@/database/client/models/session";
 
 const n = setNamespace('session');
 
@@ -146,7 +142,8 @@ export const createSessionSlice: StateCreator<
     });
 
     if (resp?.name) {
-      await sessionService.updateSession(sessionId, { meta: { title: resp.name } });
+      const meta = session.meta || {};
+      await sessionService.updateSession(sessionId, { meta: { ...meta, title: resp.name } });
       await get().refreshSessions();
     }
   },

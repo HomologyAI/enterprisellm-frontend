@@ -28,7 +28,7 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
 
   const [pin, title,
     avatar,
-    lastMsgContent,
+    description,
     avatarBackground,
     updateAt,
     model,
@@ -43,7 +43,7 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
         sessionHelpers.getSessionPinned(session),
         sessionMetaSelectors.getTitle(meta),
         sessionMetaSelectors.getAvatar(meta),
-        sessionMetaSelectors.getSessionLastMsgContent(meta),
+        sessionMetaSelectors.getDescription(meta),
         meta.backgroundColor,
         session?.updatedAt,
         session.model,
@@ -87,7 +87,7 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
         avatar={avatar}
         avatarBackground={avatarBackground}
         date={updateAt}
-        description={lastMsgContent}
+        description={description}
         loading={loading}
         pin={pin}
         showAction={open}

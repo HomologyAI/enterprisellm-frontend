@@ -30,10 +30,7 @@ const currentAgentBackgroundColor = (s: SessionStore) => currentAgentMeta(s).bac
 
 const getAvatar = (s: MetaData) => s.avatar || DEFAULT_AVATAR;
 const getTitle = (s: MetaData) => s.title || t('defaultSession', { ns: 'common' });
-export const getDescription = (s: MetaData) =>
-  s.description || t('noDescription', { ns: 'common' });
-
-const getSessionLastMsgContent = (s: MetaData) => s.lastMsgContent || '';
+export const getDescription = (s: MetaData) => s.description || '';
 
 
 export const sessionMetaSelectors = {
@@ -45,5 +42,4 @@ export const sessionMetaSelectors = {
   getAvatar,
   getDescription,
   getTitle,
-  getSessionLastMsgContent,
 };

@@ -25,7 +25,7 @@ import {nanoid} from '@/utils/uuid';
 import {chatSelectors} from '../../selectors';
 import {MessageDispatch, messagesReducer} from './reducer';
 import {sessionService} from "@/services/session";
-import {sessionDifySelectors} from "@/store/session/slices/session/selectors";
+import {sessionDifySelectors, sessionSelectors} from "@/store/session/slices/session/selectors";
 import {useSessionStore} from "@/store/session";
 import {DifyApp} from "@/types/dify";
 import {appsSelectors, useAppsStore} from "@/store/apps";
@@ -43,7 +43,7 @@ interface SendMessageParams {
 export interface ChatMessageAction {
   // create
   sendMessage: (params: SendMessageParams) => Promise<void>;
-  saveSessionLastMsg: (sessionId: string, content: string) => Promise<void>;
+  saveSessionDescription: (sessionId: string, content: string) => Promise<void>;
   addAIMessage: () => Promise<void>;
   addDifyMessage: (msg: DifyMessage) => void;
   addDifyDatasetsMessage: (sid: string) => Promise<void>;
@@ -140,6 +140,7 @@ const autoRenameConversation = (sessionId: string) => useSessionStore.getState()
 const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSessionStore.getState());
 const getCurrentFileList = () => sessionDifySelectors.currentSessionFiles(useSessionStore.getState());
 const getCurrentApp = () => appsSelectors.currentApp(useAppsStore.getState());
+const getSessionMeta = (sid: string) => sessionSelectors.getSessionMetaById(sid);
 
 const preventLeavingFn = (e: BeforeUnloadEvent) => {
   // set returnValue to trigger alert modal
@@ -192,15 +193,16 @@ export const chatMessage: StateCreator<
     await messageService.removeAllMessages();
     await refreshMessages();
   },
-  saveSessionLastMsg: async (sessionId, content) => {
-    console.log('saveSessionLastMsg', sessionId, content);
+  saveSessionDescription: async (sessionId, content) => {
+    console.log('saveSessionDescription', sessionId, content);
     if (sessionId && content) {
-      await sessionService.updateSession(sessionId, { meta: { lastMsgContent: content } });
+      const meta = getSessionMeta(sessionId) || {};
+      await sessionService.updateSession(sessionId, { meta: { ...meta, description: content } });
       await refreshSessions();
     }
   },
   sendMessage: async ({ message, files, onlyAddUserMessage }) => {
-    const { coreProcessMessage, activeTopicId, activeId, saveSessionLastMsg, } = get();
+    const { coreProcessMessage, activeTopicId, activeId, saveSessionDescription, } = get();
     if (!activeId) return;
 
     const fileIdList = files?.map((f) => f.id);
@@ -219,7 +221,7 @@ export const chatMessage: StateCreator<
     };
 
     const id = await get().internalCreateMessage(newMessage);
-    await saveSessionLastMsg(activeId, message);
+    await saveSessionDescription(activeId, message);
 
     // if only add user message, then stop
     if (onlyAddUserMessage) return;
@@ -542,7 +544,7 @@ export const chatMessage: StateCreator<
 
         await internalUpdateMessageContent(assistantMessageId, content);
         // 更新conversation_id，第一次没有conversationsId的时候更新
-        await get().saveSessionLastMsg(sessionId, content);
+        await get().saveSessionDescription(sessionId, content);
 
         if (!conversationsId && conversation_id) {
           // firstTime createConversation
