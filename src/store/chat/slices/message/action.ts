@@ -140,7 +140,7 @@ const autoRenameConversation = (sessionId: string) => useSessionStore.getState()
 const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSessionStore.getState());
 const getCurrentFileList = () => sessionDifySelectors.currentSessionFiles(useSessionStore.getState());
 const getCurrentApp = () => appsSelectors.currentApp(useAppsStore.getState());
-const getSessionMeta = (sid: string) => sessionSelectors.getSessionMetaById(sid);
+const getSessionMeta = (sid: string) => sessionSelectors.getSessionMetaById(sid)(useSessionStore.getState());
 
 const preventLeavingFn = (e: BeforeUnloadEvent) => {
   // set returnValue to trigger alert modal
@@ -194,9 +194,9 @@ export const chatMessage: StateCreator<
     await refreshMessages();
   },
   saveSessionDescription: async (sessionId, content) => {
-    console.log('saveSessionDescription', sessionId, content);
     if (sessionId && content) {
       const meta = getSessionMeta(sessionId) || {};
+      console.log('saveSessionDescription', sessionId, meta);
       await sessionService.updateSession(sessionId, { meta: { ...meta, description: content } });
       await refreshSessions();
     }
