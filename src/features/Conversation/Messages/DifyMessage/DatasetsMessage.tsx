@@ -1,10 +1,10 @@
-import {memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+/* eslint-disable unused-imports/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {Flexbox} from 'react-layout-kit';
 import {
   DifyAlertMessage,
-  DifyAlertMessageData,
   DifyDatasetsMessage,
-  DifyMessageBase,
   DifyMessageType
 } from '@/types/message';
 import {Button, Checkbox} from "antd";
@@ -12,9 +12,8 @@ import {createStyles} from "antd-style";
 import {DifyDataset} from "@/libs/difyClient";
 import {useChatStore} from "@/store/chat";
 import {useSessionStore} from "@/store/session";
-import {sessionDifySelectors, sessionSelectors} from "@/store/session/slices/session/selectors";
+import {sessionDifySelectors} from "@/store/session/slices/session/selectors";
 import isEqual from "fast-deep-equal";
-import BubblesLoading from "@/features/Conversation/components/BubblesLoading";
 import {appsSelectors, useAppsStore} from "@/store/apps";
 
 const useStyles = createStyles(
@@ -24,14 +23,14 @@ const useStyles = createStyles(
         max-width: 411px;
         padding: 4px 0;
       `,
-      main: css`
-        padding: 8px 0;
+      footer: css`
+        margin-right: 6px;
       `,
       item: css`
         color: rgba(89, 89, 89, 1);
       `,
-      footer: css`
-        margin-right: 6px;
+      main: css`
+        padding: 8px 0;
       `,
     }
   }
@@ -78,7 +77,7 @@ export const DatasetsMessage = memo<
         return item.id;
       });
 
-      setCheckedIds(ids);
+      setCheckedIds(ids as never[]);
     }
   }, [displayDatasets]);
 
@@ -97,19 +96,19 @@ export const DatasetsMessage = memo<
     }
 
     const message: DifyAlertMessage = {
-      msgType: DifyMessageType.Alert,
       data: {
-        type: 'success',
         content: computedCheckedTitle(),
-        msgId: id,
         ids: checkedIds,
+        msgId: id,
+        type: 'success',
       },
+      msgType: DifyMessageType.Alert,
     } as DifyAlertMessage
 
     const newData = displayDatasets.map((item) => {
       return {
         ...item,
-        isChecked: checkedIds.includes(item.id),
+        isChecked: checkedIds.includes(item.id as never),
       }
     });
 
@@ -118,7 +117,7 @@ export const DatasetsMessage = memo<
   }, [checkedIds, displayDatasets, id]);
 
   const checkAll = useCallback(() => {
-    setCheckedIds(datasetsIds);
+    setCheckedIds(datasetsIds as any);
   }, [datasetsIds]);
 
   const unCheckAll = useCallback(() => {
@@ -133,15 +132,15 @@ export const DatasetsMessage = memo<
 
       return (
         <Checkbox
-          key={item.id}
-          className={styles.item}
           checked={isChecked}
+          className={styles.item}
+          key={item.id}
           onChange={(e) => {
-            setCheckedIds((prev) => {
+            setCheckedIds((prev: any) => {
               if (!prev.includes(item.id)) {
                 return [...prev, item.id];
               }
-              return prev.filter((id) => id !== item.id);
+              return prev.filter((id: any) => id !== item.id);
             });
           }}
         >
@@ -151,7 +150,7 @@ export const DatasetsMessage = memo<
     });
   }, [displayDatasets, checkedIds]);
 
-  return !displayDatasets.length ? <BubblesLoading /> : (
+  return !displayDatasets.length ? (<Flexbox className={styles.container}><p>欢迎使用交投AI聊天助手</p></Flexbox>) : (
     <Flexbox className={styles.container} >
       <p>欢迎使用交投AI聊天助手</p>
       <br/>
@@ -160,8 +159,8 @@ export const DatasetsMessage = memo<
         {RenderList}
       </Flexbox>
       <Flexbox className={styles.footer} gap={12} horizontal justify="flex-end">
-        <Button onClick={checkAll} type="link" style={{padding: 0}}>全选</Button>
-        <Button onClick={unCheckAll} type="link" style={{padding: 0}}>取消选择</Button>
+        <Button onClick={checkAll} style={{padding: 0}} type="link">全选</Button>
+        <Button onClick={unCheckAll} style={{padding: 0}} type="link">取消选择</Button>
         <Button onClick={handleConfirm} type="primary" >确定</Button>
       </Flexbox>
     </Flexbox>
