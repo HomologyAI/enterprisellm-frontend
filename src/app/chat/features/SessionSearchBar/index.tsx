@@ -1,24 +1,29 @@
-import {ActionIcon, SearchBar} from '@lobehub/ui';
-import { memo } from 'react';
+import {ActionIcon} from '@lobehub/ui';
+import {memo, useEffect} from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSessionStore } from '@/store/session';
 import {Flexbox} from "react-layout-kit";
 import {Plus} from "lucide-react";
-import {DESKTOP_HEADER_ICON_SIZE} from "@/const/layoutTokens";
 import {createStyles} from "antd-style";
+import SearchBar from './SearchBar';
+import {useAppsStore} from "@/store/apps";
 
 const useStyles = createStyles(
-  ({ css }) => {
+  ({ css, prefixCls, }) => {
     return {
       search: css`
         width: 100%;
         flex-shrink: 1;
-        margin-right: 8px;
+        margin-right: 16px;
+
+        &.${prefixCls}-input {
+          padding-inline: 16px;
+        }
       `,
       icon: css`
-        
+        background-color: #F0F0F0;
       `,
     }
   }
@@ -41,6 +46,16 @@ const SessionSearchBar = memo<{ mobile?: boolean }>(({ mobile: controlledMobile 
   const mobile = controlledMobile ?? isMobile;
   const {styles} = useStyles();
 
+  useEffect(() => {
+   const removeSub = useAppsStore.subscribe((state) => state.activeId, (activeId) => {
+     updateSearchKeywords('');
+   });
+
+   return () => {
+     removeSub();
+   };
+  }, []);
+
   return (
     <Flexbox horizontal align={'space-between'} style={{width: '100%'}}>
       <SearchBar
@@ -56,12 +71,15 @@ const SessionSearchBar = memo<{ mobile?: boolean }>(({ mobile: controlledMobile 
         type={mobile ? 'block' : 'ghost'}
         value={keywords}
         className={styles.search}
+        enableShortKey={false}
       />
       <ActionIcon
         className={styles.icon}
         icon={Plus}
         onClick={() => createSession()}
-        size={40}
+        size={{
+          blockSize: 40,
+        }}
         style={{ flex: 'none' }}
         title={t('newAgent')}
       />

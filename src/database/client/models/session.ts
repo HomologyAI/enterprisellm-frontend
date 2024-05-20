@@ -95,7 +95,7 @@ class _SessionModel extends BaseModel {
    * Query sessions by keyword in title, description, content, or translated content
    * @param keyword The keyword to search for
    */
-  async queryByKeyword(keyword: string): Promise<LobeSessions> {
+  async queryByKeyword(keyword: string, userId: string, appId: string): Promise<LobeSessions> {
     if (!keyword) return [];
 
     const startTime = Date.now();
@@ -104,52 +104,57 @@ class _SessionModel extends BaseModel {
     // First, filter sessions by title and description
     const matchingSessionsPromise = this.table
       .filter((session) => {
-        return (
-          session.meta.title?.toLowerCase().includes(keywordLowerCase) ||
+        const isSameSession = session.userId === userId && session.appId === appId;
+        const title = session.meta?.title || '自定义助手';
+
+        return isSameSession && (
+          title.toLowerCase().includes(keywordLowerCase) ||
           session.meta.description?.toLowerCase().includes(keywordLowerCase)
         );
       })
       .toArray();
 
     // Next, find message IDs that contain the keyword in content or translated content
-    const matchingMessagesPromise = this.db.messages
-      .filter((message) => {
-        // check content
-        if (message.content.toLowerCase().includes(keywordLowerCase)) return true;
-
-        // check translate content
-        if (message.translate && message.translate.content) {
-          return message.translate.content.toLowerCase().includes(keywordLowerCase);
-        }
-
-        return false;
-      })
-      .toArray();
-
-    //  match topics
-    const matchingTopicsPromise = this.db.topics
-      .filter((topic) => {
-        return topic.title?.toLowerCase().includes(keywordLowerCase);
-      })
-      .toArray();
+    // const matchingMessagesPromise = this.db.messages
+    //   .filter((message) => {
+    //     // check content
+    //     if (message.content.toLowerCase().includes(keywordLowerCase)) return true;
+    //
+    //     // check translate content
+    //     if (message.translate && message.translate.content) {
+    //       return message.translate.content.toLowerCase().includes(keywordLowerCase);
+    //     }
+    //
+    //     return false;
+    //   })
+    //   .toArray();
+    //
+    // //  match topics
+    // const matchingTopicsPromise = this.db.topics
+    //   .filter((topic) => {
+    //     return topic.title?.toLowerCase().includes(keywordLowerCase);
+    //   })
+    //   .toArray();
 
     // Resolve both promises
-    const [matchingSessions, matchingMessages, matchingTopics] = await Promise.all([
+    const [matchingSessions] = await Promise.all([
       matchingSessionsPromise,
-      matchingMessagesPromise,
-      matchingTopicsPromise,
+      // matchingMessagesPromise,
+      // matchingTopicsPromise,
     ]);
+    console.log('matchingSessions', matchingSessions);
 
-    const sessionIdsFromMessages = matchingMessages.map((message) => message.sessionId);
-    const sessionIdsFromTopics = matchingTopics.map((topic) => topic.sessionId);
+    // const sessionIdsFromMessages = matchingMessages.map((message) => message.sessionId);
+    // const sessionIdsFromTopics = matchingTopics.map((topic) => topic.sessionId);
 
     // Combine session IDs from both sources
-    const combinedSessionIds = new Set([
-      ...sessionIdsFromMessages,
-      ...sessionIdsFromTopics,
-      ...matchingSessions.map((session) => session.id),
-    ]);
+    // const combinedSessionIds = new Set([
+    //   ...sessionIdsFromMessages,
+    //   ...sessionIdsFromTopics,
+    //   ...matchingSessions.map((session) => session.id),
+    // ]);
 
+    const combinedSessionIds = matchingSessions.map((session) => session.id);
     // Retrieve unique sessions by IDs
     const items: DBModel<DB_Session>[] = await this.table
       .where('id')

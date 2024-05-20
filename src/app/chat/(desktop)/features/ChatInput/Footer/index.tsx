@@ -35,6 +35,9 @@ const useStyles = createStyles(({ css, prefixCls, token }) => {
       align-items: center;
     `,
     overrideAntdIcon: css`
+      position: absolute;
+      right: 24px;
+      
       .${prefixCls}-btn.${prefixCls}-btn-icon-only {
         display: flex;
         align-items: center;
@@ -104,9 +107,9 @@ const Footer = memo<FooterProps>(({ setExpand }) => {
     >
       <Flexbox align={'center'} gap={0} horizontal>
 
-        <UploadButton />
+        {/*<UploadButton />*/}
 
-        <Flexbox style={{ minWidth: 92 }}>
+        <Flexbox >
           {loading ? (
             <Button
               className={styles.loadingButton}
@@ -123,6 +126,10 @@ const Footer = memo<FooterProps>(({ setExpand }) => {
                   setExpand?.(false);
                 }}
                 type={'primary'}
+                style={{
+                  width: 74,
+                  height: 32,
+                }}
               >
                 {t('input.send')}
               </Button>

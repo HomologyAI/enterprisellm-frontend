@@ -83,8 +83,8 @@ export class ClientService implements ISessionService {
     return (await this.countSessions()) === 0;
   }
 
-  async searchSessions(keyword: string) {
-    return SessionModel.queryByKeyword(keyword);
+  async searchSessions(keyword: string, userId: string, appId: string) {
+    return SessionModel.queryByKeyword(keyword, userId, appId);
   }
 
   async updateSession(

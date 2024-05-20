@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
     return createErrorResponse(ChatErrorType.InternalServerError, body);
   }
 
-  if (app?.apiKey) {
-    chatClient.updateApiKey(app.apiKey);
+  if (app?.appKey) {
+    chatClient.updateApiKey(app.appKey);
   }
 
   return chatClient.renameConversation(

@@ -20,7 +20,7 @@ export const useStyles = createStyles(({ css, token }) => ({
   top: css`
     position: sticky;
     top: 0;
-    padding: 24px 24px 0 24px;
+    padding: 24px 18px 0 12px;
   `,
 }));
 

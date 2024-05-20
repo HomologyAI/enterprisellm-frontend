@@ -27,6 +27,7 @@ const useStyles = createStyles(({ css }) => {
     textareaContainer: css`
       position: relative;
       flex: 1;
+      margin-right: calc(74px + 36px);
     `,
   };
 });
@@ -51,7 +52,7 @@ const InputArea = memo<InputAreaProps>(({ setExpand }) => {
 
   const sendMessage = useSendMessage();
 
-  useAutoFocus(ref);
+  // useAutoFocus(ref);
 
   const hasValue = !!value;
 
@@ -114,7 +115,7 @@ const InputArea = memo<InputAreaProps>(({ setExpand }) => {
             send();
           }
         }}
-        placeholder={'Enter发送，Shit+Enter换行'}
+        placeholder={'Enter发送，Shift+Enter换行'}
         ref={ref}
         type={'pure'}
         value={value}
