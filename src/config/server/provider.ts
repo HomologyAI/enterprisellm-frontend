@@ -131,6 +131,7 @@ export const getProviderConfig = () => {
 
   const DIFY_DATASETS_API_KEY = process.env.DIFY_DATASETS_API_KEY || '';
   const DIFY_CHAT_API_KEY = process.env.DIFY_CHAT_API_KEY || '';
+  const DIFY_FEEDBACK_API_KEY = process.env.DIFY_FEEDBACK_API_KEY || '';
   const DIFY_PROXY_URL =
     process.env.NODE_ENV === 'development' ? 'https://api.dify.ai/v1' : process.env.DIFY_PROXY_URL || '';
 
@@ -224,5 +225,6 @@ export const getProviderConfig = () => {
     DIFY_PROXY_URL,
     DIFY_DATASETS_API_KEY,
     DIFY_CHAT_API_KEY,
+    DIFY_FEEDBACK_API_KEY,
   };
 };

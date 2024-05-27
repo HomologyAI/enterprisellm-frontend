@@ -1,62 +1,66 @@
 import axios from "axios";
+import {getServerConfig} from "@/config/server";
+
 export const BASE_URL = "https://api.dify.ai/v1";
+
+const {DIFY_FEEDBACK_API_KEY} = getServerConfig()
 
 export const routes = {
     application: {
         method: "GET",
         url: () => `/parameters`,
     },
-    feedback: {
+    createChatMessage: {
         method: "POST",
-        url: (message_id) => `/messages/${message_id}/feedbacks`,
+        url: () => process.env.NODE_ENV === 'development' ? '/chat-messages' : `/chat-homology-messages`,
     },
     createCompletionMessage: {
         method: "POST",
         url: () => `/completion-messages`,
     },
-    createChatMessage: {
-        method: "POST",
-        url: () => process.env.NODE_ENV === 'development' ? '/chat-messages' : `/chat-homology-messages`,
-    },
-    getConversationMessages: {
-        method: "GET",
-        url: () => `/messages`,
-    },
-    getConversations: {
-        method: "GET",
-        url: () => `/conversations`,
-    },
-    getConversationName: {
-        method: "GET",
-        url: (conversation_id, user) => `/conversations/${conversation_id}/get_name?user=${user}`,
-    },
-    renameConversation: {
-        method: "POST",
-        url: (conversation_id) => `/conversations/${conversation_id}/name`,
-    },
     deleteConversation: {
         method: "DELETE",
         url: (conversation_id) => `/conversations/${conversation_id}`,
+    },
+    feedback: {
+        method: "POST",
+        url: (message_id) => `/messages/${message_id}/feedbacks`,
     },
     fileUpload: {
         method: "POST",
         url: () => `/files/upload`,
     },
-    runWorkflow: {
-        method: "POST",
-        url: () => `/workflows/run`,
+    getApps: {
+        method: "GET",
+        url: () => `/apps`,
+    },
+    getConversationMessages: {
+        method: "GET",
+        url: () => `/messages`,
+    },
+    getConversationName: {
+        method: "GET",
+        url: (conversation_id, user) => `/conversations/${conversation_id}/get_name?user=${user}`,
+    },
+    getConversations: {
+        method: "GET",
+        url: () => `/conversations`,
     },
     getDatasets: {
         method: "GET",
         url: () => `/datasets`,
     },
+    renameConversation: {
+        method: "POST",
+        url: (conversation_id) => `/conversations/${conversation_id}/name`,
+    },
+    runWorkflow: {
+        method: "POST",
+        url: () => `/workflows/run`,
+    },
     upload: {
         method: "GET",
         url: () => `/files/upload`,
-    },
-    getApps: {
-        method: "GET",
-        url: () => `/apps`,
     },
 };
 
@@ -79,10 +83,10 @@ export class DifyClient {
         headerParams = {}
     ) {
         const headers = {
-            ...{
+
                 Authorization: `Bearer ${this.apiKey}`,
-                "Content-Type": "application/json",
-            },
+                "Content-Type": "application/json"
+            ,
             ...headerParams
         };
 
@@ -90,21 +94,21 @@ export class DifyClient {
         let response;
         if (stream) {
             response = await axios({
-                method,
-                url,
                 data,
-                params,
                 headers,
+                method,
+                params,
                 responseType: "stream",
+                url,
             });
         } else {
             response = await axios({
-                method,
-                url,
                 data,
-                params,
                 headers,
+                method,
+                params,
                 responseType: "json",
+                url,
             });
         }
 
@@ -119,7 +123,12 @@ export class DifyClient {
         return this.sendRequest(
             routes.feedback.method,
             routes.feedback.url(message_id),
-            data
+            data,
+            null,
+            false,
+            {
+              Authorization: `Bearer ${DIFY_FEEDBACK_API_KEY || ''}`,
+            }
         );
     }
 
@@ -150,10 +159,10 @@ export class DifyClient {
 export class CompletionClient extends DifyClient {
     createCompletionMessage(inputs, user, stream = false, files = null) {
         const data = {
-            inputs,
-            user,
-            response_mode: stream ? "streaming" : "blocking",
             files,
+            inputs,
+            response_mode: stream ? "streaming" : "blocking",
+            user,
         };
         return this.sendRequest(
             routes.createCompletionMessage.method,
@@ -167,8 +176,8 @@ export class CompletionClient extends DifyClient {
     runWorkflow(inputs, user, stream = false, files = null) {
         const data = {
             inputs,
-            user,
             response_mode: stream ? "streaming" : "blocking",
+            user,
         };
         return this.sendRequest(
             routes.runWorkflow.method,
@@ -195,12 +204,12 @@ export class ChatClient extends DifyClient {
         } = config;
 
         const data = {
+            dataset_ids,
+            files,
             inputs,
             query,
-            user,
             response_mode: stream ? "streaming" : "blocking",
-            files,
-            dataset_ids,
+            user,
         };
         if (conversation_id) data.conversation_id = conversation_id;
 
@@ -236,7 +245,7 @@ export class ChatClient extends DifyClient {
     }
 
     getConversations(user, first_id = null, limit = null, pinned = null) {
-        const params = { user, first_id: first_id, limit, pinned };
+        const params = { first_id: first_id, limit, pinned, user };
         return this.sendRequest(
             routes.getConversations.method,
             routes.getConversations.url(),
@@ -246,7 +255,7 @@ export class ChatClient extends DifyClient {
     }
 
     renameConversation(conversation_id, name, user, auto_generate) {
-        const data = { name, user, auto_generate };
+        const data = { auto_generate, name, user };
         return this.sendRequest(
             routes.renameConversation.method,
             routes.renameConversation.url(conversation_id),
