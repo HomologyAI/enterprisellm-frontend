@@ -48,4 +48,5 @@ export const API_ENDPOINTS = mapWithBasePath({
   difyApps: '/api/dify/apps',
   difyRename: '/api/dify/rename',
   difyGetName: '/api/dify/name',
+  difyMessageFeedback: '/api/dify/feedback'
 });

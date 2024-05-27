@@ -29,6 +29,7 @@ import {sessionDifySelectors, sessionSelectors} from "@/store/session/slices/ses
 import {useSessionStore} from "@/store/session";
 import {DifyApp} from "@/types/dify";
 import {appsSelectors, useAppsStore} from "@/store/apps";
+import { difyService } from '@/services/dify';
 
 const n = setNamespace('message');
 
@@ -65,6 +66,8 @@ export interface ChatMessageAction {
   // update
   updateInputMessage: (message: string) => void;
   modifyMessageContent: (id: string, content: string) => Promise<void>;
+  feedbackLike:(id: string) => Promise<boolean>;
+  feedbackDislike:(id: string) => Promise<boolean>;
   // query
   useFetchMessages: (sessionId: string, topicId?: string) => SWRResponse<ChatMessage[]>;
   stopGenerateMessage: () => void;
@@ -141,6 +144,7 @@ const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSes
 const getCurrentFileList = () => sessionDifySelectors.currentSessionFiles(useSessionStore.getState());
 const getCurrentApp = () => appsSelectors.currentApp(useAppsStore.getState());
 const getSessionMeta = (sid: string) => sessionSelectors.getSessionMetaById(sid)(useSessionStore.getState());
+const getApp = () => appsSelectors.currentApp(useAppsStore.getState());
 
 const preventLeavingFn = (e: BeforeUnloadEvent) => {
   // set returnValue to trigger alert modal
@@ -158,6 +162,61 @@ export const chatMessage: StateCreator<
     get().dispatchMessage({ type: 'deleteMessage', id });
     await messageService.removeMessage(id);
     await get().refreshMessages();
+  },
+  // 点赞
+  feedbackLike: async (id) => {
+    const session = sessionSelectors.currentSession(useSessionStore.getState())
+    const { userId = '', conversation_id = ''} = session || {}
+    const app = getApp()
+    let result = true
+    if (userId) {
+      result = await difyService.messageFeedback({
+        app: app!,
+        data: {
+          conversation_id,
+          userId,
+          rating: 'like',
+          messageId: id
+        }
+      })
+    }
+
+    if (result) {
+      const { dispatchMessage, refreshMessages } = get()
+      dispatchMessage({ id, key: 'feedback', type: 'updateMessage', value: 'like' })
+      await messageService.updateMessage(id, { feedback: 'like' })
+      await refreshMessages()
+    }
+
+    return result
+  },
+  // 点踩
+  feedbackDislike: async(id) => {
+    const session = sessionSelectors.currentSession(useSessionStore.getState())
+    const { userId = '', conversation_id = ''} = session || {}
+    const app = getApp()
+    let result = true
+
+    if (userId) {
+      result = await difyService.messageFeedback({
+        app: app!,
+        data: {
+          conversation_id,
+          userId,
+          rating: 'dislike',
+          messageId: id
+        }
+      })
+    }
+
+    if (result) {
+      const { dispatchMessage, refreshMessages } = get()
+      dispatchMessage({ id, key: 'feedback', type: 'updateMessage', value: 'dislike' })
+      await messageService.updateMessage(id, { feedback: 'dislike' })
+      await refreshMessages()
+    }
+
+    return result
   },
   delAndRegenerateMessage: async (id) => {
     const traceId = chatSelectors.getTraceIdByMessageId(id)(get());
@@ -286,8 +345,7 @@ export const chatMessage: StateCreator<
 
     const newDatasetsMsg = {
       msgType: DifyMessageType.Datasets,
-      data: {
-      }
+      data: {}
     } as DifyMessage;
 
     await internalCreateMessage({

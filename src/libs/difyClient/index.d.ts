@@ -17,13 +17,13 @@ interface User {
 }
 
 interface ChatMessageConfig {
+  conversation_id?: string | null;
+  dataset_ids?: string[];
+  files?: File[] | null;
   inputs: any;
   query: string;
-  user: User;
   stream?: boolean;
-  conversation_id?: string | null;
-  files?: File[] | null;
-  dataset_ids?: string[];
+  user: User;
 }
 
 export declare class DifyClient {
@@ -40,7 +40,7 @@ export declare class DifyClient {
     headerParams?: HeaderParams
   ): Promise<any>;
 
-  messageFeedback(message_id: string, rating: number, user: User): Promise<any>;
+  messageFeedback(message_id: string, rating: 'like' | 'dislike', user: string): Promise<any>;
 
   getApplicationParameters(user: User): Promise<any>;
 
@@ -78,45 +78,45 @@ export declare class ChatClient extends DifyClient {
 }
 
 export interface DifyDataset {
-  id: string;
-  name: string;
-  description: string;
-  permission: string;
-  data_source_type: string;
-  indexing_technique: string;
   app_count: number;
-  document_count: number;
-  word_count: number;
-  created_by: string;
   created_at: string;
-  updated_by: string;
-  updated_at: string;
+  created_by: string;
+  data_source_type: string;
+  description: string;
+  document_count: number;
+  id: string;
+  indexing_technique: string;
   isChecked: boolean;
+  name: string;
+  permission: string;
+  updated_at: string;
+  updated_by: string;
+  word_count: number;
 }
 
 export interface GetDatasetsResp {
   data: DifyDataset[];
   has_more: boolean;
   limit: number;
-  total: number;
   page: number;
+  total: number;
 }
 
 export interface DifyRawApp {
-  id: string;
-  name: string;
-  mode: string;
+  datasets: string[][];
   icon: string,
   icon_background: string;
+  id: string;
+  mode: string;
+  name: string;
   token: string;
-  datasets: string[][];
 }
 
 export type GetAppResp = DifyRawApp[];
 
 export interface GetDatasetsParams {
-  page: number;
   limit: number;
+  page: number;
 }
 
 export declare class DatasetsClient extends DifyClient {
@@ -124,18 +124,18 @@ export declare class DatasetsClient extends DifyClient {
 }
 
 export interface UploadFileParams {
-  user: string;
   file: File;
+  user: string;
 }
 
 export interface UploadFileResp {
+  created_at: number;
+  created_by: string;
+  extension: string;
   id: string;
+  mime_type: string;
   name: string;
   size: number;
-  extension: string;
-  mime_type: string;
-  created_by: string;
-  created_at: number;
 }
 
 export declare class FileClient extends DifyClient {

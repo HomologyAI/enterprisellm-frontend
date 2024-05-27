@@ -28,12 +28,17 @@ export interface ChatTTS {
   voice?: string;
 }
 
-export * from './tools';
 export * from './dify';
+export * from './tools';
 
 export interface ChatMessage extends BaseDataModel {
   content: string;
+  /**
+   * dify message
+   */
+  difyMsg?: DifyMessage;
   error?: ChatMessageError;
+
   // 扩展字段
   extra?: {
     fromModel?: string;
@@ -43,42 +48,44 @@ export interface ChatMessage extends BaseDataModel {
     // TTS
     tts?: ChatTTS;
   } & Record<string, any>;
-
+  /**
+   * 点赞、点踩
+   */
+  feedback?: 'like' | 'dislike',
   files?: string[];
   /**
    * observation id
    */
   observationId?: string;
+
   /**
    * parent message id
    */
   parentId?: string;
   plugin?: ChatPluginPayload;
-
   pluginState?: any;
   /**
    * quoted other message's id
    */
   quotaId?: string;
+
   /**
    * message role type
    */
   role: LLMRoleType;
-  sessionId?: string;
 
+
+  sessionId?: string;
   /**
    * 保存到主题的消息
    */
   topicId?: string;
+
+
   /**
    * 观测链路 id
    */
   traceId?: string;
-
-  /**
-   * dify message
-   */
-  difyMsg?: DifyMessage;
 }
 
 export type ChatMessageMap = Record<string, ChatMessage>;

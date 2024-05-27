@@ -9,7 +9,6 @@ import { OnActionsClick, RenderAction } from '../types';
 import { AssistantActionsBar } from './Assistant';
 import { DefaultActionsBar } from './Fallback';
 import { FunctionActionsBar } from './Function';
-import { UserActionsBar } from './User';
 
 export const renderActions: Record<LLMRoleType, RenderAction> = {
   assistant: AssistantActionsBar,
@@ -28,6 +27,8 @@ export const useActionsClick = (): OnActionsClick => {
     ttsMessage,
     delAndRegenerateMessage,
     copyMessage,
+    feedbackLike,
+    feedbackDislike
   ] = useChatStore((s) => [
     s.deleteMessage,
     s.regenerateMessage,
@@ -35,6 +36,8 @@ export const useActionsClick = (): OnActionsClick => {
     s.ttsMessage,
     s.delAndRegenerateMessage,
     s.copyMessage,
+    s.feedbackLike,
+    s.feedbackDislike
   ]);
   const { message } = App.useApp();
 
@@ -69,10 +72,22 @@ export const useActionsClick = (): OnActionsClick => {
       }
 
       case 'like': {
+        const result = await feedbackLike(id)
+        if (result) {
+          message.success('反馈成功，感谢您的意见~')
+        } else {
+          message.error('反馈失败，请稍后重试~')
+        }
         break;
       }
 
       case 'unLike': {
+        const result = await feedbackDislike(id)
+        if (result) {
+          message.success('反馈成功，感谢您的意见~')
+        } else {
+          message.error('反馈失败，请稍后重试~')
+        }
         break;
       }
     }
