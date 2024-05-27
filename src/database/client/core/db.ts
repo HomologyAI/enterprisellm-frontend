@@ -1,6 +1,5 @@
 import Dexie, { Transaction } from 'dexie';
 
-import { MigrationLLMSettings } from '@/migrations/FromV3ToV4';
 import { uuid } from '@/utils/uuid';
 
 import { DB_File } from '../schemas/files';
@@ -21,6 +20,7 @@ import {
   dbSchemaV7,
   dbSchemaV8,
   dbSchemaV9,
+  dbSchemaV10
 } from './schemas';
 import { DBModel, LOBE_CHAT_LOCAL_DB_NAME } from './types/db';
 
@@ -70,6 +70,9 @@ export class BrowserDB extends Dexie {
 
     this.version(9)
       .stores(dbSchemaV9);
+
+    this.version(10)
+      .stores(dbSchemaV10);
 
     this.files = this.table('files');
     this.sessions = this.table('sessions');

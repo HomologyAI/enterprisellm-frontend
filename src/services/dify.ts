@@ -15,10 +15,15 @@ export interface DifyServiceRenamePayload {
   name: string;
 }
 
+export interface DifyServiceMessageFeedbackPayload {
+  messageId: string,
+  rating: 'like' | 'dislike'
+}
+
 
 export interface DifyServiceResp {
-  succ: 0 | 1;
   body: any;
+  succ: 0 | 1;
 }
 
 class DifyService {
@@ -29,14 +34,14 @@ class DifyService {
     } = payload;
 
     return fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
       body: JSON.stringify({
         app,
         ...data,
-      })
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'POST'
     }).then(async (resp) => {
       const data = (await resp.json()) as DifyServiceResp;
       if (data?.succ === 1) {
@@ -51,15 +56,15 @@ class DifyService {
     const keys = Object.keys(params);
 
     if (keys.length > 0) {
-      const paramsStr = keys.map((key) => `${key}=${params[key]}`).join('&');
+      const paramsStr = keys.map((key) => `${key}=${(params as any)[key]}`).join('&');
       fetchUrl = `${url}?${paramsStr}`;
     }
 
     return fetch(fetchUrl, {
-      method: 'GET',
       headers: {
         'Content-Type': 'application/json'
       },
+      method: 'GET',
     }).then(async (resp) => {
       const data = (await resp.json()) as DifyServiceResp;
       console.log('datafetchUrl', data);
@@ -85,6 +90,10 @@ class DifyService {
 
   getConversationName (payload: DifyServicePayload<void>) {
     return this.fetchData<void>(API_ENDPOINTS.difyGetName, payload);
+  }
+
+  messageFeedback(payload: DifyServicePayload<DifyServiceMessageFeedbackPayload>) {
+    return this.fetchData<DifyServiceMessageFeedbackPayload>(API_ENDPOINTS.difyMessageFeedback, payload)
   }
 }
 

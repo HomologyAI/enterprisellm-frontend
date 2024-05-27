@@ -93,3 +93,9 @@ export const dbSchemaV9 = {
   sessions:
     '&id, type, group, pinned, meta.title, meta.description, meta.tags, createdAt, updatedAt, conversation_id, userId, appId, [userId+appId]',
 };
+
+export const dbSchemaV10 = {
+  ...dbSchemaV9,
+  messages:
+    '&id, role, content, fromModel, favorite, plugin.identifier, plugin.apiName, translate.content, createdAt, updatedAt, sessionId, topicId, quotaId, parentId, [sessionId+topicId], traceId, feedback',
+}

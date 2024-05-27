@@ -32,6 +32,7 @@ export const DB_MessageSchema = z.object({
   fromProvider: z.string().optional(),
   translate: TranslateSchema.optional().or(z.literal(false)),
   tts: z.any().optional(),
+  feedback: z.enum(['like', 'dislike']).optional(),
 
   traceId: z.string().optional(),
   observationId: z.string().optional(),
