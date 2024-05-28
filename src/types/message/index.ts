@@ -32,13 +32,15 @@ export * from './dify';
 export * from './tools';
 
 export interface ChatMessage extends BaseDataModel {
+  // 后端返回的消息id
+  backendMessageId?: string,
   content: string;
   /**
    * dify message
    */
   difyMsg?: DifyMessage;
-  error?: ChatMessageError;
 
+  error?: ChatMessageError;
   // 扩展字段
   extra?: {
     fromModel?: string;
@@ -53,34 +55,35 @@ export interface ChatMessage extends BaseDataModel {
    */
   feedback?: 'like' | 'dislike',
   files?: string[];
+
   /**
    * observation id
    */
   observationId?: string;
-
   /**
    * parent message id
    */
   parentId?: string;
   plugin?: ChatPluginPayload;
   pluginState?: any;
+
   /**
    * quoted other message's id
    */
   quotaId?: string;
 
+
   /**
    * message role type
    */
   role: LLMRoleType;
-
-
   sessionId?: string;
+
+
   /**
    * 保存到主题的消息
    */
   topicId?: string;
-
 
   /**
    * 观测链路 id
