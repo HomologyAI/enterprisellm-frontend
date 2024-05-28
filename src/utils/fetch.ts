@@ -31,11 +31,11 @@ type SSEFinishType = 'done' | 'error' | 'abort';
 export type OnFinishHandler = (
   text: string,
   context: {
+    conversation_id?: string;
+    message_id?: string;
     observationId?: string | null;
     traceId?: string | null;
     type?: SSEFinishType;
-    conversation_id?: string;
-    message_id?: string;
   },
 ) => Promise<void>;
 
@@ -101,7 +101,7 @@ export const fetchSSE = async (fetchFn: () => Promise<Response>, options: FetchS
 };
 
 function unicodeToChar(text: string) {
-  return text.replace(/\\u[0-9a-f]{4}/g, (_match, p1) => {
+  return text.replaceAll(/\\u[\da-f]{4}/g, (_match, p1) => {
     return String.fromCharCode(parseInt(p1, 16))
   })
 }
@@ -134,11 +134,11 @@ export const fetchSSEDify = async (fetchFn: () => Promise<Response>, options: Fe
       if (result.done) {
 
         options?.onFinish?.(res, {
+          conversation_id,
+          message_id,
           observationId,
           traceId,
           type: finishedType,
-          conversation_id,
-          message_id,
         });
         return
       }
@@ -148,9 +148,9 @@ export const fetchSSEDify = async (fetchFn: () => Promise<Response>, options: Fe
         lines.forEach((message) => {
           if (message.startsWith('data: ')) { // check if it starts with data:
             try {
-              bufferObj = JSON.parse(message.substring(6)) as Record<string, any>// remove data: and parse as json
+              bufferObj = JSON.parse(message.slice(6)) as Record<string, any>// remove data: and parse as json
             }
-            catch (e) {
+            catch {
               // mute handle message cut off
 
               finishedType = 'abort';
@@ -163,46 +163,68 @@ export const fetchSSEDify = async (fetchFn: () => Promise<Response>, options: Fe
               options?.onAbort?.(res);
               return
             }
-            if (bufferObj.event === 'message' || bufferObj.event === 'agent_message') {
+            switch (bufferObj.event) {
+            case 'message': 
+            case 'agent_message': {
               // can not use format here. Because message is splited.
               const lineMsg = unicodeToChar(bufferObj.answer);
               options?.onMessageHandle?.(lineMsg);
               res += lineMsg;
               if (isFirstMessage) {
                 conversation_id = bufferObj?.conversation_id;
-                message_id = bufferObj?.messageId;
+                message_id = bufferObj?.message_id;
               }
               isFirstMessage = false;
+            
+            break;
             }
-            else if (bufferObj.event === 'agent_thought') {
+            case 'agent_thought': {
             //   onThought?.(bufferObj as ThoughtItem)
+            
+            break;
             }
-            else if (bufferObj.event === 'message_file') {
+            case 'message_file': {
             //   onFile?.(bufferObj as VisionFile)
+            
+            break;
             }
-            else if (bufferObj.event === 'message_end') {
+            case 'message_end': {
             //   onMessageEnd?.(bufferObj as MessageEnd)
+            
+            break;
             }
-            else if (bufferObj.event === 'message_replace') {
+            case 'message_replace': {
             //   onMessageReplace?.(bufferObj as MessageReplace)
+            
+            break;
             }
-            else if (bufferObj.event === 'workflow_started') {
+            case 'workflow_started': {
             //   onWorkflowStarted?.(bufferObj as WorkflowStartedResponse)
+            
+            break;
             }
-            else if (bufferObj.event === 'workflow_finished') {
+            case 'workflow_finished': {
             //   onWorkflowFinished?.(bufferObj as WorkflowFinishedResponse)
+            
+            break;
             }
-            else if (bufferObj.event === 'node_started') {
+            case 'node_started': {
             //   onNodeStarted?.(bufferObj as NodeStartedResponse)
+            
+            break;
             }
-            else if (bufferObj.event === 'node_finished') {
+            case 'node_finished': {
             //   onNodeFinished?.(bufferObj as NodeFinishedResponse)
+            
+            break;
+            }
+            // No default
             }
           }
         })
-        buffer = lines[lines.length - 1]
+        buffer = lines.at(-1)
       }
-      catch (e) {
+      catch {
         hasError = true
         return
       }
@@ -210,11 +232,11 @@ export const fetchSSEDify = async (fetchFn: () => Promise<Response>, options: Fe
         read()
       else {
         options?.onFinish?.(res, {
+          conversation_id,
+          message_id,
           observationId,
           traceId,
           type: finishedType,
-          message_id,
-          conversation_id,
         });
       }
     })
