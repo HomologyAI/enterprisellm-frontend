@@ -166,6 +166,7 @@ export const chatMessage: StateCreator<
   // 点赞
   feedbackLike: async (id) => {
     const session = sessionSelectors.currentSession(useSessionStore.getState())
+    const message = chatSelectors.getMessageById(id)(get())
     const { userId = '', conversation_id = ''} = session || {}
     const app = getApp()
     let result = true
@@ -176,7 +177,7 @@ export const chatMessage: StateCreator<
           conversation_id,
           userId,
           rating: 'like',
-          messageId: id
+          messageId: message?.backendMessageId || ''
         }
       })
     }
@@ -193,6 +194,7 @@ export const chatMessage: StateCreator<
   // 点踩
   feedbackDislike: async(id) => {
     const session = sessionSelectors.currentSession(useSessionStore.getState())
+    const message = chatSelectors.getMessageById(id)(get())
     const { userId = '', conversation_id = ''} = session || {}
     const app = getApp()
     let result = true
@@ -204,7 +206,7 @@ export const chatMessage: StateCreator<
           conversation_id,
           userId,
           rating: 'dislike',
-          messageId: id
+          messageId: message?.backendMessageId || ''
         }
       })
     }
@@ -610,6 +612,14 @@ export const chatMessage: StateCreator<
           await refreshSessions();
           // ai生成标题名称
           autoRenameConversation(sessionId);
+        }
+
+        // 将后台的message_id存储到数据库中
+        if (message_id) {
+          const {dispatchMessage, refreshMessages} = get()
+          dispatchMessage({ id: assistantMessageId, key: 'backendMessageId', type: 'updateMessage', value: message_id})
+          await messageService.updateMessage(assistantMessageId, {backendMessageId: message_id})
+          await refreshMessages()
         }
       },
       onMessageHandle: async (text) => {

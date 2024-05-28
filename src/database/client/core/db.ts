@@ -20,7 +20,8 @@ import {
   dbSchemaV7,
   dbSchemaV8,
   dbSchemaV9,
-  dbSchemaV10
+  dbSchemaV10,
+  dbSchemaV11
 } from './schemas';
 import { DBModel, LOBE_CHAT_LOCAL_DB_NAME } from './types/db';
 
@@ -73,6 +74,9 @@ export class BrowserDB extends Dexie {
 
     this.version(10)
       .stores(dbSchemaV10);
+
+      this.version(11)
+      .stores(dbSchemaV11);
 
     this.files = this.table('files');
     this.sessions = this.table('sessions');
