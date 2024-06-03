@@ -10,6 +10,17 @@ import MessageContent from './MessageContent';
 import Title from './Title';
 import { useStyles } from './styles';
 import type { ChatItemProps } from './type';
+import { Button, Popover } from 'antd'
+import { RetrieverResourceItem } from '@/types/message';
+import { useChatStore } from '@/store/chat';
+
+interface RetrieverItem {
+  document_id: string,
+  document_name: string,
+  resources: RetrieverResourceItem[]
+}
+
+type Retriever = RetrieverItem[]
 
 const ChatItem = memo<ChatItemProps>(
   ({
@@ -21,6 +32,7 @@ const ChatItem = memo<ChatItemProps>(
      primary,
      loading,
      message,
+     retrieverResources,
      placement = 'left',
      type = 'block',
      avatar,
@@ -50,6 +62,50 @@ const ChatItem = memo<ChatItemProps>(
       title: '',
       type,
     });
+
+    const [getFile] = useChatStore((s) => [s.getFile])
+
+    const getRetrieverResources = (): Retriever | undefined => {
+      const temp: { [key: string]: RetrieverItem } = {}
+      retrieverResources?.forEach((resource) => {
+        if (temp[resource.document_id]) {
+          temp[resource.document_id].resources.push(resource)
+        } else {
+          temp[resource.document_id] = {
+            document_id: resource.document_id,
+            document_name: resource.document_name,
+            resources: [resource]
+          }
+        }
+      })
+
+      const result = Object.values(temp)
+      return result.length > 0 ? result : undefined
+    }
+
+    /**
+     * 下载引用文件的回调函数
+     */
+    // eslint-disable-next-line unicorn/consistent-function-scoping
+    const handleDownLoadRetrieverResources = (retriever: RetrieverItem) => {
+      console.log('Retriever', retriever)
+      getFile(retriever.document_id).then(async (res) => {
+        const contentDisposition = res.headers.get('Content-Disposition')
+        const fileName = decodeURIComponent(contentDisposition.match(/filename\*?=["']?(?:UTF-\d["']*)?([^\n\r"';]*)["']?;?/g)[1].slice(17))
+        const blob = await res.blob()
+        console.log(blob, res)
+        console.log(fileName, blob)
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = fileName
+        a.setAttribute('style', 'display: none;')
+        document.body.append(a)
+        a.click()
+        a.remove()
+        URL.revokeObjectURL(url)
+      })
+    }
 
     return (
       <Flexbox
@@ -96,6 +152,41 @@ const ChatItem = memo<ChatItemProps>(
             )}
             <Actions actions={actions} editing={editing} placement={placement} type={type} />
           </Flexbox>
+          {retrieverResources &&
+            <Flexbox
+              align='start'
+              className={styles.messageRetrieverContainer}
+              gap={8}
+              horizontal
+              justify='start'
+              wrap='wrap'
+            >
+              {getRetrieverResources()?.map((resource, index) => (
+                <Flexbox key={index}>
+                  <Popover
+                    arrow={false}
+                    content={() => (
+                      <Flexbox>
+                        {
+                          resource.resources.map((item, index) => (
+                            <Flexbox key={index}>
+                              {item.position + item.content}
+                            </Flexbox>
+                          ))
+                        }
+                      </Flexbox>
+                    )}
+                    placement='topLeft'
+                    trigger={'hover'}
+                  >
+                    <Button
+                      onClick={() => handleDownLoadRetrieverResources(resource)}>
+                        {resource.document_name}
+                    </Button>
+                  </Popover>
+                </Flexbox>
+              ))}
+            </Flexbox>}
         </Flexbox>
       </Flexbox>
     );

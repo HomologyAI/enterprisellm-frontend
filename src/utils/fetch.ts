@@ -2,7 +2,7 @@ import { t } from 'i18next';
 
 import { LOBE_CHAT_OBSERVATION_ID, LOBE_CHAT_TRACE_ID } from '@/const/trace';
 import { ErrorResponse, ErrorType } from '@/types/fetch';
-import { ChatMessageError } from '@/types/message';
+import { ChatMessageError, RetrieverResources } from '@/types/message';
 
 export const getMessageError = async (response: Response) => {
   let chatMessageError: ChatMessageError;
@@ -34,6 +34,7 @@ export type OnFinishHandler = (
     conversation_id?: string;
     message_id?: string;
     observationId?: string | null;
+    retrieverResources?: RetrieverResources,
     traceId?: string | null;
     type?: SSEFinishType;
   },
@@ -127,6 +128,7 @@ export const fetchSSEDify = async (fetchFn: () => Promise<Response>, options: Fe
   const observationId = response.headers.get(LOBE_CHAT_OBSERVATION_ID);
   let conversation_id = '';
   let message_id = '';
+  let retrieverResources: undefined = undefined;
 
   function read() {
     let hasError = false
@@ -137,8 +139,9 @@ export const fetchSSEDify = async (fetchFn: () => Promise<Response>, options: Fe
           conversation_id,
           message_id,
           observationId,
+          retrieverResources,
           traceId,
-          type: finishedType,
+          type: finishedType
         });
         return
       }
@@ -164,7 +167,7 @@ export const fetchSSEDify = async (fetchFn: () => Promise<Response>, options: Fe
               return
             }
             switch (bufferObj.event) {
-            case 'message': 
+            case 'message':
             case 'agent_message': {
               // can not use format here. Because message is splited.
               const lineMsg = unicodeToChar(bufferObj.answer);
@@ -175,47 +178,51 @@ export const fetchSSEDify = async (fetchFn: () => Promise<Response>, options: Fe
                 message_id = bufferObj?.message_id;
               }
               isFirstMessage = false;
-            
+
             break;
             }
             case 'agent_thought': {
             //   onThought?.(bufferObj as ThoughtItem)
-            
+
             break;
             }
             case 'message_file': {
             //   onFile?.(bufferObj as VisionFile)
-            
+
             break;
             }
             case 'message_end': {
             //   onMessageEnd?.(bufferObj as MessageEnd)
-            
+            const _retrieverResources = bufferObj?.metadata?.retriever_resources
+            console.log('_retrieverResources', _retrieverResources)
+            if (_retrieverResources) {
+              retrieverResources = _retrieverResources || undefined
+            }
             break;
             }
             case 'message_replace': {
             //   onMessageReplace?.(bufferObj as MessageReplace)
-            
+
             break;
             }
             case 'workflow_started': {
             //   onWorkflowStarted?.(bufferObj as WorkflowStartedResponse)
-            
+
             break;
             }
             case 'workflow_finished': {
             //   onWorkflowFinished?.(bufferObj as WorkflowFinishedResponse)
-            
+
             break;
             }
             case 'node_started': {
             //   onNodeStarted?.(bufferObj as NodeStartedResponse)
-            
+
             break;
             }
             case 'node_finished': {
             //   onNodeFinished?.(bufferObj as NodeFinishedResponse)
-            
+
             break;
             }
             // No default
@@ -235,8 +242,9 @@ export const fetchSSEDify = async (fetchFn: () => Promise<Response>, options: Fe
           conversation_id,
           message_id,
           observationId,
+          retrieverResources,
           traceId,
-          type: finishedType,
+          type: finishedType
         });
       }
     })

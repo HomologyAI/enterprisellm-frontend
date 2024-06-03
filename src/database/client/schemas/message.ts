@@ -34,6 +34,7 @@ export const DB_MessageSchema = z.object({
   tts: z.any().optional(),
   feedback: z.enum(['like', 'dislike']).optional(),
   backendMessageId: z.string().optional(),
+  retrieverResources: z.any().optional(),
 
   traceId: z.string().optional(),
   observationId: z.string().optional(),

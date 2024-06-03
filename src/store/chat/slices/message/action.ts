@@ -68,6 +68,7 @@ export interface ChatMessageAction {
   modifyMessageContent: (id: string, content: string) => Promise<void>;
   feedbackLike:(id: string) => Promise<boolean>;
   feedbackDislike:(id: string) => Promise<boolean>;
+  getFile:(document_id: string) => Promise<any>;
   // query
   useFetchMessages: (sessionId: string, topicId?: string) => SWRResponse<ChatMessage[]>;
   stopGenerateMessage: () => void;
@@ -219,6 +220,19 @@ export const chatMessage: StateCreator<
     }
 
     return result
+  },
+  getFile: async (document_id) => {
+    const session = sessionSelectors.currentSession(useSessionStore.getState())
+    const { userId = '', conversation_id = ''} = session || {}
+    const app = getApp()
+    return await difyService.getFile({
+      app: app!,
+      data: {
+        document_id,
+        conversation_id,
+        userId,
+      }
+    })
   },
   delAndRegenerateMessage: async (id) => {
     const traceId = chatSelectors.getTraceIdByMessageId(id)(get());
@@ -581,7 +595,7 @@ export const chatMessage: StateCreator<
       onAbort: async () => {
         stopAnimation();
       },
-      onFinish: async (content, { traceId, observationId, conversation_id, message_id, }) => {
+      onFinish: async (content, { traceId, observationId, conversation_id, message_id, retrieverResources }) => {
         stopAnimation();
         // if there is traceId, update it
         if (traceId) {
@@ -619,6 +633,13 @@ export const chatMessage: StateCreator<
           const {dispatchMessage, refreshMessages} = get()
           dispatchMessage({ id: assistantMessageId, key: 'backendMessageId', type: 'updateMessage', value: message_id})
           await messageService.updateMessage(assistantMessageId, {backendMessageId: message_id})
+          await refreshMessages()
+        }
+
+        if (retrieverResources) {
+          const {dispatchMessage, refreshMessages} = get()
+          dispatchMessage({ id: assistantMessageId, key: 'retrieverResources', type: 'updateMessage', value: retrieverResources})
+          await messageService.updateMessage(assistantMessageId, {retrieverResources})
           await refreshMessages()
         }
       },

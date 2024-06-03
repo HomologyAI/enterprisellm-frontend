@@ -20,6 +20,10 @@ export interface DifyServiceMessageFeedbackPayload {
   rating: 'like' | 'dislike'
 }
 
+export interface DifyServiceGetFilePayload {
+  document_id: string
+}
+
 
 export interface DifyServiceResp {
   body: any;
@@ -43,6 +47,10 @@ class DifyService {
       },
       method: 'POST'
     }).then(async (resp) => {
+      if ((resp.url as string).includes('getFile')) {
+        return resp
+      }
+
       const data = (await resp.json()) as DifyServiceResp;
       if (data?.succ === 1) {
         return data.body;
@@ -94,6 +102,10 @@ class DifyService {
 
   messageFeedback(payload: DifyServicePayload<DifyServiceMessageFeedbackPayload>) {
     return this.fetchData<DifyServiceMessageFeedbackPayload>(API_ENDPOINTS.difyMessageFeedback, payload)
+  }
+
+  getFile(payload: DifyServicePayload<DifyServiceGetFilePayload>) {
+    return this.fetchData<DifyServiceGetFilePayload>(API_ENDPOINTS.difyGetFile, payload)
   }
 }
 

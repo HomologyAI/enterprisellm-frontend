@@ -50,6 +50,10 @@ export const routes = {
         method: "GET",
         url: () => `/datasets`,
     },
+    getFile: {
+        method: "GET",
+        url: (document_id) => `/document/${document_id}/get_file`,
+    },
     renameConversation: {
         method: "POST",
         url: (conversation_id) => `/conversations/${conversation_id}/name`,
@@ -140,6 +144,13 @@ export class DifyClient {
             null,
             params
         );
+    }
+
+    getFile(document_id) {
+      return this.sendRequest(
+        routes.getFile.method,
+        routes.getFile.url(document_id)
+      )
     }
 
     fileUpload(data) {

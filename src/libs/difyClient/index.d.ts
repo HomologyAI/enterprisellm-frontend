@@ -42,6 +42,8 @@ export declare class DifyClient {
 
   messageFeedback(message_id: string, rating: 'like' | 'dislike', user: string): Promise<any>;
 
+  getFile(document_id: string): Promise<any>;
+
   getApplicationParameters(user: User): Promise<any>;
 
   fileUpload(data: FormData): Promise<any>;

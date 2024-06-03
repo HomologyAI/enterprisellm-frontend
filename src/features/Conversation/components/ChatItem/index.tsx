@@ -168,6 +168,7 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
               renderMessage={(editableContent) => (
                 <RenderMessage data={item} editableContent={editableContent} />
               )}
+              retrieverResources={item.retrieverResources}
               text={{
                 cancel: t('cancel'),
                 confirm: t('ok'),

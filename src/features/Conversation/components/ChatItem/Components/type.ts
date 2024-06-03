@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
-import {AlertProps, AvatarProps, DivProps, EditableMessageProps, MetaData} from "@lobehub/ui";
+import {AlertProps, DivProps, EditableMessageProps} from "@lobehub/ui";
+import { RetrieverResources } from '@/types/message';
 
 
 export interface ChatItemProps {
@@ -7,7 +8,6 @@ export interface ChatItemProps {
    * @description Actions to be displayed in the chat item
    */
   actions?: ReactNode;
-  renderAvatar: ReactNode;
   /**
    * @description Custom CSS class name for the chat item
    */
@@ -52,7 +52,9 @@ export interface ChatItemProps {
    * @description Whether the chat item is primary
    */
   primary?: boolean;
+  renderAvatar: ReactNode;
   renderMessage?: (content: ReactNode) => ReactNode;
+  retrieverResources?: RetrieverResources,
   /**
    * @description Whether to show the title of the chat item
    */
@@ -62,6 +64,7 @@ export interface ChatItemProps {
    * @description The timestamp of the chat item
    */
   time?: number;
+
   /**
    * @description The type of the chat item
    * @default 'block'

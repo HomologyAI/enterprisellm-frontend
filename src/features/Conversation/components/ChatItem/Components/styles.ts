@@ -196,6 +196,12 @@ export const useStyles = createStyles(
         `,
       ),
       messageExtra: cx('message-extra'),
+      messageRetrieverContainer: cx(
+        editingStylish,
+        css`
+          margin-top: 8px;
+        `
+      ),
       name: css`
         margin-block-end: 6px;
 
