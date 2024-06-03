@@ -581,7 +581,7 @@ export const chatMessage: StateCreator<
       onAbort: async () => {
         stopAnimation();
       },
-      onFinish: async (content, { traceId, observationId, conversation_id, message_id, }) => {
+      onFinish: async (content, { traceId, observationId, conversation_id, message_id, retrieverResources }) => {
         stopAnimation();
         // if there is traceId, update it
         if (traceId) {
@@ -619,6 +619,13 @@ export const chatMessage: StateCreator<
           const {dispatchMessage, refreshMessages} = get()
           dispatchMessage({ id: assistantMessageId, key: 'backendMessageId', type: 'updateMessage', value: message_id})
           await messageService.updateMessage(assistantMessageId, {backendMessageId: message_id})
+          await refreshMessages()
+        }
+
+        if (retrieverResources) {
+          const {dispatchMessage, refreshMessages} = get()
+          dispatchMessage({ id: assistantMessageId, key: 'retrieverResources', type: 'updateMessage', value: retrieverResources})
+          await messageService.updateMessage(assistantMessageId, {retrieverResources})
           await refreshMessages()
         }
       },
