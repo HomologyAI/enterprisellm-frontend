@@ -28,6 +28,21 @@ export interface ChatTTS {
   voice?: string;
 }
 
+export interface RetrieverResourceItem {
+  content: string, // 引用内容
+  data_source_type: string,
+  dataset_id: string, // 知识库id
+  dataset_name: string, // 知识库名称
+  document_id: string, // 文档id
+  document_name: string, // 文档名称
+  position: number,
+  retriever_from: string,
+  score: number,
+  segment_id: string
+}
+
+export type RetrieverResources = RetrieverResourceItem[]
+
 export * from './dify';
 export * from './tools';
 
@@ -39,8 +54,8 @@ export interface ChatMessage extends BaseDataModel {
    * dify message
    */
   difyMsg?: DifyMessage;
-
   error?: ChatMessageError;
+
   // 扩展字段
   extra?: {
     fromModel?: string;
@@ -55,22 +70,26 @@ export interface ChatMessage extends BaseDataModel {
    */
   feedback?: 'like' | 'dislike',
   files?: string[];
-
   /**
    * observation id
    */
   observationId?: string;
+
   /**
    * parent message id
    */
   parentId?: string;
   plugin?: ChatPluginPayload;
   pluginState?: any;
-
   /**
    * quoted other message's id
    */
   quotaId?: string;
+
+  /**
+   * 引用文件的信息
+   */
+  retrieverResources?: RetrieverResources,
 
 
   /**
