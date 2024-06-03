@@ -6,6 +6,7 @@ import {memo, useEffect, useMemo} from 'react';
 import { createStoreUpdater } from 'zustand-utils';
 
 import {useAppsStore} from "@/store/apps";
+import {usePathname} from "next/navigation";
 
 // sync outside state to useSessionStore
 const AppsInitialization = memo(() => {
@@ -25,6 +26,8 @@ const AppsInitialization = memo(() => {
 
   useFetchApps();
 
+  const pathName = usePathname();
+
   useEffect(() => {
     console.log('activeId', activeId)
     if (apps.length) {
@@ -32,12 +35,11 @@ const AppsInitialization = memo(() => {
         return app.appId === activeId;
       });
 
-      if (!app) {
+      if (!app && pathName === '/chat') {
         updateActiveAppId(apps[0].appId);
       }
     }
-  }, [activeId, apps]);
-
+  }, [activeId, apps, pathName]);
 
   useEffect(() => {
     const unsubscribe = useAppsStore.subscribe(
