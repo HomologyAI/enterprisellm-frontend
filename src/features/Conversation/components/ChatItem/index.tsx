@@ -20,12 +20,8 @@ import { renderMessages, useAvatarsClick } from '../../Messages';
 import ActionsBar from './ActionsBar';
 import HistoryDivider from './HistoryDivider';
 import UserAvatar from "@/features/Avatar/UserAvatar";
-import {MetaData} from "@/types/meta";
-import {z} from "zod";
-import { UserOutlined } from '@ant-design/icons';
 import ChatItem from './Components/ChatItem';
 import BotAvatar from "@/features/Avatar/BotAvatar";
-import {Flexbox} from "react-layout-kit";
 
 const useStyles = createStyles(({ css, prefixCls }) => ({
   loading: css`
@@ -59,8 +55,13 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
     const chats = chatSelectors.currentChatsWithGuideMessage(meta)(s);
 
     if (index >= chats.length) return;
+    const message = chatSelectors.currentChatsWithGuideMessage(meta)(s)[index];
 
-    return chatSelectors.currentChatsWithGuideMessage(meta)(s)[index];
+    if (message.content === '...' && (!s.chatLoadingId || (!!s.chatLoadingId && s.chatLoadingId !== message.id))) {
+      return
+    } else {
+      return message
+    }
   }, isEqual);
 
   const historyLength = useChatStore((s) => chatSelectors.currentChats(s).length);
@@ -122,8 +123,8 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
     if (item.role === 'user') {
       return (
         <UserAvatar size={40} style={{
-          fontSize: 16,
-          backgroundColor: '#BFBFBF'
+          backgroundColor: '#BFBFBF',
+          fontSize: 16
         }}/>
       )
     }
@@ -143,7 +144,7 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
             <RenderMessage data={item} editableContent={null} />
           ) : (
             <ChatItem
-              renderAvatar={renderAvatar}
+              actions={<ActionsBar index={index}/>}
               className={cx(styles.message, isMessageLoading && styles.loading)}
               editing={editing}
               error={error}
@@ -163,6 +164,7 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
               onEditingChange={setEditing}
               placement={type === 'chat' ? (item.role === 'user' ? 'right' : 'left') : 'left'}
               primary={item.role === 'user'}
+              renderAvatar={renderAvatar}
               renderMessage={(editableContent) => (
                 <RenderMessage data={item} editableContent={editableContent} />
               )}
@@ -173,7 +175,6 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
               }}
               time={item.updatedAt || item.createdAt}
               type={type === 'chat' ? 'block' : 'pure'}
-              actions={<ActionsBar index={index}/>}
             />
           )
         }
