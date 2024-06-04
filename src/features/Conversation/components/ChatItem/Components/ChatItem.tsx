@@ -199,10 +199,6 @@ const ChatItem = memo<ChatItemProps>(
                       <Flexbox>
                         {resource.resources.map((item, index) => {
                           const { content, position } = item;
-                          const questionMatch = content.match(/question:(.*?)\nanswer:/s);
-                          const question = questionMatch ? questionMatch[1].trim() : null;
-                          const answerMatch = content.match(/answer:(.*)/);
-                          const answer = answerMatch ? answerMatch[1].trim() : null;
 
                           return (
                             // <Flexbox key={index}>{item.position + item.content}</Flexbox>
@@ -215,31 +211,29 @@ const ChatItem = memo<ChatItemProps>(
                                 marginTop: index > 0 ? 10 : 0,
                                 maxWidth: 350,
                               }}
-                              title={
-                                <Flexbox align="center" horizontal justify="start" wrap="nowrap">
-                                  <Tag
-                                    color="processing"
-                                    style={{
-                                      alignItems: 'center',
-                                      display: 'inline-flex',
-                                      justifyContent: 'center',
-                                    }}
-                                  >
-                                    {'引用' + position}
-                                  </Tag>
-                                  <div
-                                    style={{
-                                      maxWidth: '350px',
-                                      whiteSpace: 'normal',
-                                      wordWrap: 'break-word',
-                                    }}
-                                  >
-                                    {question}
-                                  </div>
-                                </Flexbox>
-                              }
                             >
-                              <div>{answer}</div>
+                              <Flexbox align="start" justify="start" wrap="wrap">
+                                <Tag
+                                  color="processing"
+                                  style={{
+                                    alignItems: 'center',
+                                    display: 'inline-flex',
+                                    flex: 'none',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  {'引用 ' + position}
+                                </Tag>
+                                <div
+                                  style={{
+                                    maxWidth: '350px',
+                                    whiteSpace: 'normal',
+                                    wordWrap: 'break-word',
+                                  }}
+                                >
+                                  {content}
+                                </div>
+                              </Flexbox>
                             </Card>
                           );
                         })}
