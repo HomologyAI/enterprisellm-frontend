@@ -1,4 +1,4 @@
-import {NextRequest} from 'next/server'
+import {NextRequest, NextResponse} from 'next/server'
 import {createErrorResponse} from "@/app/api/errorResponse";
 import {ChatErrorType} from "@/types/fetch";
 import {chatClient} from "../clients";
@@ -11,7 +11,10 @@ export async function POST(req: NextRequest) {
   return chatClient.getFile(document_id).then((resp) => {
     if (resp?.status === 200 && resp?.statusText === 'OK') {
       const headers = new Headers(resp.headers)
-      return new Response(new Blob([resp.data], { type: headers.get('Content-Type')!}), { headers: headers, status: 200})
+      return new NextResponse(resp.data, {
+        headers,
+        status: resp.status,
+      });
     }
 
     return  createErrorResponse(ChatErrorType.InternalServerError, resp?.data);

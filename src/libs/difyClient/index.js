@@ -149,7 +149,10 @@ export class DifyClient {
     getFile(document_id) {
       return this.sendRequest(
         routes.getFile.method,
-        routes.getFile.url(document_id)
+        routes.getFile.url(document_id),
+        null,
+        null,
+        true
       )
     }
 

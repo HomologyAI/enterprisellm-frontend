@@ -174,7 +174,6 @@ export const useStyles = createStyles(
         editingStylish,
         css`
           position: relative;
-          overflow: hidden;
           max-width: 70%;
           margin-block-start: ${time ? -16 : 0}px;
 
@@ -196,6 +195,17 @@ export const useStyles = createStyles(
         `,
       ),
       messageExtra: cx('message-extra'),
+      messageRetrieverButton: cx(editingStylish, css`
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-color: #EBEBEB;
+        box-shadow: 0px 5px 14px 0px #0000000F;
+        &:hover {
+          box-shadow: 0px 5px 14px 0px #0000000F;
+          border-color: #EBEBEB !important;
+        }
+      `),
       messageRetrieverContainer: cx(
         editingStylish,
         css`
