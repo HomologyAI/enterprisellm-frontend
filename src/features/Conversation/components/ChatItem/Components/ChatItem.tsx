@@ -121,7 +121,14 @@ const ChatItem = memo<ChatItemProps>(
           key,
           type: 'success',
         });
-      });
+      }).catch((err) => {
+        messageApi.open({
+          content: `文件下载失败！请联系开发人员！`,
+          key,
+          type: 'error'
+        })
+        console.error(err)
+      })
     };
 
     const getFileExtension = (filename: string) => {
