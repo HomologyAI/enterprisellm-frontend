@@ -88,7 +88,7 @@ const InputArea = memo<InputAreaProps>(({ setExpand }) => {
         onPressEnter={(e) => {
           if (loading || e.altKey || e.shiftKey || isChineseInput.current) return;
 
-          if (value.length >= 400) {
+          if (value.length >= 15_000) {
             message.warning('提问内容超过最大长度限制，请修改提问内容。')
             return
           }
