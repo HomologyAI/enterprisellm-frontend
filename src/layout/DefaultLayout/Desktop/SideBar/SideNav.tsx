@@ -1,16 +1,16 @@
 'use client';
 
-import {ReactNode, memo, useState, useMemo} from 'react';
+import {ReactNode, memo, useState} from 'react';
 import { Flexbox } from 'react-layout-kit';
 
 import {DivProps, FluentEmoji} from '@lobehub/ui';
 
 import { useStyles } from './styles';
-import {Button, ConfigProvider, Menu} from "antd";
-import {Layout} from 'antd';
-import {DesktopOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PieChartOutlined} from "@ant-design/icons";
+import {Button, ConfigProvider, Menu,Layout} from "antd";
+import { MenuFoldOutlined, MenuUnfoldOutlined, SettingOutlined} from "@ant-design/icons";
 import {useAppsStore} from "@/store/apps";
 import {useGlobalStore} from "@/store/global";
+import { useRouter } from 'next/navigation';
 
 const { Sider } = Layout;
 
@@ -31,6 +31,7 @@ export interface SideNavProps extends DivProps {
 
 const SideNav = memo<SideNavProps>(({ className, avatar, topActions, bottomActions, ...rest }) => {
   const { styles, cx } = useStyles();
+  const router = useRouter()
   const switchBackToChat = useGlobalStore((s) => s.switchBackToChat);
 
   const [collapse, setCollapse] = useState(false);
@@ -45,63 +46,69 @@ const SideNav = memo<SideNavProps>(({ className, avatar, topActions, bottomActio
     // const isActive = activeId === item.appId;
 
     return {
-      key: item.appId,
       icon: <FluentEmoji emoji={item.icon} size={24} type={'pure'} />,
+      key: item.appId,
       label: item.name,
     }
   });
 
+  const onClickSetting = () => {
+    router.push('/settings/common')
+  }
+
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Menu: {
-            itemMarginBlock: 8,
-            itemMarginInline: 8,
-          }
-        }
-      }}
-    >
+    <ConfigProvider>
       {
         !!apps.length && activeId &&
         <Sider
-          collapsible
           collapsed={collapse}
-          onCollapse={(value) => setCollapse(value)}
-          style={{ background: '#FFFFFF' }}
-          trigger={null}
-          className={styles.sider}
-          width={200}
           collapsedWidth={77}
+          collapsible
+          onCollapse={(value) => setCollapse(value)}
+          style={{background: 'none'}}
+          trigger={null}
+          width={200}
         >
           <Flexbox
+            className={styles.container}
             direction="vertical"
             justify={'space-between'}
-            className={styles.container}
+            style={{background: 'none'}}
           >
             {avatar}
             <Menu
               className={cx(styles.menu)}
               defaultSelectedKeys={[activeId]}
-              mode="inline"
+              inlineIndent={16}
               items={items}
+              mode="inline"
               onSelect={(e) => {
                 // updateActiveAppId(e.key);
                 const nextAppId = e.key;
                 switchBackToChat(nextAppId);
               }}
-              inlineIndent={16}
+              style={{background: 'none'}}
             />
             <Button
-              type="text"
+                icon={<SettingOutlined />}
+                onClick={() => onClickSetting()}
+              style={{
+                alignSelf: "center",
+                fontSize: '16px',
+                height: 64,
+                width: 64,
+              }}
+              type="text"></Button>
+            <Button
               icon={collapse ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapse(!collapse)}
               style={{
-                fontSize: '16px',
-                width: 64,
-                height: 64,
                 alignSelf: "center",
+                fontSize: '16px',
+                height: 64,
+                width: 64,
               }}
+              type="text"
             />
           </Flexbox>
         </Sider>

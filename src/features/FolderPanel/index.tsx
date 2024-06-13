@@ -6,12 +6,17 @@ import { PropsWithChildren, memo, useState } from 'react';
 import { FOLDER_WIDTH } from '@/const/layoutTokens';
 import { useGlobalStore } from '@/store/global';
 
-export const useStyles = createStyles(({ css, token }) => ({
+export const useStyles = createStyles(({ css, token, isDarkMode }) => ({
+  container: css`
+    border-radius: 16px;
+    background-color: ${isDarkMode ? '#1D1D1D' : 'rgba(255, 255, 255, 0.8)'};
+  `,
   panel: css`
     height: 100%;
     color: ${token.colorTextSecondary};
-    background: #FAFAFA;
-  `,
+    padding: 20px 10px 20px 20px;
+    border: none !important;
+  `
 }));
 
 const FolderPanel = memo<PropsWithChildren>(({ children }) => {
@@ -29,6 +34,7 @@ const FolderPanel = memo<PropsWithChildren>(({ children }) => {
       className={styles.panel}
       defaultSize={{ width: tmpWidth }}
       expand={sessionExpandable}
+      expandable={false}
       maxWidth={330}
       minWidth={FOLDER_WIDTH}
       onExpandChange={(expand) => {
@@ -37,7 +43,6 @@ const FolderPanel = memo<PropsWithChildren>(({ children }) => {
           showSessionPanel: expand,
         });
       }}
-      expandable={false}
       onSizeChange={(_, size) => {
         if (!size) return;
 
@@ -51,7 +56,7 @@ const FolderPanel = memo<PropsWithChildren>(({ children }) => {
       placement="left"
       size={{ height: '100%', width: sessionsWidth }}
     >
-      <DraggablePanelContainer style={{ flex: 'none', height: '100%', minWidth: FOLDER_WIDTH }}>
+      <DraggablePanelContainer className={styles.container} style={{ flex: 'none', height: '100%', minWidth: FOLDER_WIDTH }}>
         {children}
       </DraggablePanelContainer>
     </DraggablePanel>

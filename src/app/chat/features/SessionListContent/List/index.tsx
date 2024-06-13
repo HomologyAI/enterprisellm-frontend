@@ -1,12 +1,10 @@
 import { Empty } from 'antd';
 import { createStyles, useResponsive } from 'antd-style';
-import Link from 'next/link';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Center } from 'react-layout-kit';
 import LazyLoad from 'react-lazy-load';
 
-import { SESSION_CHAT_URL } from '@/const/url';
 import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 import { useSessionStore } from '@/store/session';
 import { sessionSelectors } from '@/store/session/selectors';
@@ -18,9 +16,17 @@ import SessionItem from './Item';
 import {useAppsStore} from "@/store/apps";
 
 const useStyles = createStyles(
-  ({ css }) => css`
-    min-height: 70px;
-  `,
+  ({ css, token }) => {
+    return {
+      lazyLoad: css`
+        min-height: 70px;
+        margin-bottom: 10px;
+      `,
+      sessionList: css`
+        padding: 0 20px;
+      `
+    }
+  }
 );
 
 interface SessionListProps {
@@ -32,7 +38,7 @@ const SessionList = memo<SessionListProps>(({ dataSource, groupId, showAddButton
   const { t } = useTranslation('chat');
   const isInit = useSessionStore((s) => sessionSelectors.isSessionListInit(s));
   const { showCreateSession } = useServerConfigStore(featureFlagsSelectors);
-  const { styles } = useStyles();
+  const { styles, cx } = useStyles();
 
   const { mobile } = useResponsive();
   const appId = useAppsStore(s => s.activeId);
@@ -41,11 +47,15 @@ const SessionList = memo<SessionListProps>(({ dataSource, groupId, showAddButton
   return !isInit ? (
     <SkeletonList />
   ) : !isEmpty ? (
-    dataSource.map(({ id }) => (
-      <LazyLoad className={styles} key={id}>
-        <SessionItem id={id} />
-      </LazyLoad>
-    ))
+    <div className={cx(styles.sessionList)}>
+    {
+      dataSource.map(({ id }) => (
+        <LazyLoad className={styles.lazyLoad} key={id}>
+          <SessionItem id={id} />
+        </LazyLoad>
+      ))
+    }
+    </div>
   ) : showCreateSession ? (
     showAddButton && <AddButton groupId={groupId} />
   ) : (

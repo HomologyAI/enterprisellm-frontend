@@ -1,29 +1,19 @@
 import { ActionIcon, Icon } from '@lobehub/ui';
 import { App, Dropdown, type MenuProps } from 'antd';
 import { createStyles } from 'antd-style';
-import isEqual from 'fast-deep-equal';
 import {
-  Check,
-  HardDriveDownload,
-  ListTree,
-  LucideCopy,
-  LucidePlus,
   MoreVertical,
-  Pin,
-  PinOff,
   Trash,
   Edit,
 } from 'lucide-react';
 import {memo, useMemo, useRef} from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { configService } from '@/services/config';
 import { useSessionStore } from '@/store/session';
 import { sessionHelpers } from '@/store/session/helpers';
-import {sessionGroupSelectors, sessionMetaSelectors, sessionSelectors} from '@/store/session/selectors';
+import { sessionMetaSelectors, sessionSelectors} from '@/store/session/selectors';
 import { SessionDefaultGroup } from '@/types/session';
 import EditNameModalContent from "@/app/chat/features/SessionListContent/List/Item/EditNameModalContent";
-import {API_ENDPOINTS} from "@/services/_url";
 
 const useStyles = createStyles(({ css }) => ({
   modalRoot: css`
@@ -94,22 +84,21 @@ const Actions = memo<ActionProps>(({ group, id, openCreateGroupModal, setOpen })
           danger: false,
           icon: <Icon icon={Edit} />,
           key: 'edit',
-          label: '编辑对话标题',
+          label: '编辑标题',
           onClick: ({ domEvent }) => {
             domEvent.stopPropagation();
 
             modal.confirm({
               centered: true,
-              okButtonProps: { danger: false },
               content: (
                 <EditNameModalContent
-                  title={title}
                   onChanged={(e) => {
                     titleRef.current = e.target.value;
                   }}
+                  title={title}
                 />
               ),
-              title: '编辑对话标题',
+              okButtonProps: { danger: false },
               onOk: async () => {
                 const res = await renameConversation(titleRef.current);
 
@@ -119,6 +108,7 @@ const Actions = memo<ActionProps>(({ group, id, openCreateGroupModal, setOpen })
                   message.error(t('编辑对话标题失败'));
                 }
               },
+              title: '编辑标题',
               // rootClassName: styles.modalRoot,
             });
           },

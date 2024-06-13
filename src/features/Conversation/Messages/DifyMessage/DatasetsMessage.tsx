@@ -42,7 +42,7 @@ export const DatasetsMessage = memo<
   }
 >((msg) => {
   const { id } = msg;
-  const { styles } = useStyles();
+  const { styles, cx } = useStyles();
   const datasets = useSessionStore(sessionDifySelectors.currentDifyDatasets, isEqual) as DifyDataset[];
   const initDatasets = useAppsStore(appsSelectors.currentAppDatasets, isEqual) as DifyDataset[];
 
@@ -161,7 +161,7 @@ export const DatasetsMessage = memo<
       <Flexbox className={styles.footer} gap={12} horizontal justify="flex-end">
         <Button onClick={checkAll} style={{padding: 0}} type="link">全选</Button>
         <Button onClick={unCheckAll} style={{padding: 0}} type="link">取消选择</Button>
-        <Button onClick={handleConfirm} type="primary" >确定</Button>
+        <Button onClick={handleConfirm} type="primary">确定</Button>
       </Flexbox>
     </Flexbox>
   );

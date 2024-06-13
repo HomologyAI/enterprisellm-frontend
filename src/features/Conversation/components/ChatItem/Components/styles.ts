@@ -87,7 +87,7 @@ export const useStyles = createStyles(
           position: relative;
           width: 100%;
           max-width: 100vw;
-          padding: 32px 128px 30px 36px;
+          padding: 32px 36px 30px 36px;
 
           time {
             display: inline-block;
