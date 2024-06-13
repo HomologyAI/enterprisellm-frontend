@@ -1,10 +1,12 @@
 'use client';
 
 import { LucideLoader2, Search } from 'lucide-react';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import useControlledState from 'use-merge-value';
 
 import { Icon, Input, type InputProps } from '@lobehub/ui';
+
+import { createStyles } from 'antd-style';
 
 export interface SearchBarProps extends InputProps {
   defaultValue?: string;
@@ -28,8 +30,6 @@ export interface SearchBarProps extends InputProps {
   value?: string;
 }
 
-import { createStyles } from 'antd-style';
-
 export const useStyles = createStyles(({ css, token, stylish, cx }) => ({
   icon: css`
     color: ${token.colorTextPlaceholder};
@@ -41,6 +41,7 @@ export const useStyles = createStyles(({ css, token, stylish, cx }) => ({
     height: 40px;
     background-color: #F0F0F0;
     border: 0;
+    border-radius: 12px;
   `,
   search: css`
     position: relative;

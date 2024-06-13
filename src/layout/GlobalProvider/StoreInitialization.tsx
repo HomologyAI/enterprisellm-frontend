@@ -9,7 +9,6 @@ import { useEnabledDataSync } from '@/hooks/useSyncData';
 import { useAgentStore } from '@/store/agent';
 import { useGlobalStore } from '@/store/global';
 import { useUserStore } from '@/store/user';
-import {useAppsStore} from "@/store/apps";
 
 const StoreInitialization = memo(() => {
   const [useFetchServerConfig, useFetchUserConfig, useInitPreference] = useUserStore((s) => [
@@ -45,7 +44,7 @@ const StoreInitialization = memo(() => {
     router.prefetch('/chat');
     // router.prefetch('/chat/settings');
     // router.prefetch('/market');
-    // router.prefetch('/settings/common');
+    router.prefetch('/settings/common');
     // router.prefetch('/settings/agent');
     // router.prefetch('/settings/sync');
   }, [router]);

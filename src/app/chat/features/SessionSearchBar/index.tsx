@@ -5,14 +5,22 @@ import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSessionStore } from '@/store/session';
 import {Flexbox} from "react-layout-kit";
-import {Plus} from "lucide-react";
-import {createStyles} from "antd-style";
+import { Plus} from "lucide-react";
+import {FullToken, createStyles} from "antd-style";
 import SearchBar from './SearchBar';
 import {useAppsStore} from "@/store/apps";
+import { CustomTokenType } from '@/const/theme';
 
 const useStyles = createStyles(
-  ({ css, prefixCls, }) => {
+  ({ css, prefixCls, token}) => {
+    const _token = token as FullToken & CustomTokenType
+
     return {
+      createConversation: css`
+        background: ${_token.colorPrimary}};
+        color: #ffffff;
+        border-radius: 100px;
+      `,
       search: css`
         width: 100%;
         flex-shrink: 1;
@@ -21,9 +29,6 @@ const useStyles = createStyles(
         &.${prefixCls}-input {
           padding-inline: 16px;
         }
-      `,
-      icon: css`
-        background-color: #F0F0F0;
       `,
     }
   }
@@ -44,7 +49,7 @@ const SessionSearchBar = memo<{ mobile?: boolean }>(({ mobile: controlledMobile 
 
   const isMobile = useIsMobile();
   const mobile = controlledMobile ?? isMobile;
-  const {styles} = useStyles();
+  const {styles, cx} = useStyles();
 
   useEffect(() => {
    const removeSub = useAppsStore.subscribe((state) => state.activeId, (activeId) => {
@@ -57,9 +62,10 @@ const SessionSearchBar = memo<{ mobile?: boolean }>(({ mobile: controlledMobile 
   }, []);
 
   return (
-    <Flexbox horizontal align={'space-between'} style={{width: '100%'}}>
+    <Flexbox horizontal style={{width: '100%'}}>
       <SearchBar
         allowClear
+        className={styles.search}
         enableShortKey={!mobile}
         loading={isValidating}
         onChange={(e) => {
@@ -70,11 +76,10 @@ const SessionSearchBar = memo<{ mobile?: boolean }>(({ mobile: controlledMobile 
         spotlight={!mobile}
         type={mobile ? 'block' : 'ghost'}
         value={keywords}
-        className={styles.search}
-        enableShortKey={false}
       />
       <ActionIcon
-        className={styles.icon}
+        className={cx(styles.createConversation)}
+        color='white'
         icon={Plus}
         onClick={() => createSession()}
         size={{

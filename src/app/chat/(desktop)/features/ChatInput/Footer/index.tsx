@@ -1,7 +1,7 @@
 import { Icon } from '@lobehub/ui';
 import {Button, Space, message } from 'antd';
 import { createStyles } from 'antd-style';
-import { ChevronUp, CornerDownLeft, LucideCommand } from 'lucide-react';
+import { ChevronUp, CornerDownLeft, LucideCommand, Send } from 'lucide-react';
 import { rgba } from 'polished';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -29,7 +29,9 @@ const useStyles = createStyles(({ css, prefixCls, token }) => {
     `,
     overrideAntdIcon: css`
       position: absolute;
-      right: 24px;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
 
       .${prefixCls}-btn.${prefixCls}-btn-icon-only {
         display: flex;
@@ -43,6 +45,15 @@ const useStyles = createStyles(({ css, prefixCls, token }) => {
         }
       }
     `,
+    sendButton: css`
+      width: 32px !important;
+      height: 32px !important;
+      min-width: 0 !important;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-item: center
+    `
   };
 });
 
@@ -109,12 +120,14 @@ const Footer = memo<FooterProps>(({ setExpand }) => {
               className={styles.loadingButton}
               icon={<StopLoadingIcon />}
               onClick={stopGenerateMessage}
+              shape="circle"
             >
-              {t('input.stop')}
             </Button>
           ) : (
             <Space.Compact>
               <Button
+                className={styles.sendButton}
+                icon={<Icon color='white' icon={Send}></Icon>}
                 onClick={() => {
                   if (inputValue.length >= 400) {
                     message.warning('提问内容超过最大长度限制，请修改提问内容。')
@@ -123,13 +136,9 @@ const Footer = memo<FooterProps>(({ setExpand }) => {
                   sendMessage();
                   setExpand?.(false);
                 }}
-                style={{
-                  height: 32,
-                  width: 74,
-                }}
+                shape="circle"
                 type={'primary'}
               >
-                {t('input.send')}
               </Button>
             </Space.Compact>
           )}

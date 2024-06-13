@@ -1,60 +1,50 @@
-import {DraggablePanel} from '@lobehub/ui';
 import { memo, useState } from 'react';
 import { Flexbox } from 'react-layout-kit';
 
-import {
-  CHAT_TEXTAREA_HEIGHT,
-  CHAT_TEXTAREA_MAX_HEIGHT,
-  HEADER_HEIGHT,
-} from '@/const/layoutTokens';
-import { useGlobalStore } from '@/store/global';
+
+
+import { createStyles } from 'antd-style';
 
 import Footer from './Footer';
 import TextArea from './TextArea';
 import UploadArea from "./UploadArea";
 
+const useStyles = createStyles(({token, css}) => {
+  return {
+    container: css`
+      padding: 20px 20px;
+    `,
+    inputAreaContainer: css`
+      border: 1px solid #366EFF;
+      border-radius: 32px;
+      width: 100%;
+      min-height: 64px;
+      position: relative;
+      padding-right: 60px;
+      padding-left: 16px;
+      padding-top: 12px;
+      padding-bottom: 12px;
+    `
+  }
+})
+
 const ChatInput = memo(() => {
+  const { styles, cx } = useStyles()
   const [expand, setExpand] = useState<boolean>(false);
 
-  const [inputHeight, setInputHeight] = useState(CHAT_TEXTAREA_HEIGHT);
-
   return (
-    <>
+    <div className={styles.container}>
       <UploadArea />
-      <DraggablePanel
-        fullscreen={expand}
-        // headerHeight={HEADER_HEIGHT}
-        maxHeight={CHAT_TEXTAREA_MAX_HEIGHT}
-        minHeight={CHAT_TEXTAREA_HEIGHT}
-        onSizeChange={(_, size) => {
-          if (!size) return;
-
-          // updatePreference({
-          //   inputHeight: typeof size.height === 'string' ? Number.parseInt(size.height) : size.height,
-          // });
-          setInputHeight(typeof size.height === 'string' ? Number.parseInt(size.height) : size.height);
-        }}
-        placement="bottom"
-        size={{ height: inputHeight, width: '100%' }}
-        style={{ zIndex: 10 }}
-        expandable={false}
+      <Flexbox
+        align='center'
+        className={styles.inputAreaContainer}
+        direction='horizontal'
       >
-        <Flexbox
-          gap={8}
-          height={'100%'}
-          padding={'16px 0 16px'}
-          style={{
-            minHeight: CHAT_TEXTAREA_HEIGHT,
-            position: 'relative',
-            background: '#FFF',
-          }}
-        >
-          {/*<Header expand={expand} setExpand={setExpand} />*/}
-          <TextArea setExpand={setExpand} />
-          <Footer setExpand={setExpand} />
-        </Flexbox>
-      </DraggablePanel>
-    </>
+        {/*<Header expand={expand} setExpand={setExpand} />*/}
+        <TextArea setExpand={setExpand} />
+        <Footer setExpand={setExpand} />
+      </Flexbox>
+    </div>
   );
 });
 

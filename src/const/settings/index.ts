@@ -32,7 +32,8 @@ export const DEFAULT_BASE_SETTINGS: GlobalBaseSettings = {
   fontSize: 14,
   language: 'auto',
   password: '',
-  themeMode: 'auto',
+  primaryColor: 'common',
+  themeMode: 'light'
 };
 
 export const DEFAUTT_AGENT_TTS_CONFIG: LobeAgentTTSConfig = {
@@ -128,6 +129,11 @@ export const DEFAULT_LLM_CONFIG: GlobalLLMConfig = {
     enabled: false,
     enabledModels: filterEnabledModels(PerplexityProviderCard),
   },
+  qwen: {
+    apiKey: '',
+    enabled: true,
+    enabledModels: filterEnabledModels(ZhiPuProviderCard),
+  },
   togetherai: {
     apiKey: '',
     enabled: false,
@@ -141,11 +147,6 @@ export const DEFAULT_LLM_CONFIG: GlobalLLMConfig = {
   zhipu: {
     apiKey: '',
     enabled: false,
-    enabledModels: filterEnabledModels(ZhiPuProviderCard),
-  },
-  qwen: {
-    apiKey: '',
-    enabled: true,
     enabledModels: filterEnabledModels(ZhiPuProviderCard),
   }
 };

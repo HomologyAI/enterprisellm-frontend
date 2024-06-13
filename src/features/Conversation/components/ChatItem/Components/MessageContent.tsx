@@ -6,6 +6,9 @@ import { ChatItemProps } from './type';
 import {EditableMessage} from '@lobehub/ui';
 
 import { useStyles } from './styles';
+import { useUserStore } from '@/store/user';
+import { settingsSelectors } from '@/store/user/selectors';
+import { CustomTokenMap } from '@/const/theme';
 
 export interface MessageContentProps {
   editing?: ChatItemProps['editing'];
@@ -37,6 +40,7 @@ const MessageContent = memo<MessageContentProps>(
      onDoubleClick,
      fontSize,
    }) => {
+    console.log(message,placement,type, primary)
     const { cx, styles } = useStyles({ editing, placement, primary, type });
     const { mobile } = useResponsive();
 
@@ -56,10 +60,24 @@ const MessageContent = memo<MessageContentProps>(
     );
     const messageContent = renderMessage ? renderMessage(content) : content;
 
+    const [primaryColor] = useUserStore((s) => [
+      settingsSelectors.currentSettings(s).primaryColor
+    ]);
+
     return (
       <Flexbox
         className={cx(styles.message, editing && styles.editingContainer)}
         onDoubleClick={onDoubleClick}
+        style={
+          placement === 'right' ?
+            {
+              backgroundColor: CustomTokenMap[primaryColor!].colorPrimary,
+              color: primaryColor === 'common' ? 'black' : 'white'
+            } :
+            {
+              backgroundColor: 'rgba(249, 249, 248, 1)', border: '1px solid rgba(240,240,243,1)',
+            }
+        }
       >
         {messageContent}
         {messageExtra && !editing ? (

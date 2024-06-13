@@ -9,25 +9,27 @@ import FolderPanel from '@/features/FolderPanel';
 import SessionListContent from '../../features/SessionListContent';
 import Header from './SessionHeader';
 
-const useStyles = createStyles(({ stylish, css, cx }) =>
-  cx(
-    stylish.noScrollbar,
-    css`
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      padding: 33px 0px 0;
-    `,
-  ),
-);
+const useStyles = createStyles(({ stylish, css, cx }) => {
+  return {
+    draggablePanelBody: cx(
+        stylish.noScrollbar,
+        css`
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          padding: 33px 0px 0;
+        `,
+      ),
+  }
+});
 
 const Sessions = memo(() => {
-  const { styles } = useStyles();
+  const { styles, cx } = useStyles();
 
   return (
     <FolderPanel>
       <Header />
-      <DraggablePanelBody className={styles}>
+      <DraggablePanelBody className={styles.draggablePanelBody}>
         <SessionListContent />
       </DraggablePanelBody>
     </FolderPanel>

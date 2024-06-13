@@ -1,32 +1,33 @@
-import { Avatar, List, ListItemProps } from '@lobehub/ui';
+import { ListItemProps } from '@lobehub/ui';
 import { useHover } from 'ahooks';
-import { createStyles, useResponsive } from 'antd-style';
+import { FullToken, createStyles, useResponsive } from 'antd-style';
 import { memo, useMemo, useRef } from 'react';
-import BotAvatar from "@/features/Avatar/BotAvatar";
 import {Flexbox} from "react-layout-kit";
 import SessionListItem from "@/app/chat/features/SessionListContent/List/SessionListItem";
-
-const { Item } = List;
+import { CustomTokenType } from '@/const/theme';
 
 const useStyles = createStyles(({ css, token, responsive }) => {
   return {
+    active: css`
+      background: ${(token as FullToken & CustomTokenType).colorConversationItemActive};
+    `,
     container: css`
       position: relative;
       margin-block: 0;
       padding-inline: 12px;
-      background-color: #FAFAFA;
       height: 75px;
-      
-      border-radius: 0;
-      
+      border-radius: 12px;
+      background: ${(token as FullToken & CustomTokenType).colorConversationItemCommon};
+
+      &:hover, &:active {
+        background: ${(token as FullToken & CustomTokenType).colorConversationItemHover};
+      }
+
       // ${responsive.mobile} {
       //   margin-block: 0;
       //   padding-left: 12px;
       //   border-radius: 0;
       // }
-    `,
-    active: css`
-      background-color: rgba(230, 244, 255, 1);
     `
   };
 });

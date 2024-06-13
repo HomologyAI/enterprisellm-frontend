@@ -3,19 +3,20 @@ import React from "react";
 import {createStyles} from "antd-style";
 
 interface Props {
-  size?: number;
   shape?: 'circle' | 'square';
+  size?: number;
   style?: React.CSSProperties;
 }
 
 const useStyles = createStyles(
-  ({ css }) => {
+  ({ css, token }) => {
     return {
       avatar: css`
-        background-color: rgba(0, 102, 255, 1);
+        background-color: ${token.colorPrimary};
         color: rgba(255, 255, 255, 1);
         font-size: 24px;
         font-weight: bold;
+        border-radius: 16px !important;
       `,
     }
   }
@@ -32,9 +33,9 @@ const UserAvatar = React.memo((props: Props) => {
 
   return (
     <Avatar
-      size={size}
-      shape={shape}
       className={styles.avatar}
+      shape={shape}
+      size={size}
       style={style}
     >
       交
