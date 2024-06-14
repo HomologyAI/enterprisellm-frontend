@@ -129,7 +129,7 @@ const Footer = memo<FooterProps>(({ setExpand }) => {
                 className={styles.sendButton}
                 icon={<Icon color='white' icon={Send}></Icon>}
                 onClick={() => {
-                  if (inputValue.length >= 400) {
+                  if (inputValue.length >= 15_000) {
                     message.warning('提问内容超过最大长度限制，请修改提问内容。')
                     return
                   }
