@@ -59,7 +59,7 @@ const SideNav = memo<SideNavProps>(({ className, avatar, topActions, bottomActio
   return (
     <ConfigProvider>
       {
-        !!apps.length && activeId &&
+        !!apps.length &&
         <Sider
           collapsed={collapse}
           collapsedWidth={77}
@@ -80,7 +80,7 @@ const SideNav = memo<SideNavProps>(({ className, avatar, topActions, bottomActio
               className={cx(styles.menu)}
               defaultSelectedKeys={[activeId]}
               inlineIndent={16}
-              items={items}
+              items={activeId ? items : []}
               mode="inline"
               onSelect={(e) => {
                 // updateActiveAppId(e.key);
