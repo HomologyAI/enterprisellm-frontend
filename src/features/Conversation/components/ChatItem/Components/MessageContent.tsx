@@ -40,7 +40,6 @@ const MessageContent = memo<MessageContentProps>(
      onDoubleClick,
      fontSize,
    }) => {
-    console.log(message,placement,type, primary)
     const { cx, styles } = useStyles({ editing, placement, primary, type });
     const { mobile } = useResponsive();
 

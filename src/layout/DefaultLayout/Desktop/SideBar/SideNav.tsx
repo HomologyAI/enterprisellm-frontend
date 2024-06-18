@@ -44,9 +44,11 @@ const SideNav = memo<SideNavProps>(({ className, avatar, topActions, bottomActio
 
   const items = apps.map((item) => {
     // const isActive = activeId === item.appId;
+    // eslint-disable-next-line no-misleading-character-class
+    const isEmoji = /[|\uD83C-\uD83E][\uDC00-\uDFFF][|\u200D\uFE0F]|[|\uD83C-\uD83E][\uDC00-\uDFFF]|[\d#*|]\uFE0F\u20E3|[\d#|]\u20E3|[\u203C-\u3299]\uFE0F\u200D|[\u203C-\u3299]\uFE0F|[\u2122-\u2B55]|\u303D|[9ae|]\u3030|ua9|uae|\u3030/gi.test(item.icon)
 
     return {
-      icon: <FluentEmoji emoji={item.icon} size={24} type={'pure'} />,
+      icon: <FluentEmoji emoji={isEmoji ? item.icon : '📄'} size={24} type={'pure'} />,
       key: item.appId,
       label: item.name,
     }
