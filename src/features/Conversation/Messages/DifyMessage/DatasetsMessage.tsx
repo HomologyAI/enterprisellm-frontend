@@ -45,6 +45,8 @@ export const DatasetsMessage = memo<
   const { styles, cx } = useStyles();
   const datasets = useSessionStore(sessionDifySelectors.currentDifyDatasets, isEqual) as DifyDataset[];
   const initDatasets = useAppsStore(appsSelectors.currentAppDatasets, isEqual) as DifyDataset[];
+  const getApp = () => appsSelectors.currentApp(useAppsStore.getState());
+  const app = getApp()
 
   const [checkedIds, setCheckedIds] = useState([]);
 
@@ -150,7 +152,7 @@ export const DatasetsMessage = memo<
     });
   }, [displayDatasets, checkedIds]);
 
-  return !displayDatasets.length ? (<Flexbox className={styles.container}><p>欢迎使用交投AI聊天助手</p></Flexbox>) : (
+  return !displayDatasets.length ? (<Flexbox className={styles.container}><p>{ app?.opening_statement || '欢迎使用交投AI聊天助手' }</p></Flexbox>) : (
     <Flexbox className={styles.container} >
       <p>欢迎使用交投AI聊天助手</p>
       <br/>
