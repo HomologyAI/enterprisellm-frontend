@@ -2,11 +2,12 @@ import {DifyDataset} from "@/libs/difyClient";
 
 export interface DifyApp {
   appId: string,
+  appKey: string,
+  datasets: DifyDataset[];
+  datasetsAppKey: string,
   icon: string,
   name: string,
-  appKey: string,
-  datasetsAppKey: string,
-  datasets: DifyDataset[];
+  opening_statement: string // 开场白
 }
 
 export interface FetchDifyAppsResp {
