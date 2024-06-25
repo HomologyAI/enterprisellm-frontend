@@ -15,6 +15,7 @@ import { useChatStore } from '@/store/chat';
 import { useUserStore } from '@/store/user';
 import { modelProviderSelectors, preferenceSelectors } from '@/store/user/selectors';
 import { isMacOS } from '@/utils/platform';
+import UploadButton from './UploadButton';
 
 const useStyles = createStyles(({ css, prefixCls, token }) => {
   return {
@@ -112,7 +113,7 @@ const Footer = memo<FooterProps>(({ setExpand }) => {
     >
       <Flexbox align={'center'} gap={0} horizontal>
 
-        {/*<UploadButton />*/}
+        <UploadButton />
 
         <Flexbox >
           {loading ? (

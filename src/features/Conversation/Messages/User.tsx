@@ -1,7 +1,6 @@
 import { ReactNode, memo } from 'react';
 import { Flexbox } from 'react-layout-kit';
 
-import FileList from '@/components/FileList';
 import { LOADING_FLAT } from '@/const/message';
 import { ChatMessage } from '@/types/message';
 
@@ -17,7 +16,7 @@ export const UserMessage = memo<
   return (
     <Flexbox gap={8} id={id}>
       {editableContent}
-      {res.files && res.files?.length > 0 && <FileList items={res.files} />}
+      {/* {res.files && res.files?.length > 0 && <FileList items={res.files} />} */}
     </Flexbox>
   );
 });

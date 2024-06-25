@@ -143,6 +143,13 @@ const refreshSessions = () => useSessionStore.getState().refreshSessions();
 const autoRenameConversation = (sessionId: string) => useSessionStore.getState().autoRenameConversation(sessionId);
 const getCurrentDatasets = () => sessionDifySelectors.currentDifyDatasets(useSessionStore.getState());
 const getCurrentFileList = () => sessionDifySelectors.currentSessionFiles(useSessionStore.getState());
+const deleteSessionFile = (files: any) => {
+  const deleteSessionFile = useSessionStore.getState().deleteSessionFile
+  files.forEach((file: any) => {
+    deleteSessionFile(file.localId)
+  })
+
+}
 const getCurrentApp = () => appsSelectors.currentApp(useAppsStore.getState());
 const getSessionMeta = (sid: string) => sessionSelectors.getSessionMetaById(sid)(useSessionStore.getState());
 const getApp = () => appsSelectors.currentApp(useAppsStore.getState());
@@ -281,6 +288,7 @@ export const chatMessage: StateCreator<
     if (!activeId) return;
 
     const fileIdList = files?.map((f) => f.id);
+    const realFileList = getCurrentFileList()
 
     // if message is empty and no files, then stop
     if (!message && (!fileIdList || fileIdList?.length === 0)) return;
@@ -288,7 +296,8 @@ export const chatMessage: StateCreator<
     const newMessage: CreateMessageParams = {
       content: message,
       // if message has attached with files, then add files to message and the agent
-      files: fileIdList,
+      files: realFileList.map((f) => f.id || ''),
+      fileInfoList: realFileList,
       role: 'user',
       sessionId: activeId,
       // if there is activeTopicId，then add topicId to message
@@ -305,6 +314,7 @@ export const chatMessage: StateCreator<
     const messages = chatSelectors.currentChats(get());
 
     await coreProcessMessage(messages, id);
+    deleteSessionFile(realFileList)
 
     // check activeTopic and then auto create topic
     // const chats = chatSelectors.currentChats(get());

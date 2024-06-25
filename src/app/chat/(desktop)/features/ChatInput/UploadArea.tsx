@@ -1,13 +1,10 @@
-import {memo, useMemo, useState} from 'react';
+import {memo, useMemo} from 'react';
 import { Flexbox } from 'react-layout-kit';
 import {createStyles} from "antd-style";
 import UploadFileItem from "./UploadFileItem";
-import {LocalFiles} from "@/app/chat/(desktop)/features/ChatInput/Footer/LocalFiles";
-import {useFileStore} from "@/store/file";
 import {useSessionStore} from "@/store/session";
 import {sessionDifySelectors} from "@/store/session/slices/session/selectors";
 import isEqual from "fast-deep-equal";
-import {DifyDataset} from "@/libs/difyClient";
 
 const useStyles = createStyles(({ css }) => {
   return {
@@ -28,7 +25,6 @@ const UploadArea = memo(() => {
   const { styles } = useStyles();
   // const fileList = useFileStore((s) => s.fileList);
   const fileList = useSessionStore(sessionDifySelectors.currentSessionFiles, isEqual);
-  console.log('fileList', fileList);
 
   const renderList = useMemo(() => {
     return fileList.map((file) => {
@@ -46,6 +42,7 @@ const UploadArea = memo(() => {
       className={styles.container}
       gap={12}
       horizontal
+      wrap="wrap"
     >
       {renderList}
     </Flexbox>

@@ -38,14 +38,13 @@ const SEARCH_SESSIONS_KEY = 'searchSessions';
 
 /* eslint-disable typescript-sort-keys/interface */
 export interface SessionAction {
+  activeFirstSession: () => void;
   /**
    * active the session
    * @param sessionId
    */
   activeSession: (sessionId: string) => void;
-  initSessions: (queryId: string) => void;
-  updateQueryId: (queryId: string) => void;
-  activeFirstSession: () => void;
+  autoRenameConversation: (sessionId: string) => Promise<void>;
   /**
    * reset sessions to default
    */
@@ -59,12 +58,12 @@ export interface SessionAction {
     session?: DeepPartial<LobeAgentSession>,
     isSwitchSession?: boolean,
   ) => Promise<string>;
+  deleteSessionFile: (uid: string) => void;
   duplicateSession: (id: string) => Promise<void>;
   updateSessionGroupId: (sessionId: string, groupId: string) => Promise<void>;
   updateSessionMeta: (meta: Partial<MetaData>) => void;
   updateSessionDatasets: (data: Partial<DatasetsData>) => void;
   updateSessionFiles: (data: LocalUploadFile[]) => void;
-  deleteSessionFile: (uid: string) => void;
   /**
    * Pins or unpins a session.
    */
@@ -78,6 +77,7 @@ export interface SessionAction {
    * @param id - sessionId
    */
   removeSession: (id: string) => Promise<void>;
+  renameConversation: (name: string) => Promise<boolean>;
 
   updateSearchKeywords: (keywords: string) => void;
 
@@ -99,8 +99,8 @@ export interface SessionAction {
   ) => void;
   /* eslint-enable */
   useFetchDatasets: () => SWRResponse<DatasetsData[]>;
-  renameConversation: (name: string) => Promise<boolean>;
-  autoRenameConversation: (sessionId: string) => Promise<void>;
+  initSessions: (queryId: string) => void;
+  updateQueryId: (queryId: string) => void;
 }
 
 const addDifyDatasetsMessage = (id: string) => useChatStore.getState().addDifyDatasetsMessage(id);
@@ -115,6 +115,24 @@ export const createSessionSlice: StateCreator<
   [],
   SessionAction
 > = (set, get) => ({
+  activeFirstSession: () => {
+    const { sessions, activeId } = get();
+    if (!sessions.length) {
+      return;
+    }
+
+    const firstSession = sessions[0];
+    if (firstSession.id === activeId) {
+      return;
+    }
+
+    set({ activeId: firstSession.id }, false, n(`activeSession/${firstSession.id}`));
+  },
+  activeSession: (sessionId) => {
+    if (get().activeId === sessionId) return;
+
+    set({ activeId: sessionId }, false, n(`activeSession/${sessionId}`));
+  },
   autoRenameConversation: async (sessionId) => {
     if (!sessionId) return;
     const session = get().sessions.find((s) => s.id === sessionId);
@@ -136,8 +154,8 @@ export const createSessionSlice: StateCreator<
     const resp = await difyService.getConversationName({
       app,
       data: {
-        userId,
         conversation_id,
+        userId,
       }
     });
 
@@ -147,65 +165,10 @@ export const createSessionSlice: StateCreator<
       await get().refreshSessions();
     }
   },
-  renameConversation: async (name) => {
-    const session = sessionSelectors.currentSession(get());
-
-    const {
-      userId = '',
-      conversation_id = '',
-    } = session;
-
-    const app = getApp();
-    let result = true;
-
-    if (conversation_id && userId) {
-       result = await difyService.renameConversation({
-        app,
-        data: {
-          conversation_id,
-          userId,
-          name,
-        },
-      });
-    }
-
-    if (result) {
-      // 修改session.title
-      const meta: MetaData = {
-        ...session.meta,
-        title: name,
-      }
-
-      const { activeId, refreshSessions } = get();
-      await sessionService.updateSession(activeId, { meta });
-      await refreshSessions();
-    }
-
-    return result;
-  },
-  activeFirstSession: () => {
-    const { sessions, activeId } = get();
-    if (!sessions.length) {
-      return;
-    }
-
-    const firstSession = sessions[0];
-    if (firstSession.id === activeId) {
-      return;
-    }
-
-    set({ activeId: firstSession.id }, false, n(`activeSession/${firstSession.id}`));
-  },
-  activeSession: (sessionId) => {
-    if (get().activeId === sessionId) return;
-
-    set({ activeId: sessionId }, false, n(`activeSession/${sessionId}`));
-  },
   clearSessions: async () => {
     await sessionService.removeAllSessions();
     await get().refreshSessions();
   },
-
   createSession: async (agent, isSwitchSession = true) => {
     const { activeSession, refreshSessions } = get();
 
@@ -223,8 +186,8 @@ export const createSessionSlice: StateCreator<
 
     newSession = {
       ...newSession,
-      userId: currentUserId,
       appId: currentAppId,
+      userId: currentUserId,
     }
 
     console.log('newSession', currentUserId, currentAppId, newSession);
@@ -241,6 +204,7 @@ export const createSessionSlice: StateCreator<
 
     return id;
   },
+
   duplicateSession: async (id) => {
     const { activeSession, refreshSessions } = get();
     const session = sessionSelectors.getSessionById(id)(get());
@@ -273,7 +237,6 @@ export const createSessionSlice: StateCreator<
 
     activeSession(newId);
   },
-
   pinSession: async (id, pinned) => {
     await get().internal_updateSession(id, { pinned });
   },
@@ -286,6 +249,43 @@ export const createSessionSlice: StateCreator<
     if (sessionId === get().activeId) {
       get().activeSession(INBOX_SESSION_ID);
     }
+  },
+
+  renameConversation: async (name) => {
+    const session = sessionSelectors.currentSession(get());
+
+    const {
+      userId = '',
+      conversation_id = '',
+    } = session;
+
+    const app = getApp();
+    let result = true;
+
+    if (conversation_id && userId) {
+       result = await difyService.renameConversation({
+        app,
+        data: {
+          conversation_id,
+          name,
+          userId,
+        },
+      });
+    }
+
+    if (result) {
+      // 修改session.title
+      const meta: MetaData = {
+        ...session.meta,
+        title: name,
+      }
+
+      const { activeId, refreshSessions } = get();
+      await sessionService.updateSession(activeId, { meta });
+      await refreshSessions();
+    }
+
+    return result;
   },
 
   updateSearchKeywords: (keywords) => {
@@ -441,13 +441,13 @@ export const createSessionSlice: StateCreator<
         type,
         percent,
         localId: uid,
-        id: uploadFile?.response?.id,
+        id: (uploadFile?.response as any)?.body!.id,
         extension: uploadFile?.response?.extension,
       }
     }) as FilesData;
-    const newIds = newFileList.map((v) => v.localId);
+    const newIds = new Set(newFileList.map((v) => v.localId));
 
-    const mergeList = [...newFileList, ...oldFileList.filter((item) => !newIds.includes(item.localId))];
+    const mergeList = [...newFileList, ...oldFileList.filter((item) => !newIds.has(item.localId))];
     await internal_updateSession(activeId, { files: mergeList });
     // set({ localUploadFiles: { ...localUploadFiles, [activeId]: fileList } }, false, n('updateSessionFiles'));
   },
@@ -474,11 +474,7 @@ export const createSessionSlice: StateCreator<
     const session = sessionSelectors.currentSession(get());
     console.log('initSessions', sessions, activeId);
 
-    if (queryId === INBOX_SESSION_ID) {
-
-    } else {
-
-    }
+    if (queryId === INBOX_SESSION_ID) {} else {}
   },
   updateQueryId: (id) => {
     set({querySessionId: id},false);

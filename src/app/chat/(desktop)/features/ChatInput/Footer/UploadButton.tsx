@@ -1,13 +1,11 @@
 import { createStyles } from 'antd-style';
 import { rgba } from 'polished';
-import { memo, useEffect, useRef, useState } from 'react';
-import { useFileStore } from '@/store/file';
+import { memo } from 'react';
 import {CloudUploadOutlined} from "@ant-design/icons";
 import {Button, Upload, UploadProps} from "antd";
 import {useSessionStore} from "@/store/session";
-import {sessionDifySelectors} from "@/store/session/slices/session/selectors";
+import {sessionDifySelectors, sessionSelectors} from "@/store/session/slices/session/selectors";
 import isEqual from "fast-deep-equal";
-import {useServerConfigStore} from "@/store/serverConfig";
 import {API_ENDPOINTS} from "@/services/_url";
 
 const useStyles = createStyles(({ css, token, stylish }) => {
@@ -66,11 +64,11 @@ const UploadButton = memo(() => {
   const { styles } = useStyles();
 
   const fileList = useSessionStore(sessionDifySelectors.currentSessionFiles, isEqual);
+  const { userId = '' } = sessionSelectors.currentSession(useSessionStore.getState()) || {}
   const updateSessionFiles = useSessionStore(s => s.updateSessionFiles);
   // const [fileList, setFileList] = useState([]);
 
   const handleUploadStatusChanged: UploadProps['onChange'] = (info) => {
-    console.log('handleUploadStatusChanged', info);
     let newFileList = [...info.fileList];
     // 需要将本地数据和新上传的数据做一个merge
 
@@ -79,13 +77,14 @@ const UploadButton = memo(() => {
 
   return (
     <Upload
-      action={API_ENDPOINTS.upload}
-      showUploadList={false}
-      onChange={handleUploadStatusChanged}
-      // fileList={fileList}
-      multiple
-      method="POST"
       accept=".doc,.docx,.pdf"
+      action={API_ENDPOINTS.upload}
+      data={{userId}}
+      method="POST"
+      multiple
+      onChange={handleUploadStatusChanged}
+      showUploadList={false}
+      // fileList={fileList}
     >
       <Button type="text">
         <CloudUploadOutlined />

@@ -132,8 +132,10 @@ export const getProviderConfig = () => {
   const DIFY_DATASETS_API_KEY = process.env.DIFY_DATASETS_API_KEY || '';
   const DIFY_CHAT_API_KEY = process.env.DIFY_CHAT_API_KEY || '';
   const DIFY_FEEDBACK_API_KEY = process.env.DIFY_FEEDBACK_API_KEY || '';
-  const DIFY_PROXY_URL =
-    process.env.NODE_ENV === 'development' ? 'https://api.dify.ai/v1' : process.env.DIFY_PROXY_URL || '';
+  const DIFY_UPLOAD_API_KEY = process.env.DIFY_UPLOAD_API_KEY || ''
+  const DIFY_PROXY_URL = process.env.DIFY_PROXY_URL || '';
+  // const DIFY_PROXY_URL =
+  // process.env.NODE_ENV === 'development' ? 'https://api.dify.ai/v1' : process.env.DIFY_PROXY_URL || '';
 
   // region format: iad1,sfo1
   let regions: string[] = [];
@@ -226,5 +228,6 @@ export const getProviderConfig = () => {
     DIFY_DATASETS_API_KEY,
     DIFY_CHAT_API_KEY,
     DIFY_FEEDBACK_API_KEY,
+    DIFY_UPLOAD_API_KEY,
   };
 };

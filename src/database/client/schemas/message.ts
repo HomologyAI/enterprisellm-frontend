@@ -47,6 +47,7 @@ export const DB_MessageSchema = z.object({
 
   // dify
   difyMsg: DifyMessageSchema.optional(),
+  fileInfoList: z.array(z.any()).optional()
 });
 
 export type DB_Message = z.infer<typeof DB_MessageSchema>;
