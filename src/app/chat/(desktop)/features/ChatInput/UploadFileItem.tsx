@@ -1,12 +1,12 @@
-import {memo, useCallback, useMemo, useState} from 'react';
+import {memo, useCallback, useMemo} from 'react';
 import { Flexbox } from 'react-layout-kit';
 import {createStyles} from "antd-style";
-import {UploadFile} from "antd/es/upload/interface";
-import {Button, Progress} from "antd";
+import { Spin, Result, Image } from "antd";
 import {Trash} from "lucide-react";
 import {ActionIcon} from "@lobehub/ui";
 import {LocalUploadFile} from "@/types/session";
 import {useSessionStore} from "@/store/session";
+import { LoadingOutlined } from '@ant-design/icons';
 
 const useStyles = createStyles(({ css }) => {
   return {
@@ -20,12 +20,12 @@ const useStyles = createStyles(({ css }) => {
     `,
     desc: css`
       margin: 0 14px;
-      
+
       p {
         font-size: 14px;
         font-weight: 600;
       }
-      
+
       span {
         color: #BFBFBF;
         font-size: 12px;
@@ -34,6 +34,12 @@ const useStyles = createStyles(({ css }) => {
     `,
   };
 });
+
+const getFileExtension = (filename: string) => {
+  const regex = /(?:\.([^.]+))?$/;
+  const match = filename.match(regex);
+  return match && match[1] ? match[1] : '';
+};
 
 const UploadFileItem = memo((props: LocalUploadFile) => {
   const { styles } = useStyles();
@@ -47,7 +53,7 @@ const UploadFileItem = memo((props: LocalUploadFile) => {
   } = props;
 
   const desc = useMemo(() => {
-    return status === 'uploading' ? '上传中...' : status === 'error' ? '文件上传失败' : `${type} ${size}`;
+    return status === 'uploading' ? '上传中...' : status === 'error' ? '文件上传失败' : `${type?.replace('application/', '').toLocaleUpperCase()} ${(size! / 1204 / 1024).toFixed(2)}MB`;
   }, [status]);
 
   const deleteSessionFile = useSessionStore(s => s.deleteSessionFile);
@@ -57,15 +63,37 @@ const UploadFileItem = memo((props: LocalUploadFile) => {
   }, [localId]);
 
   return (
-    <Flexbox horizontal className={styles.container} align="center">
-      <Progress
-        type="circle"
-        trailColor="#e6f4ff"
-        percent={percent}
-        strokeWidth={20}
-        size={27}
-        showInfo={false}
-      />
+    <Flexbox align="center" className={styles.container} horizontal>
+      { status === 'uploading' ?
+        (<Spin indicator={<LoadingOutlined spin style={{ fontSize: 32 }} />} />) :
+          status === 'error' ?
+            <Result status="error"></Result> :
+            <Image
+              alt="/file-icon/pdf.png"
+              height={45}
+              key="localId"
+              src={(() => {
+                const fileExtension = getFileExtension(name);
+
+                if (fileExtension.includes('pdf')) {
+                  return '/file-icon/pdf.png';
+                } else if (fileExtension.includes('ppt')) {
+                  return '/file-icon/ppt.png';
+                } else if (fileExtension.includes('doc')) {
+                  return '/file-icon/word.png';
+                } else if (
+                  fileExtension.includes('md') ||
+                  fileExtension.includes('markdown')
+                ) {
+                  return '/file-icon/markdown.png';
+                } else {
+                  return '/file-icon/other.png';
+                }
+              })()}
+              style={{ marginRight: '5px' }}
+              width={35}
+            ></Image>
+      }
       <Flexbox className={styles.desc} gap={4}>
         <p>{name}</p>
         <span>{desc}</span>

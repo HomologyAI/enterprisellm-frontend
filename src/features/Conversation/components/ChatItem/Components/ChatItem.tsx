@@ -1,7 +1,7 @@
 'use client';
 
 import { App, Button, Card, Popover, Tag } from 'antd';
-import { useResponsive } from 'antd-style';
+import { createStyles, useResponsive } from 'antd-style';
 import Image from 'next/image';
 import { memo } from 'react';
 import { Flexbox } from 'react-layout-kit';
@@ -24,6 +24,33 @@ interface RetrieverItem {
 
 type Retriever = RetrieverItem[];
 
+const useFileItemStyles = createStyles(({ css }) => {
+  return {
+    container: css`
+      background-color: rgba(255, 255, 255, 1);
+      box-shadow: 0px 5px 14px 0px rgba(0, 0, 0, 0.06);
+      border-radius: 8px;
+      height: 72px;
+      border: 1px #EBEBEB solid;
+      padding: 0 15px;
+    `,
+    desc: css`
+      margin: 0 14px;
+
+      p {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      span {
+        color: #BFBFBF;
+        font-size: 12px;
+        font-weight: 400;
+      }
+    `,
+  };
+});
+
 const ChatItem = memo<ChatItemProps>(
   ({
     avatarAddon,
@@ -35,6 +62,7 @@ const ChatItem = memo<ChatItemProps>(
     loading,
     message,
     retrieverResources,
+    fileInfoList,
     placement = 'left',
     type = 'block',
     avatar,
@@ -56,6 +84,7 @@ const ChatItem = memo<ChatItemProps>(
     const { mobile } = useResponsive();
 
     const { message: messageApi } = App.useApp();
+    const { styles: fileItemstyles } = useFileItemStyles()
 
     const { cx, styles } = useStyles({
       editing,
@@ -275,6 +304,62 @@ const ChatItem = memo<ChatItemProps>(
                   </Popover>
                 </Flexbox>
               ))}
+            </Flexbox>
+          )}
+
+          {fileInfoList && fileInfoList.length > 0 && (
+            <Flexbox
+              align="start"
+              className={styles.messageRetrieverContainer}
+              gap={8}
+              horizontal
+              justify="start"
+              wrap="wrap"
+            >
+              {fileInfoList.map((file: any) => {
+                const {
+                  name,
+                  percent,
+                  status,
+                  type,
+                  size,
+                } = file;
+                const desc = status === 'uploading' ? '上传中...' : status === 'error' ? '文件上传失败' : `${type?.replace('application/', '').toLocaleUpperCase()} ${(size! / 1204 / 1024).toFixed(2)}MB`;
+
+
+                return (
+                  <Flexbox align="center" className={fileItemstyles.container} horizontal key={file.id} style={{justifyContent: 'flex-end'}}>
+                      <Image
+                        alt="/file-icon/pdf.png"
+                        height={45}
+                        src={(() => {
+                          const fileExtension = getFileExtension(file.name);
+
+                          if (fileExtension.includes('pdf')) {
+                            return '/file-icon/pdf.png';
+                          } else if (fileExtension.includes('ppt')) {
+                            return '/file-icon/ppt.png';
+                          } else if (fileExtension.includes('doc')) {
+                            return '/file-icon/word.png';
+                          } else if (
+                            fileExtension.includes('md') ||
+                            fileExtension.includes('markdown')
+                          ) {
+                            return '/file-icon/markdown.png';
+                          } else {
+                            return '/file-icon/other.png';
+                          }
+                        })()}
+                        style={{ marginRight: '5px' }}
+                        width={35}
+                      ></Image>
+                    <Flexbox className={fileItemstyles.desc} gap={4}>
+                      <p>{name}</p>
+                      <span>{desc}</span>
+                    </Flexbox>
+                  </Flexbox>
+                )
+              })}
             </Flexbox>
           )}
         </Flexbox>

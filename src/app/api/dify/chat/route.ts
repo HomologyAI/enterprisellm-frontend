@@ -1,4 +1,4 @@
-import {NextRequest, NextResponse} from "next/server";
+import {NextRequest} from "next/server";
 import {
   AgentRuntimeError,
   AgentRuntimeErrorType,
@@ -27,13 +27,13 @@ export async function POST(req: NextRequest) {
 
   return chatClient.createChatMessage(
     {
+      conversation_id,
+      dataset_ids: datasets,
+      files,
       inputs,
       query,
-      user,
       stream,
-      conversation_id,
-      files,
-      dataset_ids: datasets,
+      user,
     }
   ).then((resp) => {
     return new Response(resp.data);

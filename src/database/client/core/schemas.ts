@@ -111,3 +111,9 @@ export const dbSchemaV12 = {
   messages:
     '&id, role, content, fromModel, favorite, plugin.identifier, plugin.apiName, translate.content, createdAt, updatedAt, sessionId, topicId, quotaId, parentId, [sessionId+topicId], traceId, feedback, backendMessageId, retrieverResources',
 }
+
+export const dbSchemaV13 = {
+  ...dbSchemaV10,
+  messages:
+    '&id, role, content, fromModel, favorite, plugin.identifier, plugin.apiName, translate.content, createdAt, updatedAt, sessionId, topicId, quotaId, parentId, [sessionId+topicId], traceId, feedback, backendMessageId, retrieverResources, fileInfoList',
+}

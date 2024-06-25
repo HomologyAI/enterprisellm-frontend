@@ -69,18 +69,20 @@ export interface ChatMessage extends BaseDataModel {
    * 点赞、点踩
    */
   feedback?: 'like' | 'dislike',
+  fileInfoList? : any,
   files?: string[];
+
   /**
    * observation id
    */
   observationId?: string;
-
   /**
    * parent message id
    */
   parentId?: string;
   plugin?: ChatPluginPayload;
   pluginState?: any;
+
   /**
    * quoted other message's id
    */
@@ -90,7 +92,6 @@ export interface ChatMessage extends BaseDataModel {
    * 引用文件的信息
    */
   retrieverResources?: RetrieverResources,
-
 
   /**
    * message role type

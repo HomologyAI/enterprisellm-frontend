@@ -149,6 +149,7 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
               editing={editing}
               error={error}
               errorMessage={<ErrorMessageExtra data={item} />}
+              fileInfoList={item.fileInfoList}
               fontSize={14}
               loading={loading}
               message={item.content}

@@ -21,6 +21,7 @@ export interface ChatItemProps {
    */
   error?: AlertProps;
   errorMessage?: ReactNode;
+  fileInfoList? : any;
   fontSize?: number;
   /**
    * @description Whether the chat item is in loading state

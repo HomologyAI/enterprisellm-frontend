@@ -3,7 +3,7 @@ import {getServerConfig} from "@/config/server";
 
 export const BASE_URL = "https://api.dify.ai/v1";
 
-const {DIFY_FEEDBACK_API_KEY} = getServerConfig()
+const {DIFY_FEEDBACK_API_KEY, DIFY_UPLOAD_API_KEY} = getServerConfig()
 
 export const routes = {
     application: {
@@ -12,7 +12,8 @@ export const routes = {
     },
     createChatMessage: {
         method: "POST",
-        url: () => process.env.NODE_ENV === 'development' ? '/chat-messages' : `/chat-homology-messages`,
+        // url: () => process.env.NODE_ENV === 'development' ? '/chat-messages' : `/chat-homology-messages`,
+        url: () => `/chat-homology-messages`,
     },
     createCompletionMessage: {
         method: "POST",
@@ -320,15 +321,11 @@ export class FileClient extends DifyClient {
         formData.append('user', params.user); // 添加键值对
         formData.append('file', params.file); // 添加文件，其中 `file` 是一个 File 对象
 
-        return this.sendRequest(
-            routes.upload.method,
-            routes.upload.url(),
-            formData,
-            null,
-            false,
-            {
-                "Content-Type": "multipart/form-data",
+        return axios.post(`${this.baseUrl}${routes.upload.url()}`, formData,         {
+            headers: {
+              Authorization: `Bearer ${DIFY_UPLOAD_API_KEY || ''}`,
+              "Content-Type": "multipart/form-data",
             }
-        );
+        })
     }
 }
