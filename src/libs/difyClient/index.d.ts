@@ -111,6 +111,7 @@ export interface DifyRawApp {
   id: string;
   mode: string;
   name: string;
+  opening_statement: string,
   token: string;
 }
 
