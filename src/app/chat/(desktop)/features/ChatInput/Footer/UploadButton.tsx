@@ -2,7 +2,7 @@ import { createStyles } from 'antd-style';
 import { rgba } from 'polished';
 import { memo } from 'react';
 import {CloudUploadOutlined} from "@ant-design/icons";
-import {Button, Upload, UploadProps} from "antd";
+import {Button, Upload, UploadProps, Tooltip, message} from "antd";
 import {useSessionStore} from "@/store/session";
 import {sessionDifySelectors, sessionSelectors} from "@/store/session/slices/session/selectors";
 import isEqual from "fast-deep-equal";
@@ -60,6 +60,14 @@ const handleDragOver = (e: DragEvent) => {
   e.preventDefault();
 };
 
+const beforeUpload = (file: any) => {
+  const isLt50M = file.size / 1024 / 1024 < 50;
+  if (!isLt50M) {
+    message.error('文件大小必须小于 50MB!');
+  }
+  return isLt50M;
+};
+
 const UploadButton = memo(() => {
   const { styles } = useStyles();
 
@@ -77,18 +85,22 @@ const UploadButton = memo(() => {
 
   return (
     <Upload
-      accept=".doc,.docx,.pdf"
+      accept=".doc,.docx,.pdf,.txt,.xlsx,.csv,.ppt,.pptx,.md,.markdown"
       action={API_ENDPOINTS.upload}
+      beforeUpload={beforeUpload}
       data={{userId}}
+      maxCount={10}
       method="POST"
       multiple
       onChange={handleUploadStatusChanged}
       showUploadList={false}
       // fileList={fileList}
     >
-      <Button type="text">
-        <CloudUploadOutlined />
-      </Button>
+      <Tooltip placement="top" title="支持上传文件（最多10个，每个50MB）接受doc、docx、pdf、txt、xlsx、csv、ppt、pptx、md等">
+        <Button type="text">
+          <CloudUploadOutlined />
+        </Button>
+      </Tooltip>
     </Upload>
   );
 });

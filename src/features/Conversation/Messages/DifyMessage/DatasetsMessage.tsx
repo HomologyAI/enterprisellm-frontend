@@ -15,6 +15,7 @@ import {useSessionStore} from "@/store/session";
 import {sessionDifySelectors} from "@/store/session/slices/session/selectors";
 import isEqual from "fast-deep-equal";
 import {appsSelectors, useAppsStore} from "@/store/apps";
+import {EditableMessage} from '@lobehub/ui';
 
 const useStyles = createStyles(
   ({ css, token }) => {
@@ -152,7 +153,7 @@ export const DatasetsMessage = memo<
     });
   }, [displayDatasets, checkedIds]);
 
-  return !displayDatasets.length ? (<Flexbox className={styles.container}><p>{ app?.opening_statement || '欢迎使用交投AI聊天助手' }</p></Flexbox>) : (
+  return !displayDatasets.length ? (<EditableMessage className={styles.container} value={app?.opening_statement || '欢迎使用交投AI聊天助手'}></EditableMessage>) : (
     <Flexbox className={styles.container} >
       <p>欢迎使用交投AI聊天助手</p>
       <br/>

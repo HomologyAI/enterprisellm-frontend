@@ -324,7 +324,7 @@ const ChatItem = memo<ChatItemProps>(
                   type,
                   size,
                 } = file;
-                const desc = status === 'uploading' ? '上传中...' : status === 'error' ? '文件上传失败' : `${type?.replace('application/', '').toLocaleUpperCase()} ${(size! / 1204 / 1024).toFixed(2)}MB`;
+                const desc = status === 'uploading' ? '上传中...' : status === 'error' ? '文件上传失败' : `${(size! / 1204 / 1024).toFixed(2)}MB`;
 
 
                 return (
