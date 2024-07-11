@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     userId = '',
     app,
   } = body;
-  console.log(app)
+
   if (!conversation_id || !userId) {
     return createErrorResponse(ChatErrorType.InternalServerError, body);
   }
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   if (app?.appKey) {
     chatClient.updateApiKey(app.appKey);
   }
-  console.log(chatClient)
+
   return chatClient.getConversationName(
     conversation_id,
     userId,
