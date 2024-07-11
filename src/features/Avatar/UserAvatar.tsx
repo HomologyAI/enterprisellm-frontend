@@ -1,6 +1,7 @@
 import { Avatar } from "antd";
 import React from "react";
-import {createStyles} from "antd-style";
+import { createStyles } from "antd-style";
+import config from "@/config/config.json";
 
 interface Props {
   shape?: 'circle' | 'square';
@@ -29,7 +30,7 @@ const UserAvatar = React.memo((props: Props) => {
     style,
   } = props;
 
-  const {styles} = useStyles();
+  const { styles } = useStyles();
 
   return (
     <Avatar
@@ -38,7 +39,7 @@ const UserAvatar = React.memo((props: Props) => {
       size={size}
       style={style}
     >
-      交
+      {config.companyName || '同调'}
     </Avatar>
   )
 });

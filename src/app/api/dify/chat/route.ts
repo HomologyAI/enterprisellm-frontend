@@ -1,10 +1,10 @@
-import {NextRequest} from "next/server";
+import { NextRequest } from "next/server";
 import {
   AgentRuntimeError,
   AgentRuntimeErrorType,
   ModelProvider
 } from "@/libs/agent-runtime";
-import {chatClient} from "../clients";
+import { chatClient } from "../clients";
 
 export const runtime = 'nodejs';
 export async function POST(req: NextRequest) {

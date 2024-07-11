@@ -1,21 +1,22 @@
 /* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {memo, useCallback, useEffect, useMemo, useState} from 'react';
-import {Flexbox} from 'react-layout-kit';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Flexbox } from 'react-layout-kit';
 import {
   DifyAlertMessage,
   DifyDatasetsMessage,
   DifyMessageType
 } from '@/types/message';
-import {Button, Checkbox} from "antd";
-import {createStyles} from "antd-style";
-import {DifyDataset} from "@/libs/difyClient";
-import {useChatStore} from "@/store/chat";
-import {useSessionStore} from "@/store/session";
-import {sessionDifySelectors} from "@/store/session/slices/session/selectors";
+import { Button, Checkbox } from "antd";
+import { createStyles } from "antd-style";
+import { DifyDataset } from "@/libs/difyClient";
+import { useChatStore } from "@/store/chat";
+import { useSessionStore } from "@/store/session";
+import { sessionDifySelectors } from "@/store/session/slices/session/selectors";
 import isEqual from "fast-deep-equal";
-import {appsSelectors, useAppsStore} from "@/store/apps";
-import {EditableMessage} from '@lobehub/ui';
+import { appsSelectors, useAppsStore } from "@/store/apps";
+import { EditableMessage } from '@lobehub/ui';
+import config from '@/config/config.json';
 
 const useStyles = createStyles(
   ({ css, token }) => {
@@ -153,17 +154,17 @@ export const DatasetsMessage = memo<
     });
   }, [displayDatasets, checkedIds]);
 
-  return !displayDatasets.length ? (<EditableMessage className={styles.container} value={app?.opening_statement || '欢迎使用交投AI聊天助手'}></EditableMessage>) : (
+  return !displayDatasets.length ? (<EditableMessage className={styles.container} value={app?.opening_statement || `欢迎使用${config.companyName}AI聊天助手`}></EditableMessage>) : (
     <Flexbox className={styles.container} >
-      <p>欢迎使用交投AI聊天助手</p>
-      <br/>
+      <p>欢迎使用{config.companyName}AI聊天助手</p>
+      <br />
       <p>请选择以下知识库，回答都将来自于知识库内。</p>
       <Flexbox className={styles.main} gap={8}>
         {RenderList}
       </Flexbox>
       <Flexbox className={styles.footer} gap={12} horizontal justify="flex-end">
-        <Button onClick={checkAll} style={{padding: 0}} type="link">全选</Button>
-        <Button onClick={unCheckAll} style={{padding: 0}} type="link">取消选择</Button>
+        <Button onClick={checkAll} style={{ padding: 0 }} type="link">全选</Button>
+        <Button onClick={unCheckAll} style={{ padding: 0 }} type="link">取消选择</Button>
         <Button onClick={handleConfirm} type="primary">确定</Button>
       </Flexbox>
     </Flexbox>

@@ -6,6 +6,7 @@ import { MetaData } from '@/types/meta';
 import { merge } from '@/utils/merge';
 
 import { sessionSelectors } from './list';
+import config from '@/config/config.json';
 
 // ==========   Meta   ============== //
 const currentAgentMeta = (s: SessionStore): MetaData => {
@@ -30,7 +31,7 @@ const currentAgentBackgroundColor = (s: SessionStore) => currentAgentMeta(s).bac
 
 const getAvatar = (s: MetaData) => s.avatar || DEFAULT_AVATAR;
 const getTitle = (s: MetaData) => s.title || t('defaultSession', { ns: 'common' });
-export const getDescription = (s: MetaData) => s.description || '欢迎使用交投AI聊天助手, 请选择以下知识库，回答都将来自于知识库内';
+export const getDescription = (s: MetaData) => s.description || `欢迎使用${config.companyName}AI聊天助手, 请选择以下知识库，回答都将来自于知识库内`;
 
 
 export const sessionMetaSelectors = {

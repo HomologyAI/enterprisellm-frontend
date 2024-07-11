@@ -1,9 +1,9 @@
-import {NextRequest, NextResponse} from 'next/server'
-import {createErrorResponse} from "@/app/api/errorResponse";
-import {ChatErrorType} from "@/types/fetch";
-import {AgentRuntimeErrorType} from "@/libs/agent-runtime";
-import {chatClient} from "../clients";
-import {createSuccessResponse} from "@/app/api/successResponse";
+import { NextRequest, NextResponse } from 'next/server'
+import { createErrorResponse } from "@/app/api/errorResponse";
+import { ChatErrorType } from "@/types/fetch";
+import { AgentRuntimeErrorType } from "@/libs/agent-runtime";
+import { chatClient } from "../clients";
+import { createSuccessResponse } from "@/app/api/successResponse";
 
 export const runtime = 'nodejs';
 
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     userId = '',
     app,
   } = body;
-
+  console.log(app)
   if (!conversation_id || !userId) {
     return createErrorResponse(ChatErrorType.InternalServerError, body);
   }

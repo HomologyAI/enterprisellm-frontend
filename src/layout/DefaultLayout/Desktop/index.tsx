@@ -4,12 +4,13 @@ import { PropsWithChildren, memo } from 'react';
 import ClientResponsiveLayout from '@/components/client/ClientResponsiveLayout';
 
 import SideBar from './SideBar';
-import {useAppsStore} from "@/store/apps";
+import { useAppsStore } from "@/store/apps";
 import FullscreenLoading from "@/components/FullscreenLoading";
-import {Button, Layout, Result} from "antd";
-import {Center, Flexbox} from "react-layout-kit";
+import { Button, Layout, Result } from "antd";
+import { Center, Flexbox } from "react-layout-kit";
 import { CustomTokenType } from '@/const/theme';
 import { createStyles } from 'antd-style';
+import config from '@/config/config.json';
 
 const useStyles = createStyles(({ css, token }) => {
   return {
@@ -61,7 +62,7 @@ const Desktop = memo<PropsWithChildren>(({ children }) => {
       <SideBar />
       {children}
     </Layout>
-  ) : <FullscreenLoading title="交投AI启动中，请稍等"/>;
+  ) : <FullscreenLoading title={config.companyName + "AI启动中，请稍等"} />;
 });
 
 export default ClientResponsiveLayout({ Desktop, Mobile: () => import('../Mobile') });

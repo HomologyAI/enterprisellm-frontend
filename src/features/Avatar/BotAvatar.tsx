@@ -1,5 +1,5 @@
 import React from "react";
-import {SVGComponent} from "@/components/BrowserIcon/types";
+import { SVGComponent } from "@/components/BrowserIcon/types";
 import Image from 'next/image'
 
 interface Props {

@@ -5,8 +5,9 @@ import { getServerConfig } from '@/config/server';
 import { OFFICIAL_URL } from '@/const/url';
 
 import pkg from '../../package.json';
+import config from '@/config/config.json';
 
-const title = '交投AI';
+const title = config.companyName + 'AI平台';
 const { description, homepage } = pkg;
 
 const { SITE_URL = OFFICIAL_URL } = getServerConfig();
