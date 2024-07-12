@@ -2,13 +2,13 @@ name: "build-release"
 
 on:
   push:
-    branches: ["main"]
+    branches: ["zhongchao"]
 
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}-release
+  IMAGE_NAME: ${{ github.repository }}-zhongchao
 
 jobs:
   build:
