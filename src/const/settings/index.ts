@@ -32,7 +32,7 @@ export const DEFAULT_BASE_SETTINGS: GlobalBaseSettings = {
   fontSize: 14,
   language: 'auto',
   password: '',
-  primaryColor: 'common',
+  primaryColor: 'green',
   themeMode: 'light'
 };
 

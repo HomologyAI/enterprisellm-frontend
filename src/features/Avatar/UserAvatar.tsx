@@ -39,8 +39,9 @@ const UserAvatar = React.memo((props: Props) => {
       size={size}
       style={style}
     >
-      {config.companyName || '同调'}
+      用户
     </Avatar>
+
   )
 });
 

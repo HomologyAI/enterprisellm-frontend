@@ -7,6 +7,7 @@ const UserAvatar = React.memo(() => {
     <Avatar style={{ backgroundColor: 'rgba(202, 150, 92, 1)', color: 'rgba(255, 255, 255, 1)' }} size={60}>
       {config.companyName || '同调'}
     </Avatar>
+    // <Avatar src="/botAvatar.png"></Avatar>
   )
 });
 

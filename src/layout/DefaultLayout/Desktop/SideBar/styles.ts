@@ -31,6 +31,14 @@ export const useStyles = createStyles(({ css, token }) => {
     header: css`
       padding: 16px;
       width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    `,
+    headerName: css`
+      margin-left: 8px;
+      font-size: 16px;
+      font-weight: bold;
     `,
     item: css`
       padding: 4px 12px 4px 12px;

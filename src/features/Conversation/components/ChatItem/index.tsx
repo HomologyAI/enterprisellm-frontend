@@ -12,7 +12,7 @@ import { useSessionStore } from '@/store/session';
 import { sessionMetaSelectors } from '@/store/session/selectors';
 import { useUserStore } from '@/store/user';
 import { settingsSelectors } from '@/store/user/selectors';
-import {ChatMessage, DifyMessageType} from '@/types/message';
+import { ChatMessage, DifyMessageType } from '@/types/message';
 
 import ErrorMessageExtra, { getErrorAlertConfig } from '../../Error';
 import { renderMessagesExtra } from '../../Extras';
@@ -125,7 +125,7 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
         <UserAvatar size={40} style={{
           backgroundColor: '#BFBFBF',
           fontSize: 16
-        }}/>
+        }} />
       )
     }
 
@@ -144,7 +144,7 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
             <RenderMessage data={item} editableContent={null} />
           ) : (
             <ChatItem
-              actions={<ActionsBar index={index}/>}
+              actions={<ActionsBar index={index} />}
               className={cx(styles.message, isMessageLoading && styles.loading)}
               editing={editing}
               error={error}
@@ -165,7 +165,7 @@ const Item = memo<ChatListItemProps>(({ index, id }) => {
               onEditingChange={setEditing}
               placement={type === 'chat' ? (item.role === 'user' ? 'right' : 'left') : 'left'}
               primary={item.role === 'user'}
-              renderAvatar={renderAvatar}
+              renderAvatar={null}
               renderMessage={(editableContent) => (
                 <RenderMessage data={item} editableContent={editableContent} />
               )}

@@ -36,7 +36,7 @@ const Theme = memo(() => {
 
   useSyncSettings(form);
 
-  const {styles} = useStyles()
+  const { styles } = useStyles()
 
   // const theme: SettingItemGroup = {
   //   children: [
@@ -81,23 +81,23 @@ const Theme = memo(() => {
       onChange={handleSettingPrimary}
       options={[
         {
-          img: imageUrl('primary_common.png'),
+          img: imageUrl('primary_green.png'),
           label: '默认主题',
-          value: 'common',
+          value: 'green',
         },
         {
           img: imageUrl('primary_blue.png'),
           label: '冰川蓝',
           value: 'blue',
-        },              {
+        }, {
           img: imageUrl('primary_purple.png'),
           label: '炫彩紫',
           value: 'purple',
-        },              {
+        }, {
           img: imageUrl('primary_green.png'),
           label: '极简绿',
           value: 'green',
-        },              {
+        }, {
           img: imageUrl('primary_black.png'),
           label: '极简黑白',
           value: 'black',
