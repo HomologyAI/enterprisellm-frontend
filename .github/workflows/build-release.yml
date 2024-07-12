@@ -2,7 +2,7 @@ name: "build-release"
 
 on:
   push:
-    branches: ["main", "zhongchao", "ljjt"]
+    branches: ["main"]
 
 env:
   # Use docker.io for Docker Hub if empty
