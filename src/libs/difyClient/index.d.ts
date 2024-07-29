@@ -40,7 +40,7 @@ export declare class DifyClient {
     headerParams?: HeaderParams
   ): Promise<any>;
 
-  messageFeedback(message_id: string, rating: 'like' | 'dislike', user: string): Promise<any>;
+  messageFeedback(message_id: string, rating: 'like' | 'dislike', user: string, appToken: string): Promise<any>;
 
   getFile(document_id: string): Promise<any>;
 

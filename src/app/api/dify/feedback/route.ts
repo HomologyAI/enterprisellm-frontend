@@ -1,16 +1,18 @@
 import { createErrorResponse } from "@/app/api/errorResponse";
 import { createSuccessResponse } from "@/app/api/successResponse";
 import { chatClient } from '../clients'
-import { NextRequest }from 'next/server'
-import {ChatErrorType} from "@/types/fetch";
+import { NextRequest } from 'next/server'
+import { ChatErrorType } from "@/types/fetch";
 
 export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { userId = '', rating = '', messageId = '' } = body
+  console.log(body);
+  const { userId = '', rating = '', messageId = '', app } = body
+  const appToken = app.appKey;
 
-  return chatClient.messageFeedback(messageId, rating, userId).then((resp) => {
+  return chatClient.messageFeedback(messageId, rating, userId, appToken).then((resp) => {
     if (resp?.data?.result === 'success') {
       return createSuccessResponse(resp.data)
     }

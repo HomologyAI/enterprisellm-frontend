@@ -120,11 +120,12 @@ export class DifyClient {
         return response;
     }
 
-    messageFeedback(message_id, rating, user) {
+    messageFeedback(message_id, rating, user, appToken) {
         const data = {
             rating,
             user,
         };
+        console.log(message_id);
         return this.sendRequest(
             routes.feedback.method,
             routes.feedback.url(message_id),
@@ -132,7 +133,7 @@ export class DifyClient {
             null,
             false,
             {
-                Authorization: `Bearer ${DIFY_FEEDBACK_API_KEY || ''}`,
+                Authorization: `Bearer ${appToken || ''}`,
             }
         );
     }
