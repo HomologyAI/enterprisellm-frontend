@@ -134,7 +134,8 @@ const ChatItem = memo<ChatItemProps>(
           /filename\*?=["']?(?:UTF-\d["']*)?([^\n\r"';]*)["']?;?/g,
         );
         // 文件名称
-        const fileName = decodeURIComponent(match[1].replace(/^filename\*=UTF-8''/, ''));
+        const fileName = decodeURIComponent(match[0].replace(/filename\*?=["']?(?:UTF-\d["']*)?/g, ''));
+
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -328,31 +329,31 @@ const ChatItem = memo<ChatItemProps>(
 
 
                 return (
-                  <Flexbox align="center" className={fileItemstyles.container} horizontal key={file.id} style={{justifyContent: 'flex-end'}}>
-                      <Image
-                        alt="/file-icon/pdf.png"
-                        height={45}
-                        src={(() => {
-                          const fileExtension = getFileExtension(file.name);
+                  <Flexbox align="center" className={fileItemstyles.container} horizontal key={file.id} style={{ justifyContent: 'flex-end' }}>
+                    <Image
+                      alt="/file-icon/pdf.png"
+                      height={45}
+                      src={(() => {
+                        const fileExtension = getFileExtension(file.name);
 
-                          if (fileExtension.includes('pdf')) {
-                            return '/file-icon/pdf.png';
-                          } else if (fileExtension.includes('ppt')) {
-                            return '/file-icon/ppt.png';
-                          } else if (fileExtension.includes('doc')) {
-                            return '/file-icon/word.png';
-                          } else if (
-                            fileExtension.includes('md') ||
-                            fileExtension.includes('markdown')
-                          ) {
-                            return '/file-icon/markdown.png';
-                          } else {
-                            return '/file-icon/other.png';
-                          }
-                        })()}
-                        style={{ marginRight: '5px' }}
-                        width={35}
-                      ></Image>
+                        if (fileExtension.includes('pdf')) {
+                          return '/file-icon/pdf.png';
+                        } else if (fileExtension.includes('ppt')) {
+                          return '/file-icon/ppt.png';
+                        } else if (fileExtension.includes('doc')) {
+                          return '/file-icon/word.png';
+                        } else if (
+                          fileExtension.includes('md') ||
+                          fileExtension.includes('markdown')
+                        ) {
+                          return '/file-icon/markdown.png';
+                        } else {
+                          return '/file-icon/other.png';
+                        }
+                      })()}
+                      style={{ marginRight: '5px' }}
+                      width={35}
+                    ></Image>
                     <Flexbox className={fileItemstyles.desc} gap={4}>
                       <p>{name}</p>
                       <span>{desc}</span>
