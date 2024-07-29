@@ -1,9 +1,9 @@
 import axios from "axios";
-import {getServerConfig} from "@/config/server";
+import { getServerConfig } from "@/config/server";
 
 export const BASE_URL = "https://api.dify.ai/v1";
 
-const {DIFY_FEEDBACK_API_KEY, DIFY_UPLOAD_API_KEY} = getServerConfig()
+const { DIFY_FEEDBACK_API_KEY, DIFY_UPLOAD_API_KEY } = getServerConfig()
 
 export const routes = {
     application: {
@@ -89,8 +89,8 @@ export class DifyClient {
     ) {
         const headers = {
 
-                Authorization: `Bearer ${this.apiKey}`,
-                "Content-Type": "application/json"
+            Authorization: `Bearer ${this.apiKey}`,
+            "Content-Type": "application/json"
             ,
             ...headerParams
         };
@@ -132,7 +132,7 @@ export class DifyClient {
             null,
             false,
             {
-              Authorization: `Bearer ${DIFY_FEEDBACK_API_KEY || ''}`,
+                Authorization: `Bearer ${DIFY_FEEDBACK_API_KEY || ''}`,
             }
         );
     }
@@ -148,13 +148,13 @@ export class DifyClient {
     }
 
     getFile(document_id) {
-      return this.sendRequest(
-        routes.getFile.method,
-        routes.getFile.url(document_id),
-        null,
-        null,
-        true
-      )
+        return this.sendRequest(
+            routes.getFile.method,
+            routes.getFile.url(document_id),
+            null,
+            null,
+            true
+        )
     }
 
     fileUpload(data) {
@@ -320,11 +320,11 @@ export class FileClient extends DifyClient {
         const formData = new FormData();
         formData.append('user', params.user); // 添加键值对
         formData.append('file', params.file); // 添加文件，其中 `file` 是一个 File 对象
-
-        return axios.post(`${this.baseUrl}${routes.upload.url()}`, formData,         {
+        const appToken = params.appToken;
+        return axios.post(`${this.baseUrl}${routes.upload.url()}`, formData, {
             headers: {
-              Authorization: `Bearer ${DIFY_UPLOAD_API_KEY || ''}`,
-              "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${appToken || ''}`,
+                "Content-Type": "multipart/form-data",
             }
         })
     }

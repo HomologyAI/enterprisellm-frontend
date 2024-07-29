@@ -1,12 +1,15 @@
 import { createStyles } from 'antd-style';
 import { rgba } from 'polished';
 import { memo } from 'react';
-import {CloudUploadOutlined} from "@ant-design/icons";
-import {Button, Upload, UploadProps, Tooltip, message} from "antd";
-import {useSessionStore} from "@/store/session";
-import {sessionDifySelectors, sessionSelectors} from "@/store/session/slices/session/selectors";
+import { CloudUploadOutlined } from "@ant-design/icons";
+import { Button, Upload, UploadProps, Tooltip, message } from "antd";
+import { useSessionStore } from "@/store/session";
+import { sessionDifySelectors, sessionSelectors } from "@/store/session/slices/session/selectors";
 import isEqual from "fast-deep-equal";
-import {API_ENDPOINTS} from "@/services/_url";
+import { API_ENDPOINTS } from "@/services/_url";
+import { appsSelectors, useAppsStore } from "@/store/apps";
+
+const getApp = () => appsSelectors.currentApp(useAppsStore.getState());
 
 const useStyles = createStyles(({ css, token, stylish }) => {
   return {
@@ -73,6 +76,7 @@ const UploadButton = memo(() => {
 
   const fileList = useSessionStore(sessionDifySelectors.currentSessionFiles, isEqual);
   const { userId = '' } = sessionSelectors.currentSession(useSessionStore.getState()) || {}
+  const appToken = getApp()?.appKey;
   const updateSessionFiles = useSessionStore(s => s.updateSessionFiles);
   // const [fileList, setFileList] = useState([]);
 
@@ -88,13 +92,13 @@ const UploadButton = memo(() => {
       accept=".doc,.docx,.pdf,.txt,.xlsx,.csv,.ppt,.pptx,.md,.markdown"
       action={API_ENDPOINTS.upload}
       beforeUpload={beforeUpload}
-      data={{userId}}
+      data={{ userId, appToken }}
       maxCount={10}
       method="POST"
       multiple
       onChange={handleUploadStatusChanged}
       showUploadList={false}
-      // fileList={fileList}
+    // fileList={fileList}
     >
       <Tooltip placement="top" title="支持上传文件（最多10个，每个50MB）接受doc、docx、pdf、txt、xlsx、csv、ppt、pptx、md等">
         <Button type="text">

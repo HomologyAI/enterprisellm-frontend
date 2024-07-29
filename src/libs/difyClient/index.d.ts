@@ -1,5 +1,5 @@
 // Types.d.ts
-import {AxiosResponse} from "axios";
+import { AxiosResponse } from "axios";
 
 export const BASE_URL: string;
 
@@ -129,6 +129,7 @@ export declare class DatasetsClient extends DifyClient {
 export interface UploadFileParams {
   file: File;
   user: string;
+  appToken: string;
 }
 
 export interface UploadFileResp {
